@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+  "packages": [
+    "nodejs@24.0.1",
+    "yarn@1.22.22",
+    "supabase-cli@2.22.12",
+    "deno@2.2.12"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "shell": {
+    "init_hook": [
+      "echo 'Node.js version: $(node --version)'",
+      "echo 'Yarn version: $(yarn --version)'"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
