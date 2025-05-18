@@ -175,7 +175,6 @@ describe('WorkoutList', () => {
     );
     await waitFor(() => expect(screen.getByText('Error fetching workouts: Fetch error')).toBeInTheDocument());
   });
-});
 
 it('calls the API to delete the workout when the delete button is clicked', async () => {
   const mockWorkouts = [
@@ -286,7 +285,7 @@ it('disables the delete button while the API call is in progress', async () => {
       <WorkoutList />
     </MemoryRouter>
   );
-  await waitFor(() => {
+    await waitFor(async () => {
     const deleteButton = screen.getByText('Delete');
     fireEvent.click(deleteButton);
     expect(deleteButton).toBeDisabled();
@@ -310,7 +309,7 @@ it('displays a loading indicator during the delete operation', async () => {
       <WorkoutList />
     </MemoryRouter>
   );
-  await waitFor(() => {
+    await waitFor(async () => {
     const deleteButton = screen.getByText('Delete');
     fireEvent.click(deleteButton);
     expect(screen.getByText('Deleting...')).toBeInTheDocument();
@@ -318,7 +317,6 @@ it('displays a loading indicator during the delete operation', async () => {
   });
 });
 
-// src/components/WorkoutList/WorkoutList.test.tsx (Add Additional Tests)
 it('allows adding multiple exercises to a workout', async () => {
   const mockWorkouts = [
     {
@@ -379,9 +377,7 @@ it('displays details of each exercise within a workout', async () => {
 it('validates the format of the workout date', async () => {
   render(
     <MemoryRouter initialEntries={['/create']}>
-      <Routes>
-        <Route path="/create" element={<CreateWorkout />} />
-      </Routes>
+        <CreateWorkout />
     </MemoryRouter>
   );
   const dateInput = screen.getByLabelText('Date');
@@ -393,9 +389,7 @@ it('validates the format of the workout date', async () => {
 it('validates that the workout duration is a number', async () => {
   render(
     <MemoryRouter initialEntries={['/create']}>
-      <Routes>
-        <Route path="/create" element={<CreateWorkout />} />
-      </Routes>
+        <CreateWorkout />
     </MemoryRouter>
   );
   const durationInput = screen.getByLabelText('Duration');
@@ -470,4 +464,5 @@ it('displays a summary of workout statistics', async () => {
     expect(screen.getByText('Total Workouts: 2')).toBeInTheDocument();
     expect(screen.getByText('Average Sets: 3')).toBeInTheDocument();
   });
+});
 });

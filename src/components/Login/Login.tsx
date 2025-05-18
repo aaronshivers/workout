@@ -14,6 +14,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
+    try {
     const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -31,7 +32,11 @@ const Login: React.FC = () => {
       setPassword('');
       navigate('/');
     }
+    } catch (err) {
+      setError(`Login failed: ${(err as Error).message}`);
+    } finally {
     setIsLoading(false);
+    }
   };
 
   return (

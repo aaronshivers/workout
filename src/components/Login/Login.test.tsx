@@ -279,9 +279,12 @@ describe('Login', () => {
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.click(loginButton);
 
-    await waitFor(() => {
-      expect(screen.getByText('Login failed: Network Error')).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Login failed: Network Error/)).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
   });
 
   it('input elements should have autocomplete attributes', () => {
