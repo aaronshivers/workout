@@ -15,37 +15,35 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-    const { error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-    if (authError) {
-      setError(`Login failed: ${authError.message}`);
-    } else {
-      await supabase.auth.refreshSession();
-      const { data: session } = await supabase.auth.getSession();
-      if (session?.session?.access_token) {
-        localStorage.setItem('supabase.auth.token', session.session.access_token);
+      if (error) {
+        setError(error.message);
+        setIsLoading(false);
+        return;
       }
+
+      if (data.session) {
+        localStorage.setItem('supabase.auth.token', data.session.access_token);
       setEmail('');
       setPassword('');
+        setIsLoading(false);
       navigate('/');
     }
     } catch (err) {
-      setError(`Login failed: ${(err as Error).message}`);
-    } finally {
+      setError('Network error');
     setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleLogin}>
-          <div className="mb-4">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
@@ -54,7 +52,7 @@ const Login: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
               autoComplete="username"
             />
@@ -68,26 +66,22 @@ const Login: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
               autoComplete="current-password"
             />
           </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 mb-2 disabled:bg-gray-400"
+          className={`w-full py-2 px-4 rounded-md text-white font-semibold ${
+            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+          }`}
           >
-            {isLoading ? 'Logging In...' : 'Log In'}
-          </button>
-          <button
-            type="button"
-            className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
-          >
-            Sign Up
+          {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-      </div>
     </div>
   );
 };

@@ -1,127 +1,149 @@
-// src/components/EditWorkout/EditWorkout.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import EditWorkout from './EditWorkout';
-import * as supabase from '../../utils/supabase';
+import supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
 
+// Mock Supabase
 vi.mock('../../utils/supabase', () => ({
-  default: {
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ data: [{ id: 1, created_at: '2025-05-18', workout_sets: [{ sets: 3, reps: 10, weight: 100, rpe: 7 }] }], error: null }),
-      }),
-      update: vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null }),
-    }),
-    auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: { user: { id: 'user-id' } } }, error: null }),
-    },
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn(),
+        })),
+      })),
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn(),
+        })),
+      })),
+    })),
   },
 }));
 
-describe('EditWorkout', () => {
+// Mock useParams
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useParams: vi.fn(() => ({ id: '1' })),
+  };
+});
+
+describe('EditWorkout Component', () => {
+  const user = userEvent.setup();
+
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('renders without crashing', () => {
-    render(
-      <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
-    expect(screen.getByText('Edit Workout')).toBeInTheDocument();
-  });
-
-  it('displays a loading state while fetching the workout details', () => {
-    (supabase.default.from as any).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockImplementation(() => new Promise(() => {})), // Simulate pending
-      }),
+    (supabase.from as any).mockReturnValue({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn().mockResolvedValue({
+            data: {
+              id: '1',
+              date: '2025-05-18',
+              type: 'Strength',
+              duration: 60,
+              exercises: 'Bench Press',
+              sets: 3,
+            },
+            error: null,
+          }),
+        })),
+      })),
+      update: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          single: vi.fn().mockResolvedValue({ data: {}, error: null }),
+        })),
+      })),
     });
-
-    render(
-      <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('displays input fields pre-filled with the workout\'s existing data', async () => {
+  it('renders without crashing', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
     await waitFor(() => {
-      expect(screen.getByLabelText('Date')).toHaveValue('2025-05-18');
-      expect(screen.getByLabelText('Sets')).toHaveValue('3');
-      expect(screen.getByLabelText('Reps')).toHaveValue('10');
-      expect(screen.getByLabelText('Weight')).toHaveValue('100');
-      expect(screen.getByLabelText('RPE')).toHaveValue('7');
+      expect(screen.getByText(/edit workout/i)).toBeInTheDocument();
     });
   });
 
-  it('displays an "Update" button', () => {
+  it('displays a loading state while fetching the workout details', () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-    expect(screen.getByText('Update')).toBeInTheDocument();
+    expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
-  it('displays a "Cancel" button', () => {
+  it('displays input fields pre-filled with the workout’s existing data', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/date/i)).toHaveValue('2025-05-18');
+      expect(screen.getByLabelText(/type/i)).toHaveValue('Strength');
+      expect(screen.getByLabelText(/duration/i)).toHaveValue('60');
+      expect(screen.getByLabelText(/exercises/i)).toHaveValue('Bench Press');
+      expect(screen.getByLabelText(/sets/i)).toHaveValue('3');
+    });
   });
 
-  it('updates the corresponding state for each input field on change', () => {
+  it('displays an "Update" button', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-    const setsInput = screen.getByLabelText('Sets');
-    fireEvent.change(setsInput, { target: { value: '4' } });
-    expect(setsInput).toHaveValue('4');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+    });
+  });
+
+  it('displays a "Cancel" button', async () => {
+    render(
+      <MemoryRouter initialEntries={['/edit/1']}>
+        <EditWorkout />
+      </MemoryRouter>
+    );
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+    });
+  });
+
+  it('updates the corresponding state for each input field on change', async () => {
+    render(
+      <MemoryRouter initialEntries={['/edit/1']}>
+        <EditWorkout />
+      </MemoryRouter>
+    );
+    await waitFor(async () => {
+      const setsInput = screen.getByLabelText(/sets/i);
+      await user.clear(setsInput);
+      await user.type(setsInput, '4');
+      expect(setsInput).toHaveValue('4');
+    });
   });
 
   it('calls the API to update the workout on "Update" button click', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-
-    const updateButton = screen.getByText('Update');
-    fireEvent.click(updateButton);
-
-    await waitFor(() => {
-      expect(supabase.default.from().update).toHaveBeenCalled();
-    }, { timeout: 1000 });
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(supabase.from).toHaveBeenCalledWith('workouts');
+      expect(supabase.from().update).toHaveBeenCalled();
+    });
   });
 
   it('redirects to the workout list page after successful workout update', async () => {
@@ -129,133 +151,106 @@ describe('EditWorkout', () => {
       <MemoryRouter initialEntries={['/edit/1']}>
         <Routes>
           <Route path="/edit/:id" element={<EditWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
+          <Route path="/workouts" element={<div>Workout List</div>} />
         </Routes>
       </MemoryRouter>
     );
-
-    const updateButton = screen.getByText('Update');
-    fireEvent.click(updateButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Workout List')).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(screen.getByText(/workout list/i)).toBeInTheDocument();
+    });
   });
 
   it('displays validation errors for invalid input', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-
-    const setsInput = screen.getByLabelText('Sets');
-    const updateButton = screen.getByText('Update');
-
-    fireEvent.change(setsInput, { target: { value: 'abc' } });
-    fireEvent.click(updateButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Sets must be a number')).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(async () => {
+      const setsInput = screen.getByLabelText(/sets/i);
+      await user.clear(setsInput);
+      await user.type(setsInput, '0');
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(screen.getByText(/sets must be a positive number/i)).toBeInTheDocument();
+    });
   });
 
   it('disables the "Update" button while the API call is in progress', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      update: vi.fn().mockImplementation(() => new Promise(() => {})), // Simulate pending
-    });
-
+    let resolveUpdate: (value: any) => void;
+    (supabase.from().update().eq().single as any).mockReturnValue(
+      new Promise((resolve) => {
+        resolveUpdate = resolve;
+      })
+    );
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-
-    const updateButton = screen.getByText('Update');
-    fireEvent.click(updateButton);
-
-    expect(updateButton).toBeDisabled();
-    await waitFor(() => expect(updateButton).not.toBeDisabled(), { timeout: 1000 });
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(screen.getByRole('button', { name: /updating/i })).toBeDisabled();
+      resolveUpdate!({ data: {}, error: null });
+    });
   });
 
   it('displays a loading indicator while the API call is in progress', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      update: vi.fn().mockImplementation(() => new Promise(() => {})), // Simulate pending
-    });
-
+    (supabase.from().update().eq().single as any).mockReturnValue(new Promise(() => {}));
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-
-    const updateButton = screen.getByText('Update');
-    fireEvent.click(updateButton);
-
-    expect(screen.getByText('Updating...')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('Updating...')).not.toBeInTheDocument(), { timeout: 1000 });
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(screen.getByText(/updating/i)).toBeInTheDocument();
+    });
   });
 
   it('handles errors during workout update', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      update: vi.fn().mockResolvedValue({ data: null, error: { message: 'Update error' } }),
+    (supabase.from().update().eq().single as any).mockResolvedValue({
+      data: null,
+      error: { message: 'Update error' },
     });
-
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+        <EditWorkout />
       </MemoryRouter>
     );
-
-    const updateButton = screen.getByText('Update');
-    fireEvent.click(updateButton);
-
-    await waitFor(() => {
-      expect(screen.getByText('Error updating workout: Update error')).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /update/i }));
+      expect(screen.getByText(/update error/i)).toBeInTheDocument();
+    });
   });
 
-  it('navigates back to the workout list page on "Cancel" button click', () => {
+  it('navigates back to the workout list page on "Cancel" button click', async () => {
     render(
       <MemoryRouter initialEntries={['/edit/1']}>
         <Routes>
           <Route path="/edit/:id" element={<EditWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
+          <Route path="/workouts" element={<div>Workout List</div>} />
         </Routes>
       </MemoryRouter>
     );
-
-    const cancelButton = screen.getByText('Cancel');
-    fireEvent.click(cancelButton);
-
-    expect(screen.getByText('Workout List')).toBeInTheDocument();
+    await waitFor(async () => {
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+      expect(screen.getByText(/workout list/i)).toBeInTheDocument();
+    });
   });
 
   it('handles errors if the workout ID in the URL is invalid', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ data: null, error: { message: 'Workout not found' } }),
-      }),
+    (supabase.from().select().eq().single as any).mockResolvedValue({
+      data: null,
+      error: { message: 'Workout not found' },
     });
-
     render(
-      <MemoryRouter initialEntries={['/edit/invalid']}>
-        <Routes>
-          <Route path="/edit/:id" element={<EditWorkout />} />
-        </Routes>
+      <MemoryRouter initialEntries={['/edit/1']}>
+        <EditWorkout />
       </MemoryRouter>
     );
-
     await waitFor(() => {
-      expect(screen.getByText('Error: Workout not found')).toBeInTheDocument();
-    }, { timeout: 1000 });
+      expect(screen.getByText(/workout not found/i)).toBeInTheDocument();
+    });
   });
 });

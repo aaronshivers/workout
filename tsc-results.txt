@@ -1,104 +1,560 @@
-src/components/CreateWorkout/CreateWorkout.test.tsx(6,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
-src/components/CreateWorkout/CreateWorkout.test.tsx(15,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(22,3): error TS2304: Cannot find name 'beforeEach'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(33,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(35,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(38,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(40,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(41,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(42,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(43,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(46,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(48,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(51,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(53,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(56,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(64,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(65,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(66,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(67,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(70,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(81,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(82,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(86,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(97,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(101,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(110,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(111,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(115,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(125,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(128,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(138,5): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(141,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(154,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(158,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(169,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(170,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(171,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(172,7): error TS2304: Cannot find name 'expect'.
-src/components/CreateWorkout/CreateWorkout.test.tsx(176,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-src/components/CreateWorkout/CreateWorkout.test.tsx(181,5): error TS2304: Cannot find name 'expect'.
-src/components/DataFetcher.tsx(1,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
-src/components/DataFetcher.tsx(2,35): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
-src/components/EditWorkout/EditWorkout.test.tsx(123,31): error TS2554: Expected 1 arguments, but got 0.
-src/components/EditWorkout/EditWorkout.tsx(3,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
-src/components/EditWorkout/EditWorkout.tsx(4,1): error TS6192: All imports in import declaration are unused.
-src/components/EditWorkout/EditWorkout.tsx(4,35): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
-src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(33,9): error TS2322: Type '{ exerciseId: null; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m6[0m:[93m10[0m - [91merror[0m[90m TS2614: [0mModule '"../../utils/supabase"' has no exported member 'supabase'. Did you mean to use 'import supabase from "../../utils/supabase"' instead?
+
+[7m6[0m import { supabase } from '../../utils/supabase';
+[7m [0m [91m         ~~~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m15[0m:[93m1[0m - [91merror[0m[90m TS2582: [0mCannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m15[0m describe('CreateWorkout', () => {
+[7m  [0m [91m~~~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m22[0m:[93m3[0m - [91merror[0m[90m TS2304: [0mCannot find name 'beforeEach'.
+
+[7m22[0m   beforeEach(() => {
+[7m  [0m [91m  ~~~~~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m32[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m32[0m   it('renders without crashing', () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m34[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m34[0m     expect(screen.getByText(/Create Workout/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m37[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m37[0m   it('displays input fields for workout details', () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m39[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m39[0m     expect(screen.getByLabelText(/Date/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m40[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m40[0m     expect(screen.getByLabelText(/Type/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m41[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m41[0m     expect(screen.getByLabelText(/Duration/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m42[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m42[0m     expect(screen.getByLabelText(/Exercises/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m45[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m45[0m   it('displays a "Save" button', () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m47[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m47[0m     expect(screen.getByText(/Save/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m50[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m50[0m   it('displays a "Cancel" button', () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m52[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m52[0m     expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m55[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m55[0m   it('updates the corresponding state for each input field on change', async () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m63[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m63[0m     expect(screen.getByLabelText(/Date/i)).toHaveValue('2025-05-18');
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m64[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m64[0m     expect(screen.getByLabelText(/Type/i)).toHaveValue('Strength');
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m65[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m65[0m     expect(screen.getByLabelText(/Duration/i)).toHaveValue('60');
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m66[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m66[0m     expect(screen.getByLabelText(/Exercises/i)).toHaveValue('Bench Press');
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m69[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m69[0m   it('calls the API to create a new workout on "Save" button click', async () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m80[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m80[0m       expect(supabase.from).toHaveBeenCalledWith('workouts');
+[7m  [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m81[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m81[0m       expect(supabase.insert).toHaveBeenCalled();
+[7m  [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m85[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m85[0m   it('redirects to the workout list page after successful workout creation', async () => {
+[7m  [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m96[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m96[0m       expect(mockNavigate).toHaveBeenCalledWith('/workouts');
+[7m  [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m100[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m100[0m   it('displays validation errors for invalid input', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m109[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m109[0m       expect(screen.getByText(/Invalid date format/i)).toBeInTheDocument();
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m110[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m110[0m       expect(screen.getByText(/Duration must be a number/i)).toBeInTheDocument();
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m114[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m114[0m   it('disables the "Save" button while the API call is in progress', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m124[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m124[0m     expect(screen.getByText(/Saving.../i).closest('button')).toBeDisabled();
+[7m   [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m127[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m127[0m   it('displays a loading indicator while the API call is in progress', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m137[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m137[0m     expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
+[7m   [0m [91m    ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m140[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m140[0m   it('handles errors during workout creation', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m153[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m153[0m       expect(screen.getByText(/Error creating workout/i)).toBeInTheDocument();
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m157[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m157[0m   it('clears the input fields after successful workout creation', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m168[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m168[0m       expect(screen.getByLabelText(/Date/i)).toHaveValue('');
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m169[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m169[0m       expect(screen.getByLabelText(/Type/i)).toHaveValue('');
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m170[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m170[0m       expect(screen.getByLabelText(/Duration/i)).toHaveValue('');
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m171[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m171[0m       expect(screen.getByLabelText(/Exercises/i)).toHaveValue('');
+[7m   [0m [91m      ~~~~~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m175[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+
+[7m175[0m   it('navigates back to the workout list page on "Cancel" button click', async () => {
+[7m   [0m [91m  ~~[0m
+
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m180[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+
+[7m180[0m     expect(mockNavigate).toHaveBeenCalledWith('/workouts');
+[7m   [0m [91m    ~~~~~~[0m
+
+[96msrc/components/DataFetcher.tsx[0m:[93m1[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../lib/supabase' or its corresponding type declarations.
+
+[7m1[0m import { supabase } from '../../lib/supabase';
+[7m [0m [91m                         ~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/DataFetcher.tsx[0m:[93m2[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../types/supabase' or its corresponding type declarations.
+
+[7m2[0m import { Database } from '../../types/supabase';
+[7m [0m [91m                         ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m145[0m:[93m23[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m145[0m       expect(supabase.from().update).toHaveBeenCalled();
+[7m   [0m [91m                      ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m181[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m181[0m     (supabase.from().update().eq().single as any).mockReturnValue(
+[7m   [0m [91m              ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m181[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
+
+[7m181[0m     (supabase.from().update().eq().single as any).mockReturnValue(
+[7m   [0m [91m                     ~~~~~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m91[0m:[93m37[0m
+    [7m91[0m     } ? Relation['Update'] : never>(values: Row, { count, }?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m181[0m:[93m31[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 0.
+
+[7m181[0m     (supabase.from().update().eq().single as any).mockReturnValue(
+[7m   [0m [91m                              ~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestFilterBuilder.d.ts[0m:[93m17[0m:[93m35[0m
+    [7m17[0m     eq<ColumnName extends string>(column: ColumnName, value: ResolveFilterValue<Schema, Row, ColumnName> extends never ? NonNullable<unknown> : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue ? NonNullable<ResolvedFilterValue> : never): this;
+    [7m  [0m [96m                                  ~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'column' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m199[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m199[0m     (supabase.from().update().eq().single as any).mockReturnValue(new Promise(() => {}));
+[7m   [0m [91m              ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m199[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
+
+[7m199[0m     (supabase.from().update().eq().single as any).mockReturnValue(new Promise(() => {}));
+[7m   [0m [91m                     ~~~~~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m91[0m:[93m37[0m
+    [7m91[0m     } ? Relation['Update'] : never>(values: Row, { count, }?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m199[0m:[93m31[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 0.
+
+[7m199[0m     (supabase.from().update().eq().single as any).mockReturnValue(new Promise(() => {}));
+[7m   [0m [91m                              ~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestFilterBuilder.d.ts[0m:[93m17[0m:[93m35[0m
+    [7m17[0m     eq<ColumnName extends string>(column: ColumnName, value: ResolveFilterValue<Schema, Row, ColumnName> extends never ? NonNullable<unknown> : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue ? NonNullable<ResolvedFilterValue> : never): this;
+    [7m  [0m [96m                                  ~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'column' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m212[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m212[0m     (supabase.from().update().eq().single as any).mockResolvedValue({
+[7m   [0m [91m              ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m212[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
+
+[7m212[0m     (supabase.from().update().eq().single as any).mockResolvedValue({
+[7m   [0m [91m                     ~~~~~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m91[0m:[93m37[0m
+    [7m91[0m     } ? Relation['Update'] : never>(values: Row, { count, }?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m212[0m:[93m31[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 0.
+
+[7m212[0m     (supabase.from().update().eq().single as any).mockResolvedValue({
+[7m   [0m [91m                              ~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestFilterBuilder.d.ts[0m:[93m17[0m:[93m35[0m
+    [7m17[0m     eq<ColumnName extends string>(column: ColumnName, value: ResolveFilterValue<Schema, Row, ColumnName> extends never ? NonNullable<unknown> : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue ? NonNullable<ResolvedFilterValue> : never): this;
+    [7m  [0m [96m                                  ~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'column' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m243[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m243[0m     (supabase.from().select().eq().single as any).mockResolvedValue({
+[7m   [0m [91m              ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.test.tsx[0m:[93m243[0m:[93m31[0m - [91merror[0m[90m TS2554: [0mExpected 2 arguments, but got 0.
+
+[7m243[0m     (supabase.from().select().eq().single as any).mockResolvedValue({
+[7m   [0m [91m                              ~~[0m
+
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestFilterBuilder.d.ts[0m:[93m17[0m:[93m35[0m
+    [7m17[0m     eq<ColumnName extends string>(column: ColumnName, value: ResolveFilterValue<Schema, Row, ColumnName> extends never ? NonNullable<unknown> : ResolveFilterValue<Schema, Row, ColumnName> extends infer ResolvedFilterValue ? NonNullable<ResolvedFilterValue> : never): this;
+    [7m  [0m [96m                                  ~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'column' was not provided.
+
+[96msrc/components/EditWorkout/EditWorkout.tsx[0m:[93m35[0m:[93m21[0m - [91merror[0m[90m TS2345: [0mArgument of type 'string' is not assignable to parameter of type 'number'.
+
+[7m35[0m           .eq('id', id)
+[7m  [0m [91m                    ~~[0m
+
+[96msrc/components/EditWorkout/EditWorkout.tsx[0m:[93m42[0m:[93m20[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ id: number; user_id: string | null; created_at: string | null; }' is not assignable to parameter of type 'SetStateAction<Workout | null>'.
+  Type '{ id: number; user_id: string | null; created_at: string | null; }' is missing the following properties from type 'Workout': date, type, duration, exercises, sets
+
+[7m42[0m         setWorkout(data);
+[7m  [0m [91m                   ~~~~[0m
+
+[96msrc/components/EditWorkout/EditWorkout.tsx[0m:[93m75[0m:[93m11[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'date' does not exist in type '{ id?: number | undefined; user_id?: string | null | undefined; created_at?: string | null | undefined; }'.
+
+[7m75[0m           date: workout.date,
+[7m  [0m [91m          ~~~~[0m
+
+[96msrc/components/EditWorkout/EditWorkout.tsx[0m:[93m81[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'string | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+
+[7m81[0m         .eq('id', id)
+[7m  [0m [91m                  ~~[0m
+
+[96msrc/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx[0m:[93m33[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ exerciseId: null; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
   Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.
-src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(61,9): error TS2322: Type '{ exerciseId: number; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+
+[7m33[0m         exerciseId={null}
+[7m  [0m [91m        ~~~~~~~~~~[0m
+
+[96msrc/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx[0m:[93m61[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ exerciseId: number; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
   Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.
-src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(71,21): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m61[0m         exerciseId={1}
+[7m  [0m [91m        ~~~~~~~~~~[0m
+
+[96msrc/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx[0m:[93m71[0m:[93m21[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/ProgressionSuggestion/ProgressionSuggestion.tsx(2,28): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(4,1): error TS6133: 'supabase' is declared but its value is never read.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(50,28): error TS2322: Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
+
+[7m71[0m       expect(within(suggestionBox).getByText('RPE is low. Consider increasing weight.')).toBeInTheDocument();
+[7m  [0m [91m                    ~~~~~~~~~~~~~[0m
+
+[96msrc/components/ProgressionSuggestion/ProgressionSuggestion.tsx[0m:[93m2[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../types' or its corresponding type declarations.
+
+[7m2[0m import { WorkoutSet } from '../../types';
+[7m [0m [91m                           ~~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m4[0m:[93m1[0m - [91merror[0m[90m TS6133: [0m'supabase' is declared but its value is never read.
+
+[7m4[0m import * as supabase from '../../utils/supabase';
+[7m [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m50[0m:[93m28[0m - [91merror[0m[90m TS2322: [0mType '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
   Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type 'Workout'.
     Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type '{ workout_sets: WorkoutSet[]; }'.
       Types of property 'workout_sets' are incompatible.
         Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]' is not assignable to type 'WorkoutSet[]'.
           Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is not assignable to type 'WorkoutSet'.
             Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is missing the following properties from type '{ id: number; workout_id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; created_at: string | null; }': workout_id, created_at
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(65,28): error TS2322: Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
+
+[7m50[0m     render(<WorkoutHistory workouts={workouts} muscleGroups={muscleGroups} />);
+[7m  [0m [91m                           ~~~~~~~~[0m
+
+  [96msrc/components/WorkoutHistory/WorkoutHistory.tsx[0m:[93m17[0m:[93m3[0m
+    [7m17[0m   workouts: Workout[];
+    [7m  [0m [96m  ~~~~~~~~[0m
+    The expected type comes from property 'workouts' which is declared here on type 'IntrinsicAttributes & WorkoutHistoryProps'
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m65[0m:[93m28[0m - [91merror[0m[90m TS2322: [0mType '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
   Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type 'Workout'.
     Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type '{ workout_sets: WorkoutSet[]; }'.
       Types of property 'workout_sets' are incompatible.
         Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]' is not assignable to type 'WorkoutSet[]'.
           Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is not assignable to type 'WorkoutSet'.
             Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is missing the following properties from type '{ id: number; workout_id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; created_at: string | null; }': workout_id, created_at
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(67,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m65[0m     render(<WorkoutHistory workouts={workouts} muscleGroups={muscleGroups} />);
+[7m  [0m [91m                           ~~~~~~~~[0m
+
+  [96msrc/components/WorkoutHistory/WorkoutHistory.tsx[0m:[93m17[0m:[93m3[0m
+    [7m17[0m   workouts: Workout[];
+    [7m  [0m [96m  ~~~~~~~~[0m
+    The expected type comes from property 'workouts' which is declared here on type 'IntrinsicAttributes & WorkoutHistoryProps'
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m67[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(68,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m67[0m     expect(within(workoutEntry).getByText('2025-05-18')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m68[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(69,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m68[0m     expect(within(workoutEntry).getByText('Bench Press')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m69[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(70,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m69[0m     expect(within(workoutEntry).getByText('3')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m70[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(71,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m70[0m     expect(within(workoutEntry).getByText('10')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m71[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.test.tsx(72,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+
+[7m71[0m     expect(within(workoutEntry).getByText('100')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.test.tsx[0m:[93m72[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
   Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
-src/components/WorkoutHistory/WorkoutHistory.tsx(21,68): error TS6133: 'muscleGroups' is declared but its value is never read.
-src/components/WorkoutHistory/WorkoutHistory.tsx(38,48): error TS2769: No overload matches this call.
+
+[7m72[0m     expect(within(workoutEntry).getByText('7')).toBeInTheDocument();
+[7m  [0m [91m                  ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.tsx[0m:[93m21[0m:[93m68[0m - [91merror[0m[90m TS6133: [0m'muscleGroups' is declared but its value is never read.
+
+[7m21[0m const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({ workouts, muscleGroups }) => {
+[7m  [0m [91m                                                                   ~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutHistory/WorkoutHistory.tsx[0m:[93m38[0m:[93m48[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
   Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
     Argument of type 'string | null' is not assignable to parameter of type 'string | number | Date'.
       Type 'null' is not assignable to type 'string | number | Date'.
   Overload 2 of 4, '(value: string | number): Date', gave the following error.
     Argument of type 'string | null' is not assignable to parameter of type 'string | number'.
       Type 'null' is not assignable to type 'string | number'.
-src/components/WorkoutList/WorkoutList.test.tsx(160,31): error TS2554: Expected 1 arguments, but got 0.
-src/components/WorkoutList/WorkoutList.test.tsx(198,29): error TS2554: Expected 1 arguments, but got 0.
-src/components/WorkoutList/WorkoutList.test.tsx(221,29): error TS2554: Expected 1 arguments, but got 0.
-src/components/WorkoutList/WorkoutList.test.tsx(380,10): error TS2304: Cannot find name 'CreateWorkout'.
-src/components/WorkoutList/WorkoutList.test.tsx(392,10): error TS2304: Cannot find name 'CreateWorkout'.
-src/components/WorkoutList/WorkoutList.tsx(4,25): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
-src/components/WorkoutList/WorkoutList.tsx(84,29): error TS7006: Parameter 'set' implicitly has an 'any' type.
-src/components/WorkoutTracker.tsx(9,8): error TS1192: Module '"/Users/aaron/repos/workout/src/components/DataFetcher"' has no default export.
-src/components/WorkoutTracker.tsx(118,17): error TS2322: Type 'Dispatch<SetStateAction<Workout[]>>' is not assignable to type 'Dispatch<SetStateAction<{ id: number; user_id: string | null; created_at: string | null; }[]>>'.
+
+[7m38[0m               <strong>Date:</strong> {new Date(workout.created_at).toISOString().split('T')[0]}
+[7m  [0m [91m                                               ~~~~~~~~~~~~~~~~~~[0m
+
+
+[96msrc/components/WorkoutList/WorkoutList.test.tsx[0m:[93m160[0m:[93m31[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m160[0m       expect(supabase.default.from().select).toHaveBeenCalled();
+[7m   [0m [91m                              ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/WorkoutList/WorkoutList.test.tsx[0m:[93m198[0m:[93m29[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m198[0m     expect(supabase.default.from().delete).toHaveBeenCalledWith({ id: 1 });
+[7m   [0m [91m                            ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/WorkoutList/WorkoutList.test.tsx[0m:[93m221[0m:[93m29[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
+
+[7m221[0m     expect(supabase.default.from().select).toHaveBeenCalledTimes(2); // Once on mount, once after delete
+[7m   [0m [91m                            ~~~~[0m
+
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
+
+[96msrc/components/WorkoutList/WorkoutList.test.tsx[0m:[93m380[0m:[93m10[0m - [91merror[0m[90m TS2304: [0mCannot find name 'CreateWorkout'.
+
+[7m380[0m         <CreateWorkout />
+[7m   [0m [91m         ~~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutList/WorkoutList.test.tsx[0m:[93m392[0m:[93m10[0m - [91merror[0m[90m TS2304: [0mCannot find name 'CreateWorkout'.
+
+[7m392[0m         <CreateWorkout />
+[7m   [0m [91m         ~~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutList/WorkoutList.tsx[0m:[93m4[0m:[93m25[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../types' or its corresponding type declarations.
+
+[7m4[0m import { Workout } from '../../types';
+[7m [0m [91m                        ~~~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutList/WorkoutList.tsx[0m:[93m84[0m:[93m29[0m - [91merror[0m[90m TS7006: [0mParameter 'set' implicitly has an 'any' type.
+
+[7m84[0m                       .map((set) => set.exercises?.name)
+[7m  [0m [91m                            ~~~[0m
+
+[96msrc/components/WorkoutTracker.tsx[0m:[93m9[0m:[93m8[0m - [91merror[0m[90m TS1192: [0mModule '"/Users/aaron/repos/workout/src/components/DataFetcher"' has no default export.
+
+[7m9[0m import DataFetcher from './DataFetcher';
+[7m [0m [91m       ~~~~~~~~~~~[0m
+
+[96msrc/components/WorkoutTracker.tsx[0m:[93m118[0m:[93m17[0m - [91merror[0m[90m TS2322: [0mType 'Dispatch<SetStateAction<Workout[]>>' is not assignable to type 'Dispatch<SetStateAction<{ id: number; user_id: string | null; created_at: string | null; }[]>>'.
   Type 'SetStateAction<{ id: number; user_id: string | null; created_at: string | null; }[]>' is not assignable to type 'SetStateAction<Workout[]>'.
     Type '{ id: number; user_id: string | null; created_at: string | null; }[]' is not assignable to type 'SetStateAction<Workout[]>'.
       Type '{ id: number; user_id: string | null; created_at: string | null; }[]' is not assignable to type 'Workout[]'.
         Type '{ id: number; user_id: string | null; created_at: string | null; }' is not assignable to type 'Workout'.
           Property 'workout_sets' is missing in type '{ id: number; user_id: string | null; created_at: string | null; }' but required in type '{ workout_sets: WorkoutSet[]; }'.
-src/components/WorkoutTracker.tsx(122,11): error TS2322: Type '{ exerciseId: number | null; sets: number; weight: number; setWeight: Dispatch<SetStateAction<number>>; setSets: Dispatch<SetStateAction<number>>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+
+[7m118[0m                 setWorkouts={setWorkouts}
+[7m   [0m [91m                ~~~~~~~~~~~[0m
+
+  [96msrc/components/WorkoutTracker.tsx[0m:[93m23[0m:[93m3[0m
+    [7m23[0m   workout_sets: WorkoutSet[];
+    [7m  [0m [96m  ~~~~~~~~~~~~[0m
+    'workout_sets' is declared here.
+  [96msrc/components/WorkoutLogger/WorkoutLogger.tsx[0m:[93m12[0m:[93m3[0m
+    [7m12[0m   setWorkouts: React.Dispatch<React.SetStateAction<Database['public']['Tables']['workouts']['Row'][]>>;
+    [7m  [0m [96m  ~~~~~~~~~~~[0m
+    The expected type comes from property 'setWorkouts' which is declared here on type 'IntrinsicAttributes & WorkoutLoggerProps'
+
+[96msrc/components/WorkoutTracker.tsx[0m:[93m122[0m:[93m11[0m - [91merror[0m[90m TS2322: [0mType '{ exerciseId: number | null; sets: number; weight: number; setWeight: Dispatch<SetStateAction<number>>; setSets: Dispatch<SetStateAction<number>>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
   Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+
+[7m122[0m           exerciseId={exerciseId}
+[7m   [0m [91m          ~~~~~~~~~~[0m
+
+
+Found 83 errors in 11 files.
+
+Errors  Files
+    40  src/components/CreateWorkout/CreateWorkout.test.tsx[90m:6[0m
+     2  src/components/DataFetcher.tsx[90m:1[0m
+    12  src/components/EditWorkout/EditWorkout.test.tsx[90m:145[0m
+     4  src/components/EditWorkout/EditWorkout.tsx[90m:35[0m
+     3  src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx[90m:33[0m
+     1  src/components/ProgressionSuggestion/ProgressionSuggestion.tsx[90m:2[0m
+     9  src/components/WorkoutHistory/WorkoutHistory.test.tsx[90m:4[0m
+     2  src/components/WorkoutHistory/WorkoutHistory.tsx[90m:21[0m
+     5  src/components/WorkoutList/WorkoutList.test.tsx[90m:160[0m
+     2  src/components/WorkoutList/WorkoutList.tsx[90m:4[0m
+     3  src/components/WorkoutTracker.tsx[90m:9[0m

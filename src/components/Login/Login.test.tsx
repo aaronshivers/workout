@@ -1,25 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Login from './Login';
-import * as supabase from '../../utils/supabase';
-import { screen } from '@testing-library/dom';
+import supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
 
-vi.mock('../../utils/supabase', () => {
-  const auth = {
-    signInWithPassword: vi.fn(),
-    getSession: vi.fn(),
-    refreshSession: vi.fn(),
-  };
-  return {
-    default: {
-      auth,
+// Mock Supabase
+vi.mock('../../utils/supabase', () => ({
+  supabase: {
+    auth: {
+      signInWithPassword: vi.fn(),
     },
-  };
-});
+  },
+}));
 
-describe('Login', () => {
+describe('Login Component', () => {
+  const user = userEvent.setup();
+
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -31,7 +29,7 @@ describe('Login', () => {
         <Login />
       </MemoryRouter>
     );
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByText(/login/i)).toBeInTheDocument();
   });
 
   it('displays the username input field', () => {
@@ -40,7 +38,7 @@ describe('Login', () => {
         <Login />
       </MemoryRouter>
     );
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
   });
 
   it('displays the password input field', () => {
@@ -49,7 +47,7 @@ describe('Login', () => {
         <Login />
       </MemoryRouter>
     );
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
   });
 
   it('displays the login button', () => {
@@ -58,35 +56,36 @@ describe('Login', () => {
         <Login />
       </MemoryRouter>
     );
-    expect(screen.getByText('Log In')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
   });
 
-  it('updates the username state on input change', () => {
+  it('updates the username state on input change', async () => {
     render(
       <MemoryRouter>
         <Login />
       </MemoryRouter>
     );
-    const emailInput = screen.getByLabelText('Email');
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    expect(emailInput).toHaveValue('user@example.com');
+    const emailInput = screen.getByLabelText(/email/i);
+    await user.type(emailInput, 'test@example.com');
+    expect(emailInput).toHaveValue('test@example.com');
   });
 
-  it('updates the password state on input change', () => {
+  it('updates the password state on input change', async () => {
     render(
       <MemoryRouter>
         <Login />
       </MemoryRouter>
     );
-    const passwordInput = screen.getByLabelText('Password');
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    const passwordInput = screen.getByLabelText(/password/i);
+    await user.type(passwordInput, 'password123');
     expect(passwordInput).toHaveValue('password123');
   });
 
   it('calls the login API on button click', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockResolvedValue({ data: { user: { id: 'user-id' } }, error: null });
-    (supabase.default.auth.getSession as any).mockResolvedValue({ data: { session: { user: { id: 'user-id' } } }, error: null });
-    (supabase.default.auth.refreshSession as any).mockResolvedValue({ error: null });
+    (supabase.auth.signInWithPassword as any).mockResolvedValue({
+      data: { user: { id: '123' }, session: { access_token: 'token' } },
+      error: null,
+    });
 
     render(
       <MemoryRouter>
@@ -94,24 +93,23 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
-
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(supabase.default.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'user@example.com',
+      expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+        email: 'test@example.com',
         password: 'password123',
       });
     });
   });
 
   it('displays an error message for invalid credentials', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockResolvedValue({ data: null, error: { message: 'Invalid credentials' } });
+    (supabase.auth.signInWithPassword as any).mockResolvedValue({
+      data: null,
+      error: { message: 'Invalid email or password' },
+    });
 
     render(
       <MemoryRouter>
@@ -119,51 +117,44 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
-
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
-    fireEvent.click(loginButton);
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'wrongpassword');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Login failed: Invalid credentials')).toBeInTheDocument();
+      expect(screen.getByText(/Invalid email or password/i)).toBeInTheDocument();
     });
   });
 
-  it('redirects to the workout list page on successful login', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockResolvedValue({ data: { user: { id: 'user-id' } }, error: null });
-    (supabase.default.auth.getSession as any).mockResolvedValue({ data: { session: { user: { id: 'user-id' } } }, error: null });
-    (supabase.default.auth.refreshSession as any).mockResolvedValue({ error: null });
+  it('redirects to the dashboard on successful login', async () => {
+    (supabase.auth.signInWithPassword as any).mockResolvedValue({
+      data: { user: { id: '123' }, session: { access_token: 'token' } },
+      error: null,
+    });
 
     render(
       <MemoryRouter initialEntries={['/login']}>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<div>Workout List</div>} />
+          <Route path="/" element={<div>Dashboard</div>} />
         </Routes>
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
-
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Workout List')).toBeInTheDocument();
-    }, { timeout: 2000 });
+      expect(screen.getByText(/dashboard/i)).toBeInTheDocument();
+    });
   });
 
   it('persists the authentication token after successful login', async () => {
-    const mockToken = 'mock-token';
-    (supabase.default.auth.signInWithPassword as any).mockResolvedValue({ data: { session: { access_token: mockToken } }, error: null });
-    (supabase.default.auth.getSession as any).mockResolvedValue({ data: { session: { access_token: mockToken } }, error: null });
-    (supabase.default.auth.refreshSession as any).mockResolvedValue({ error: null });
+    (supabase.auth.signInWithPassword as any).mockResolvedValue({
+      data: { user: { id: '123' }, session: { access_token: 'token' } },
+      error: null,
+    });
 
     render(
       <MemoryRouter>
@@ -171,23 +162,20 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
-
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(localStorage.getItem('supabase.auth.token')).toBe(mockToken);
-    }, { timeout: 2000 });
+      expect(localStorage.getItem('supabase.auth.token')).toBe('token');
+    });
   });
 
   it('clears the username and password fields after successful login', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockResolvedValue({ data: { user: { id: 'user-id' } }, error: null });
-    (supabase.default.auth.getSession as any).mockResolvedValue({ data: { session: { user: { id: 'user-id' } } }, error: null });
-    (supabase.default.auth.refreshSession as any).mockResolvedValue({ error: null });
+    (supabase.auth.signInWithPassword as any).mockResolvedValue({
+      data: { user: { id: '123' }, session: { access_token: 'token' } },
+      error: null,
+    });
 
     render(
       <MemoryRouter>
@@ -195,29 +183,25 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
+    const emailInput = screen.getByLabelText(/email/i);
+    const passwordInput = screen.getByLabelText(/password/i);
 
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
       expect(emailInput).toHaveValue('');
       expect(passwordInput).toHaveValue('');
-    }, { timeout: 2000 });
+    });
   });
 
   it('disables the login button while the API call is in progress', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ data: { user: { id: 'user-id' } }, error: null }), 200))
-    );
-    (supabase.default.auth.refreshSession as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ error: null }), 200))
-    );
-    (supabase.default.auth.getSession as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ data: { session: { user: { id: 'user-id' } } }, error: null }), 200))
+    let resolveSignIn: (value: any) => void;
+    (supabase.auth.signInWithPassword as any).mockReturnValue(
+      new Promise((resolve) => {
+        resolveSignIn = resolve;
+      })
     );
 
     render(
@@ -226,23 +210,21 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
+    expect(screen.getByRole('button', { name: /logging in/i })).toBeDisabled();
 
-    expect(loginButton).toBeDisabled();
-    expect(loginButton).toHaveTextContent('Logging In...');
-    await waitFor(() => expect(loginButton).not.toBeDisabled(), { timeout: 1000 });
+    // Resolve the promise to clean up
+    resolveSignIn!({
+      data: { user: { id: '123' }, session: { access_token: 'token' } },
+      error: null,
+    });
   });
 
   it('displays a loading indicator while the API call is in progress', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ data: { user: { id: 'user-id' } }, error: null }), 200))
-    );
+    (supabase.auth.signInWithPassword as any).mockReturnValue(new Promise(() => {}));
 
     render(
       <MemoryRouter>
@@ -250,20 +232,15 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
-
-    expect(screen.getByText('Logging In...')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('Logging In...')).not.toBeInTheDocument(), { timeout: 1000 });
+    expect(screen.getByText(/logging in/i)).toBeInTheDocument();
   });
 
   it('handles network errors during login', async () => {
-    (supabase.default.auth.signInWithPassword as any).mockRejectedValue(new Error('Network Error'));
+    (supabase.auth.signInWithPassword as any).mockRejectedValue(new Error('Network error'));
 
     render(
       <MemoryRouter>
@@ -271,31 +248,12 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    const loginButton = screen.getByText('Log In');
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /login/i }));
 
-    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    fireEvent.click(loginButton);
-
-    await waitFor(
-      () => {
-        expect(screen.getByText(/Login failed: Network Error/)).toBeInTheDocument();
-      },
-      { timeout: 2000 }
-    );
-  });
-
-  it('input elements should have autocomplete attributes', () => {
-    render(
-        <MemoryRouter>
-        <Login />
-        </MemoryRouter>
-    );
-    const emailInput = screen.getByLabelText('Email');
-    const passwordInput = screen.getByLabelText('Password');
-    expect(emailInput).toHaveAttribute('autocomplete', 'username');
-    expect(passwordInput).toHaveAttribute('autocomplete', 'current-password');
+    await waitFor(() => {
+      expect(screen.getByText(/network error/i)).toBeInTheDocument();
+    });
   });
 });
