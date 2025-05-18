@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import supabase from '../../utils/supabase';
 import type { Database } from '../../types/supabase';
 
@@ -10,6 +10,8 @@ type ProgressionSuggestionProps = {
   setSets: React.Dispatch<React.SetStateAction<number>>;
 };
 
+type WorkoutSet = Database['public']['Tables']['workout_sets']['Row'];
+
 const ProgressionSuggestion: React.FC<ProgressionSuggestionProps> = ({
   exerciseId,
   sets,
@@ -17,45 +19,66 @@ const ProgressionSuggestion: React.FC<ProgressionSuggestionProps> = ({
   setWeight,
   setSets,
 }) => {
-  useEffect(() => {
-    if (!exerciseId) return;
+  const [lastWorkout, setLastWorkout] = useState<WorkoutSet | null>(null);
+  const [suggestion, setSuggestion] = useState<string>('');
 
-    const suggestProgression = async () => {
-      const { data: recentSets } = await supabase
+  useEffect(() => {
+    const fetchLastWorkout = async () => {
+      if (!exerciseId) {
+        setLastWorkout(null);
+        setSuggestion('');
+        return;
+      }
+
+      const { data, error } = await supabase
         .from('workout_sets')
         .select('*')
         .eq('exercise_id', exerciseId)
         .order('created_at', { ascending: false })
-        .limit(sets);
+        .limit(1)
+        .single();
 
-      if (!recentSets || recentSets.length < sets) {
-        alert('Initial workout logged. Start with 2–3 sets, adjust based on RPE next session.');
+      if (error) {
+        console.error('Error fetching last workout:', error);
+        setLastWorkout(null);
+        setSuggestion('Error fetching last workout.');
         return;
       }
 
-      const avgRpe = recentSets.reduce((sum: number, set: Database['public']['Tables']['workout_sets']['Row']) => sum + (set.rpe ?? 0), 0) / sets;
-      const maxReps = Math.max(...recentSets.map((s: Database['public']['Tables']['workout_sets']['Row']) => s.reps));
-
-      if (avgRpe <= 7 && maxReps >= 10) {
-        setWeight(weight + 5);
-        alert(`Great job! Increase weight to ${weight + 5} lbs for this exercise next session.`);
-      } else if (avgRpe <= 8 && sets < 6) {
-        setSets(sets + 1);
-        alert(`Good work! Increase to ${sets + 1} sets for this exercise next session.`);
-      } else if (avgRpe >= 9) {
-        const newSets = Math.max(2, Math.floor(sets * 0.75));
-        setSets(newSets);
-        alert(`High fatigue detected. Reduce to ${newSets} sets for this exercise next session.`);
-      }
+      setLastWorkout(data);
     };
 
-    suggestProgression().catch((error) => {
-      console.error('Error suggesting progression:', error);
-      alert('Failed to suggest progression.');
-    });
-  }, [exerciseId, sets, weight, setWeight, setSets]);
+    fetchLastWorkout();
+  }, [exerciseId]);
 
-  return null; // This component doesn't render anything
+  useEffect(() => {
+    if (!lastWorkout) {
+      setSuggestion('');
+      return;
+    }
+
+    const { rpe, weight: lastWeight, sets: lastSets } = lastWorkout;
+
+    if (rpe < 7) {
+      setSuggestion('RPE is low. Consider increasing weight.');
+      setWeight(lastWeight + 5);
+    } else if (rpe > 9) {
+      setSuggestion('RPE is high. Consider decreasing sets or weight.');
+      setSets(Math.max(1, lastSets - 1));
+      setWeight(Math.max(0, lastWeight - 5));
+    } else {
+      setSuggestion('RPE is optimal. Maintain current weight and sets.');
+    }
+  }, [lastWorkout, setWeight, setSets]);
+
+  if (!suggestion) return null;
+
+  return (
+    <div className="mt-4 p-4 bg-blue-100 rounded-md">
+      <h3 className="font-semibold">Progression Suggestion:</h3>
+      <p>{suggestion}</p>
+    </div>
+  );
 };
 
 export default ProgressionSuggestion;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import ProgressionSuggestion from './ProgressionSuggestion';
 import * as supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
@@ -67,8 +67,8 @@ describe('ProgressionSuggestion', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Progression Suggestion:')).toBeInTheDocument();
-      expect(screen.getByText('RPE is low. Consider increasing weight.')).toBeInTheDocument();
-    });
+      const suggestionBox = screen.getByText('Progression Suggestion:').closest('.mt-4.p-4.bg-blue-100.rounded-md')!;
+      expect(within(suggestionBox).getByText('RPE is low. Consider increasing weight.')).toBeInTheDocument();
+    }, { timeout: 1000 });
   });
 });

@@ -5,8 +5,8 @@ import supabase from '../../utils/supabase';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -14,37 +14,24 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        setError(`Login failed: ${signInError.message}`);
-        setIsLoading(false);
-        return;
+    if (authError) {
+      setError(`Login failed: ${authError.message}`);
+    } else {
+      await supabase.auth.refreshSession();
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session?.access_token) {
+        localStorage.setItem('supabase.auth.token', session.session.access_token);
       }
-
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError) throw refreshError;
-
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setError('No session found after login');
-        setIsLoading(false);
-        return;
-      }
-
+      setEmail('');
+      setPassword('');
       navigate('/');
-    } catch (err) {
-      setError('An unexpected error occurred');
-      setIsLoading(false);
     }
-  };
-
-  const handleSignUpRedirect = () => {
-    navigate('/signup');
+    setIsLoading(false);
   };
 
   return (
@@ -64,6 +51,7 @@ const Login: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              autoComplete="username"
             />
           </div>
           <div className="mb-4">
@@ -77,6 +65,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              autoComplete="current-password"
             />
           </div>
           <button
@@ -88,7 +77,6 @@ const Login: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={handleSignUpRedirect}
             className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
           >
             Sign Up

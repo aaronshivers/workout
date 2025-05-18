@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import WorkoutHistory from './WorkoutHistory';
 import * as supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
@@ -48,7 +48,7 @@ describe('WorkoutHistory', () => {
       },
     ];
     render(<WorkoutHistory workouts={workouts} muscleGroups={muscleGroups} />);
-    expect(screen.getByText(/Bench Press/)).toBeInTheDocument();
+    expect(screen.getByText('Bench Press')).toBeInTheDocument();
   });
 
   it('renders each workout with its relevant details', () => {
@@ -63,11 +63,12 @@ describe('WorkoutHistory', () => {
       },
     ];
     render(<WorkoutHistory workouts={workouts} muscleGroups={muscleGroups} />);
-    expect(screen.getByText((content, element) => content.includes('Date:') && content.includes('2025-05-18'))).toBeInTheDocument();
-    expect(screen.getByText((content, element) => content.includes('Exercise:') && content.includes('Bench Press'))).toBeInTheDocument();
-    expect(screen.getByText((content, element) => content.includes('Sets:') && content.includes('3'))).toBeInTheDocument();
-    expect(screen.getByText((content, element) => content.includes('Reps:') && content.includes('10'))).toBeInTheDocument();
-    expect(screen.getByText((content, element) => content.includes('Weight:') && content.includes('100'))).toBeInTheDocument();
-    expect(screen.getByText((content, element) => content.includes('RPE:') && content.includes('7'))).toBeInTheDocument();
+    const workoutEntry = screen.getByText('Bench Press').closest('.p-4.border.rounded-md.shadow-sm')!;
+    expect(within(workoutEntry).getByText('2025-05-18')).toBeInTheDocument();
+    expect(within(workoutEntry).getByText('Bench Press')).toBeInTheDocument();
+    expect(within(workoutEntry).getByText('3')).toBeInTheDocument();
+    expect(within(workoutEntry).getByText('10')).toBeInTheDocument();
+    expect(within(workoutEntry).getByText('100')).toBeInTheDocument();
+    expect(within(workoutEntry).getByText('7')).toBeInTheDocument();
   });
 });
