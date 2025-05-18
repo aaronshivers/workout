@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import { Workout, Exercise } from '../../types';
+import { supabase } from '../../utils/supabase';
+import { Database } from '../../types/supabase';
+
+type Workout = Database['public']['Tables']['workouts']['Row'] & {
+  workout_sets: (Database['public']['Tables']['workout_sets']['Row'] & {
+    exercises: Database['public']['Tables']['exercises']['Row'] | null;
+  })[];
+};
 
 const EditWorkout: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +27,7 @@ const EditWorkout: React.FC = () => {
 
   useEffect(() => {
     const fetchWorkout = async () => {
-      const workoutId = parseInt(id || '0'); // Fallback to 0 if undefined
+      const workoutId = parseInt(id || '0');
       if (!workoutId) {
         setError('Invalid workout ID');
         setLoading(false);
@@ -64,7 +70,7 @@ const EditWorkout: React.FC = () => {
     e.preventDefault();
     setSaving(true);
 
-    const workoutId = parseInt(id || '0'); // Fallback to 0 if undefined
+    const workoutId = parseInt(id || '0');
     const updatedWorkout = {
       created_at: date,
       updated_at: new Date().toISOString(),
@@ -93,6 +99,7 @@ const EditWorkout: React.FC = () => {
       return;
     }
 
+    setSaving(false);
     navigate('/workouts');
   };
 

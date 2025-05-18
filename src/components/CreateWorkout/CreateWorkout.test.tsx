@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import CreateWorkout from './CreateWorkout';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../utils/supabase';
 
-vi.mock('../../lib/supabase', () => ({
+vi.mock('../../../utils/supabase', () => ({
   supabase: {
     from: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnValue({ error: null }),
@@ -23,8 +23,7 @@ describe('CreateWorkout', () => {
     vi.clearAllMocks();
   });
 
-  const renderComponent = () =>
-    render(
+  const renderComponent = () => render(
       <MemoryRouter>
         <CreateWorkout />
       </MemoryRouter>
