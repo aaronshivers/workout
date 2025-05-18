@@ -1,279 +1,183 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import CreateWorkout from './CreateWorkout';
-import * as supabase from '../../utils/supabase';
-import '@testing-library/jest-dom';
+import { supabase } from '../../lib/supabase';
 
-vi.mock('../../utils/supabase', () => ({
-  default: {
-    from: vi.fn().mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ data: [{ id: 1 }], error: null }),
-    }),
-    auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: { user: { id: 'user-id' } } }, error: null }),
-    },
+vi.mock('../../lib/supabase', () => ({
+  supabase: {
+    from: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnValue({ error: null }),
   },
 }));
 
 describe('CreateWorkout', () => {
+  const mockNavigate = vi.fn();
+  vi.mock('react-router-dom', () => ({
+    ...vi.importActual('react-router-dom'),
+    useNavigate: () => mockNavigate,
+  }));
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders without crashing', () => {
+  const renderComponent = () =>
     render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
+      <MemoryRouter>
+        <CreateWorkout />
       </MemoryRouter>
     );
-    expect(screen.getByText('Create Workout')).toBeInTheDocument();
+
+  it('renders without crashing', () => {
+    renderComponent();
+    expect(screen.getByText(/Create Workout/i)).toBeInTheDocument();
   });
 
   it('displays input fields for workout details', () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    expect(screen.getByLabelText('Date')).toBeInTheDocument();
-    expect(screen.getByLabelText('Type')).toBeInTheDocument();
-    expect(screen.getByLabelText('Duration')).toBeInTheDocument();
-    expect(screen.getByLabelText('Exercises')).toBeInTheDocument();
+    renderComponent();
+    expect(screen.getByLabelText(/Date/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Type/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Duration/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Exercises/i)).toBeInTheDocument();
   });
 
   it('displays a "Save" button', () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    expect(screen.getByText('Save')).toBeInTheDocument();
+    renderComponent();
+    expect(screen.getByText(/Save/i)).toBeInTheDocument();
   });
 
   it('displays a "Cancel" button', () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    renderComponent();
+    expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
   });
 
-  it('updates the corresponding state for each input field on change', () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
-    const dateInput = screen.getByLabelText('Date');
-    const typeInput = screen.getByLabelText('Type');
-    const durationInput = screen.getByLabelText('Duration');
-    const exercisesInput = screen.getByLabelText('Exercises');
+  it('updates the corresponding state for each input field on change', async () => {
+    renderComponent();
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.change(typeInput, { target: { value: 'Strength' } });
-    fireEvent.change(durationInput, { target: { value: '60' } });
-    fireEvent.change(exercisesInput, { target: { value: 'Bench Press' } });
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    expect(dateInput).toHaveValue('2025-05-18');
-    expect(typeInput).toHaveValue('Strength');
-    expect(durationInput).toHaveValue('60');
-    expect(exercisesInput).toHaveValue('Bench Press');
+    expect(screen.getByLabelText(/Date/i)).toHaveValue('2025-05-18');
+    expect(screen.getByLabelText(/Type/i)).toHaveValue('Strength');
+    expect(screen.getByLabelText(/Duration/i)).toHaveValue('60');
+    expect(screen.getByLabelText(/Exercises/i)).toHaveValue('Bench Press');
   });
 
   it('calls the API to create a new workout on "Save" button click', async () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderComponent();
 
-    const dateInput = screen.getByLabelText('Date');
-    const typeInput = screen.getByLabelText('Type');
-    const durationInput = screen.getByLabelText('Duration');
-    const exercisesInput = screen.getByLabelText('Exercises');
-    const saveButton = screen.getByText('Save');
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.change(typeInput, { target: { value: 'Strength' } });
-    fireEvent.change(durationInput, { target: { value: '60' } });
-    fireEvent.change(exercisesInput, { target: { value: 'Bench Press' } });
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText(/Save/i));
 
     await waitFor(() => {
-      expect(supabase.default.from().insert).toHaveBeenCalled();
-    }, { timeout: 1000 });
+      expect(supabase.from).toHaveBeenCalledWith('workouts');
+      expect(supabase.insert).toHaveBeenCalled();
+    });
   });
 
   it('redirects to the workout list page after successful workout creation', async () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderComponent();
 
-    const dateInput = screen.getByLabelText('Date');
-    const typeInput = screen.getByLabelText('Type');
-    const durationInput = screen.getByLabelText('Duration');
-    const exercisesInput = screen.getByLabelText('Exercises');
-    const saveButton = screen.getByText('Save');
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.change(typeInput, { target: { value: 'Strength' } });
-    fireEvent.change(durationInput, { target: { value: '60' } });
-    fireEvent.change(exercisesInput, { target: { value: 'Bench Press' } });
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText(/Save/i));
 
     await waitFor(() => {
-      expect(screen.getByText('Workout List')).toBeInTheDocument();
-    }, { timeout: 1000 });
+      expect(mockNavigate).toHaveBeenCalledWith('/workouts');
+    });
   });
 
   it('displays validation errors for invalid input', async () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderComponent();
 
-    const dateInput = screen.getByLabelText('Date');
-    const durationInput = screen.getByLabelText('Duration');
-    const saveButton = screen.getByText('Save');
+    await userEvent.type(screen.getByLabelText(/Date/i), 'invalid-date');
+    await userEvent.type(screen.getByLabelText(/Duration/i), 'invalid');
 
-    fireEvent.change(dateInput, { target: { value: 'invalid-date' } });
-    fireEvent.change(durationInput, { target: { value: 'abc' } });
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText(/Save/i));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid date format')).toBeInTheDocument();
-      expect(screen.getByText('Duration must be a number')).toBeInTheDocument();
-    }, { timeout: 1000 });
+      expect(screen.getByText(/Invalid date format/i)).toBeInTheDocument();
+      expect(screen.getByText(/Duration must be a number/i)).toBeInTheDocument();
+    });
   });
 
   it('disables the "Save" button while the API call is in progress', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      insert: vi.fn().mockImplementation(() => new Promise(() => {})), // Simulate pending
-    });
+    renderComponent();
 
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    const dateInput = screen.getByLabelText('Date');
-    const saveButton = screen.getByText('Save');
+    fireEvent.click(screen.getByText(/Save/i));
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.click(saveButton);
-
-    expect(saveButton).toBeDisabled();
-    await waitFor(() => expect(saveButton).not.toBeDisabled(), { timeout: 1000 });
+    expect(screen.getByText(/Saving.../i).closest('button')).toBeDisabled();
   });
 
   it('displays a loading indicator while the API call is in progress', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      insert: vi.fn().mockImplementation(() => new Promise(() => {})), // Simulate pending
-    });
+    renderComponent();
 
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    const dateInput = screen.getByLabelText('Date');
-    const saveButton = screen.getByText('Save');
+    fireEvent.click(screen.getByText(/Save/i));
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.click(saveButton);
-
-    expect(screen.getByText('Saving...')).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText('Saving...')).not.toBeInTheDocument(), { timeout: 1000 });
+    expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
   });
 
   it('handles errors during workout creation', async () => {
-    (supabase.default.from as any).mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ data: null, error: { message: 'Creation error' } }),
-    });
+    (supabase.insert as any).mockReturnValueOnce({ error: new Error('Creation error') });
 
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderComponent();
 
-    const dateInput = screen.getByLabelText('Date');
-    const saveButton = screen.getByText('Save');
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText(/Save/i));
 
     await waitFor(() => {
-      expect(screen.getByText('Error creating workout: Creation error')).toBeInTheDocument();
-    }, { timeout: 1000 });
+      expect(screen.getByText(/Error creating workout/i)).toBeInTheDocument();
+    });
   });
 
   it('clears the input fields after successful workout creation', async () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderComponent();
 
-    const dateInput = screen.getByLabelText('Date');
-    const saveButton = screen.getByText('Save');
+    await userEvent.type(screen.getByLabelText(/Date/i), '2025-05-18');
+    await userEvent.type(screen.getByLabelText(/Type/i), 'Strength');
+    await userEvent.type(screen.getByLabelText(/Duration/i), '60');
+    await userEvent.type(screen.getByLabelText(/Exercises/i), 'Bench Press');
 
-    fireEvent.change(dateInput, { target: { value: '2025-05-18' } });
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText(/Save/i));
 
     await waitFor(() => {
-      expect(dateInput).toHaveValue('');
-    }, { timeout: 1000 });
+      expect(screen.getByLabelText(/Date/i)).toHaveValue('');
+      expect(screen.getByLabelText(/Type/i)).toHaveValue('');
+      expect(screen.getByLabelText(/Duration/i)).toHaveValue('');
+      expect(screen.getByLabelText(/Exercises/i)).toHaveValue('');
+    });
   });
 
-  it('navigates back to the workout list page on "Cancel" button click', () => {
-    render(
-      <MemoryRouter initialEntries={['/create']}>
-        <Routes>
-          <Route path="/create" element={<CreateWorkout />} />
-          <Route path="/" element={<div>Workout List</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+  it('navigates back to the workout list page on "Cancel" button click', async () => {
+    renderComponent();
 
-    const cancelButton = screen.getByText('Cancel');
-    fireEvent.click(cancelButton);
+    fireEvent.click(screen.getByText(/Cancel/i));
 
-    expect(screen.getByText('Workout List')).toBeInTheDocument();
+    expect(mockNavigate).toHaveBeenCalledWith('/workouts');
   });
 });

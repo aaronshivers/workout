@@ -1,0 +1,104 @@
+src/components/CreateWorkout/CreateWorkout.test.tsx(6,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
+src/components/CreateWorkout/CreateWorkout.test.tsx(15,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(22,3): error TS2304: Cannot find name 'beforeEach'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(33,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(35,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(38,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(40,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(41,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(42,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(43,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(46,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(48,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(51,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(53,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(56,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(64,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(65,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(66,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(67,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(70,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(81,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(82,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(86,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(97,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(101,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(110,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(111,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(115,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(125,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(128,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(138,5): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(141,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(154,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(158,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(169,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(170,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(171,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(172,7): error TS2304: Cannot find name 'expect'.
+src/components/CreateWorkout/CreateWorkout.test.tsx(176,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/components/CreateWorkout/CreateWorkout.test.tsx(181,5): error TS2304: Cannot find name 'expect'.
+src/components/DataFetcher.tsx(1,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
+src/components/DataFetcher.tsx(2,35): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/components/EditWorkout/EditWorkout.test.tsx(123,31): error TS2554: Expected 1 arguments, but got 0.
+src/components/EditWorkout/EditWorkout.tsx(3,26): error TS2307: Cannot find module '../../lib/supabase' or its corresponding type declarations.
+src/components/EditWorkout/EditWorkout.tsx(4,1): error TS6192: All imports in import declaration are unused.
+src/components/EditWorkout/EditWorkout.tsx(4,35): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(33,9): error TS2322: Type '{ exerciseId: null; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+  Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(61,9): error TS2322: Type '{ exerciseId: number; sets: number; weight: number; setWeight: Mock<Procedure>; setSets: Mock<Procedure>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+  Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx(71,21): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/ProgressionSuggestion/ProgressionSuggestion.tsx(2,28): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(4,1): error TS6133: 'supabase' is declared but its value is never read.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(50,28): error TS2322: Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
+  Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type 'Workout'.
+    Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type '{ workout_sets: WorkoutSet[]; }'.
+      Types of property 'workout_sets' are incompatible.
+        Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]' is not assignable to type 'WorkoutSet[]'.
+          Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is not assignable to type 'WorkoutSet'.
+            Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is missing the following properties from type '{ id: number; workout_id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; created_at: string | null; }': workout_id, created_at
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(65,28): error TS2322: Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }[]' is not assignable to type 'Workout[]'.
+  Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type 'Workout'.
+    Type '{ id: number; user_id: string; created_at: string; workout_sets: { id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]; }' is not assignable to type '{ workout_sets: WorkoutSet[]; }'.
+      Types of property 'workout_sets' are incompatible.
+        Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }[]' is not assignable to type 'WorkoutSet[]'.
+          Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is not assignable to type 'WorkoutSet'.
+            Type '{ id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; exercises: { name: string; }; }' is missing the following properties from type '{ id: number; workout_id: number; exercise_id: number; sets: number; reps: number; weight: number; rpe: number; created_at: string | null; }': workout_id, created_at
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(67,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(68,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(69,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(70,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(71,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.test.tsx(72,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.
+  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, dir, and 126 more.
+src/components/WorkoutHistory/WorkoutHistory.tsx(21,68): error TS6133: 'muscleGroups' is declared but its value is never read.
+src/components/WorkoutHistory/WorkoutHistory.tsx(38,48): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+src/components/WorkoutList/WorkoutList.test.tsx(160,31): error TS2554: Expected 1 arguments, but got 0.
+src/components/WorkoutList/WorkoutList.test.tsx(198,29): error TS2554: Expected 1 arguments, but got 0.
+src/components/WorkoutList/WorkoutList.test.tsx(221,29): error TS2554: Expected 1 arguments, but got 0.
+src/components/WorkoutList/WorkoutList.test.tsx(380,10): error TS2304: Cannot find name 'CreateWorkout'.
+src/components/WorkoutList/WorkoutList.test.tsx(392,10): error TS2304: Cannot find name 'CreateWorkout'.
+src/components/WorkoutList/WorkoutList.tsx(4,25): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/components/WorkoutList/WorkoutList.tsx(84,29): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/components/WorkoutTracker.tsx(9,8): error TS1192: Module '"/Users/aaron/repos/workout/src/components/DataFetcher"' has no default export.
+src/components/WorkoutTracker.tsx(118,17): error TS2322: Type 'Dispatch<SetStateAction<Workout[]>>' is not assignable to type 'Dispatch<SetStateAction<{ id: number; user_id: string | null; created_at: string | null; }[]>>'.
+  Type 'SetStateAction<{ id: number; user_id: string | null; created_at: string | null; }[]>' is not assignable to type 'SetStateAction<Workout[]>'.
+    Type '{ id: number; user_id: string | null; created_at: string | null; }[]' is not assignable to type 'SetStateAction<Workout[]>'.
+      Type '{ id: number; user_id: string | null; created_at: string | null; }[]' is not assignable to type 'Workout[]'.
+        Type '{ id: number; user_id: string | null; created_at: string | null; }' is not assignable to type 'Workout'.
+          Property 'workout_sets' is missing in type '{ id: number; user_id: string | null; created_at: string | null; }' but required in type '{ workout_sets: WorkoutSet[]; }'.
+src/components/WorkoutTracker.tsx(122,11): error TS2322: Type '{ exerciseId: number | null; sets: number; weight: number; setWeight: Dispatch<SetStateAction<number>>; setSets: Dispatch<SetStateAction<number>>; }' is not assignable to type 'IntrinsicAttributes & ProgressionSuggestionProps'.
+  Property 'exerciseId' does not exist on type 'IntrinsicAttributes & ProgressionSuggestionProps'.

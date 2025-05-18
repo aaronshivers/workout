@@ -1,173 +1,205 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import supabase from '../../utils/supabase';
+import { supabase } from '../../lib/supabase';
+import { Workout, Exercise } from '../../types';
 
 const EditWorkout: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [date, setDate] = useState('');
-  const [sets, setSets] = useState('');
-  const [reps, setReps] = useState('');
-  const [weight, setWeight] = useState('');
-  const [rpe, setRpe] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const [date, setDate] = useState<string>('');
+  const [type, setType] = useState<string>('');
+  const [duration, setDuration] = useState<string>('');
+  const [exercises, setExercises] = useState<string>('');
+  const [sets, setSets] = useState<number>(0);
+  const [reps, setReps] = useState<number>(0);
+  const [weight, setWeight] = useState<number>(0);
+  const [rpe, setRpe] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchWorkout = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const userId = sessionData?.session?.user?.id;
-
-      const { data, error } = await supabase
-        .from('workouts')
-        .select('*, workout_sets(*)')
-        .eq('id', id)
-        .eq('user_id', userId)
-        .single();
-
-      if (error) {
-        setError(`Error: ${error.message}`);
-        setIsLoading(false);
+      const workoutId = parseInt(id || '0'); // Fallback to 0 if undefined
+      if (!workoutId) {
+        setError('Invalid workout ID');
+        setLoading(false);
         return;
       }
 
-      if (data) {
-        setDate(data.created_at);
-        const workoutSet = data.workout_sets[0];
-        setSets(workoutSet.sets.toString());
-        setReps(workoutSet.reps.toString());
-        setWeight(workoutSet.weight.toString());
-        setRpe(workoutSet.rpe.toString());
+      const { data, error } = await supabase
+        .from('workouts')
+        .select(`
+          *,
+          workout_sets (
+            *,
+            exercises (*)
+          )
+        `)
+        .eq('id', workoutId)
+        .single();
+
+      if (error || !data) {
+        setError('Workout not found');
+        setLoading(false);
+        return;
       }
-      setIsLoading(false);
+
+      setDate(data.created_at?.split('T')[0] || '');
+      setType(data.workout_sets[0]?.exercises?.name || '');
+      setDuration(data.workout_sets[0]?.sets.toString() || '');
+      setExercises(data.workout_sets[0]?.exercises?.name || '');
+      setSets(data.workout_sets[0]?.sets || 0);
+      setReps(data.workout_sets[0]?.reps || 0);
+      setWeight(data.workout_sets[0]?.weight || 0);
+      setRpe(data.workout_sets[0]?.rpe || 0);
+      setLoading(false);
     };
 
     fetchWorkout();
   }, [id]);
 
-  const validateInputs = () => {
-    if (!/^\d+$/.test(sets)) {
-      setError('Sets must be a number');
-      return false;
-    }
-    return true;
-  };
-
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateInputs()) return;
+    setSaving(true);
 
-    setIsLoading(true);
-    setError(null);
+    const workoutId = parseInt(id || '0'); // Fallback to 0 if undefined
+    const updatedWorkout = {
+      created_at: date,
+      updated_at: new Date().toISOString(),
+    };
 
-    const { error: updateError } = await supabase
+    const updatedSet = {
+      sets: sets,
+      reps: reps,
+      weight: weight,
+      rpe: rpe,
+    };
+
+    const { error: workoutError } = await supabase
+      .from('workouts')
+      .update(updatedWorkout)
+      .eq('id', workoutId);
+
+    const { error: setError } = await supabase
       .from('workout_sets')
-      .update({
-        sets: Number(sets),
-        reps: Number(reps),
-        weight: Number(weight),
-        rpe: Number(rpe),
-      })
-      .eq('id', id);
+      .update(updatedSet)
+      .eq('workout_id', workoutId);
 
-    if (updateError) {
-      setError(`Error updating workout: ${updateError.message}`);
-    } else {
-      navigate('/');
+    if (workoutError || setError) {
+      setError('Failed to update workout');
+      setSaving(false);
+      return;
     }
-    setIsLoading(false);
+
+    navigate('/workouts');
   };
 
-  const handleCancel = () => {
-    navigate('/');
-  };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-4 text-center">Edit Workout</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleUpdate}>
-          <div className="mb-4">
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-              Date
-            </label>
-            <input
-              id="date"
-              type="text"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="sets" className="block text-sm font-medium text-gray-700">
-              Sets
-            </label>
-            <input
-              id="sets"
-              type="text"
-              value={sets}
-              onChange={(e) => setSets(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="reps" className="block text-sm font-medium text-gray-700">
-              Reps
-            </label>
-            <input
-              id="reps"
-              type="text"
-              value={reps}
-              onChange={(e) => setReps(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
-              Weight
-            </label>
-            <input
-              id="weight"
-              type="text"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="rpe" className="block text-sm font-medium text-gray-700">
-              RPE
-            </label>
-            <input
-              id="rpe"
-              type="text"
-              value={rpe}
-              onChange={(e) => setRpe(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Edit Workout</h1>
+      <form onSubmit={handleUpdate} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Type</label>
+          <input
+            type="text"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Duration</label>
+          <input
+            type="number"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Exercises</label>
+          <input
+            type="text"
+            value={exercises}
+            onChange={(e) => setExercises(e.target.value)}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Sets</label>
+          <input
+            type="number"
+            value={sets}
+            onChange={(e) => setSets(parseInt(e.target.value))}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Reps</label>
+          <input
+            type="number"
+            value={reps}
+            onChange={(e) => setReps(parseInt(e.target.value))}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Weight</label>
+          <input
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(parseInt(e.target.value))}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">RPE</label>
+          <input
+            type="number"
+            value={rpe}
+            onChange={(e) => setRpe(parseInt(e.target.value))}
+            className="border p-2 rounded-md w-full"
+            required
+          />
+        </div>
+        <div className="space-x-2">
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 mb-2 disabled:bg-gray-400"
+            disabled={saving}
+            className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
           >
-            {isLoading ? 'Updating...' : 'Update'}
+            {saving ? 'Updating...' : 'Update'}
           </button>
           <button
             type="button"
-            onClick={handleCancel}
-            className="w-full bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600"
+            onClick={() => navigate('/workouts')}
+            className="bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600"
           >
             Cancel
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
