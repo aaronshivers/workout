@@ -1,5 +1,5 @@
-import { supabase } from '../../lib/supabase';
-import { Database } from '../../types/supabase';
+import supabase from '../utils/supabase';
+import {Database} from '../types/supabase';
 
 type Workout = Database['public']['Tables']['workouts']['Row'] & {
   workout_sets: (Database['public']['Tables']['workout_sets']['Row'] & {
@@ -41,3 +41,5 @@ export const fetchWorkouts = async (): Promise<FetchWorkoutsResult> => {
 
   return { workouts, loading, error };
 };
+
+export default fetchWorkouts;
