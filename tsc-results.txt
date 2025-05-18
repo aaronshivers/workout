@@ -1,202 +1,72 @@
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m6[0m:[93m10[0m - [91merror[0m[90m TS2614: [0mModule '"../../utils/supabase"' has no exported member 'supabase'. Did you mean to use 'import supabase from "../../utils/supabase"' instead?
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m128[0m:[93m23[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
 
-[7m6[0m import { supabase } from '../../utils/supabase';
-[7m [0m [91m         ~~~~~~~~[0m
+[7m128[0m       expect(supabase.from().insert).toHaveBeenCalled();
+[7m   [0m [91m                      ~~~~[0m
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m15[0m:[93m1[0m - [91merror[0m[90m TS2582: [0mCannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
 
-[7m15[0m describe('CreateWorkout', () => {
-[7m  [0m [91m~~~~~~~~[0m
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m168[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m22[0m:[93m3[0m - [91merror[0m[90m TS2304: [0mCannot find name 'beforeEach'.
+[7m168[0m     (supabase.from().insert().single as any).mockReturnValue(
+[7m   [0m [91m              ~~~~[0m
 
-[7m22[0m   beforeEach(() => {
-[7m  [0m [91m  ~~~~~~~~~~[0m
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m32[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m168[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
 
-[7m32[0m   it('renders without crashing', () => {
-[7m  [0m [91m  ~~[0m
+[7m168[0m     (supabase.from().insert().single as any).mockReturnValue(
+[7m   [0m [91m                     ~~~~~~[0m
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m34[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m44[0m:[93m37[0m
+    [7m44[0m     } ? Relation['Insert'] : never>(values: Row, options?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
 
-[7m34[0m     expect(screen.getByText(/Create Workout/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m187[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m37[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+[7m187[0m     (supabase.from().insert().single as any).mockReturnValue(new Promise(() => {}));
+[7m   [0m [91m              ~~~~[0m
 
-[7m37[0m   it('displays input fields for workout details', () => {
-[7m  [0m [91m  ~~[0m
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m39[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m187[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
 
-[7m39[0m     expect(screen.getByLabelText(/Date/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
+[7m187[0m     (supabase.from().insert().single as any).mockReturnValue(new Promise(() => {}));
+[7m   [0m [91m                     ~~~~~~[0m
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m40[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m44[0m:[93m37[0m
+    [7m44[0m     } ? Relation['Insert'] : never>(values: Row, options?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
 
-[7m40[0m     expect(screen.getByLabelText(/Type/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m201[0m:[93m15[0m - [91merror[0m[90m TS2554: [0mExpected 1 arguments, but got 0.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m41[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+[7m201[0m     (supabase.from().insert().single as any).mockResolvedValue({
+[7m   [0m [91m              ~~~~[0m
 
-[7m41[0m     expect(screen.getByLabelText(/Duration/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
+  [96mnode_modules/@supabase/supabase-js/dist/module/SupabaseClient.d.ts[0m:[93m51[0m:[93m104[0m
+    [7m51[0m     from<TableName extends string & keyof Schema['Tables'], Table extends Schema['Tables'][TableName]>(relation: TableName): PostgrestQueryBuilder<Schema, Table, TableName>;
+    [7m  [0m [96m                                                                                                       ~~~~~~~~~~~~~~~~~~~[0m
+    An argument for 'relation' was not provided.
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m42[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
+[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m201[0m:[93m22[0m - [91merror[0m[90m TS2554: [0mExpected 1-2 arguments, but got 0.
 
-[7m42[0m     expect(screen.getByLabelText(/Exercises/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
+[7m201[0m     (supabase.from().insert().single as any).mockResolvedValue({
+[7m   [0m [91m                     ~~~~~~[0m
 
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m45[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m45[0m   it('displays a "Save" button', () => {
-[7m  [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m47[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m47[0m     expect(screen.getByText(/Save/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m50[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m50[0m   it('displays a "Cancel" button', () => {
-[7m  [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m52[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m52[0m     expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m55[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m55[0m   it('updates the corresponding state for each input field on change', async () => {
-[7m  [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m63[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m63[0m     expect(screen.getByLabelText(/Date/i)).toHaveValue('2025-05-18');
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m64[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m64[0m     expect(screen.getByLabelText(/Type/i)).toHaveValue('Strength');
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m65[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m65[0m     expect(screen.getByLabelText(/Duration/i)).toHaveValue('60');
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m66[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m66[0m     expect(screen.getByLabelText(/Exercises/i)).toHaveValue('Bench Press');
-[7m  [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m69[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m69[0m   it('calls the API to create a new workout on "Save" button click', async () => {
-[7m  [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m80[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m80[0m       expect(supabase.from).toHaveBeenCalledWith('workouts');
-[7m  [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m81[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m81[0m       expect(supabase.insert).toHaveBeenCalled();
-[7m  [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m85[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m85[0m   it('redirects to the workout list page after successful workout creation', async () => {
-[7m  [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m96[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m96[0m       expect(mockNavigate).toHaveBeenCalledWith('/workouts');
-[7m  [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m100[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m100[0m   it('displays validation errors for invalid input', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m109[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m109[0m       expect(screen.getByText(/Invalid date format/i)).toBeInTheDocument();
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m110[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m110[0m       expect(screen.getByText(/Duration must be a number/i)).toBeInTheDocument();
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m114[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m114[0m   it('disables the "Save" button while the API call is in progress', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m124[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m124[0m     expect(screen.getByText(/Saving.../i).closest('button')).toBeDisabled();
-[7m   [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m127[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m127[0m   it('displays a loading indicator while the API call is in progress', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m137[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m137[0m     expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
-[7m   [0m [91m    ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m140[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m140[0m   it('handles errors during workout creation', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m153[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m153[0m       expect(screen.getByText(/Error creating workout/i)).toBeInTheDocument();
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m157[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m157[0m   it('clears the input fields after successful workout creation', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m168[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m168[0m       expect(screen.getByLabelText(/Date/i)).toHaveValue('');
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m169[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m169[0m       expect(screen.getByLabelText(/Type/i)).toHaveValue('');
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m170[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m170[0m       expect(screen.getByLabelText(/Duration/i)).toHaveValue('');
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m171[0m:[93m7[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m171[0m       expect(screen.getByLabelText(/Exercises/i)).toHaveValue('');
-[7m   [0m [91m      ~~~~~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m175[0m:[93m3[0m - [91merror[0m[90m TS2582: [0mCannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
-
-[7m175[0m   it('navigates back to the workout list page on "Cancel" button click', async () => {
-[7m   [0m [91m  ~~[0m
-
-[96msrc/components/CreateWorkout/CreateWorkout.test.tsx[0m:[93m180[0m:[93m5[0m - [91merror[0m[90m TS2304: [0mCannot find name 'expect'.
-
-[7m180[0m     expect(mockNavigate).toHaveBeenCalledWith('/workouts');
-[7m   [0m [91m    ~~~~~~[0m
+  [96mnode_modules/@supabase/postgrest-js/dist/cjs/PostgrestQueryBuilder.d.ts[0m:[93m44[0m:[93m37[0m
+    [7m44[0m     } ? Relation['Insert'] : never>(values: Row, options?: {
+    [7m  [0m [96m                                    ~~~~~~~~~~~[0m
+    An argument for 'values' was not provided.
 
 [96msrc/components/DataFetcher.tsx[0m:[93m1[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '../../lib/supabase' or its corresponding type declarations.
 
@@ -544,10 +414,10 @@
 [7m   [0m [91m          ~~~~~~~~~~[0m
 
 
-Found 83 errors in 11 files.
+Found 50 errors in 11 files.
 
 Errors  Files
-    40  src/components/CreateWorkout/CreateWorkout.test.tsx[90m:6[0m
+     7  src/components/CreateWorkout/CreateWorkout.test.tsx[90m:128[0m
      2  src/components/DataFetcher.tsx[90m:1[0m
     12  src/components/EditWorkout/EditWorkout.test.tsx[90m:145[0m
      4  src/components/EditWorkout/EditWorkout.tsx[90m:35[0m
