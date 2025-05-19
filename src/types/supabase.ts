@@ -56,7 +56,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       muscle_groups: {
@@ -107,7 +107,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "muscle_groups";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       workouts: {
@@ -133,7 +133,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "users";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
       workout_sets: {
@@ -181,7 +181,7 @@ export interface Database {
             isOneToOne: false;
             referencedRelation: "workouts";
             referencedColumns: ["id"];
-          }
+          },
         ];
       };
     };

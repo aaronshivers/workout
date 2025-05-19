@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json", // Inherit from the root tsconfig.json
+  "compilerOptions": {
+    "noEmit": true, //  Crucial:  Don't emit any files (ESLint only needs types)
+    "allowJs": true, //  Allow .js files (for tailwind.config.js, postcss.config.js etc.)
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "eslint.config.js",
+    "postcss.config.js",
+    "tailwind.config.js",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "**/*.d.ts",
+    "src/types/*.ts" //  Adjust this if you have types in a different dir
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

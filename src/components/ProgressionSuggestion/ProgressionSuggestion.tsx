@@ -1,11 +1,13 @@
-import React from 'react';
-import { WorkoutSet } from '../../types/supabase';
+import React from "react";
+import { WorkoutSet } from "../../types/supabase";
 
 interface ProgressionSuggestionProps {
   workoutSet: WorkoutSet;
 }
 
-const ProgressionSuggestion: React.FC<ProgressionSuggestionProps> = ({ workoutSet }) => {
+const ProgressionSuggestion: React.FC<ProgressionSuggestionProps> = ({
+  workoutSet,
+}) => {
   const { sets, reps, weight, rpe } = workoutSet;
 
   // RP Strength Set Progression Algorithm

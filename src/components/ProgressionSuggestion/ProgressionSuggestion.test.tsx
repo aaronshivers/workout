@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within, waitFor } from '@testing-library/react';
-import ProgressionSuggestion from './ProgressionSuggestion';
-import * as supabase from '../../utils/supabase';
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, within, waitFor } from "@testing-library/react";
+import ProgressionSuggestion from "./ProgressionSuggestion";
+import * as supabase from "../../utils/supabase";
+import "@testing-library/jest-dom";
 
-vi.mock('../../utils/supabase', () => {
+vi.mock("../../utils/supabase", () => {
   const from = vi.fn();
   return {
     default: {
@@ -13,13 +13,15 @@ vi.mock('../../utils/supabase', () => {
         getSession: vi.fn(),
         getUser: vi.fn(),
         signOut: vi.fn(),
-        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        })),
       },
     },
   };
 });
 
-describe('ProgressionSuggestion', () => {
+describe("ProgressionSuggestion", () => {
   const mockSetWeight = vi.fn();
   const mockSetSets = vi.fn();
 
@@ -27,7 +29,7 @@ describe('ProgressionSuggestion', () => {
     vi.clearAllMocks();
   });
 
-  it('renders without crashing when exerciseId is null', () => {
+  it("renders without crashing when exerciseId is null", () => {
     render(
       <ProgressionSuggestion
         exerciseId={null}
@@ -35,12 +37,14 @@ describe('ProgressionSuggestion', () => {
         weight={100}
         setWeight={mockSetWeight}
         setSets={mockSetSets}
-      />
+      />,
     );
-    expect(screen.queryByText(/Progression Suggestion:/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Progression Suggestion:/),
+    ).not.toBeInTheDocument();
   });
 
-  it('displays a suggestion when last workout has low RPE', async () => {
+  it("displays a suggestion when last workout has low RPE", async () => {
     (supabase.default.from as any).mockImplementation(() => ({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -63,12 +67,21 @@ describe('ProgressionSuggestion', () => {
         weight={100}
         setWeight={mockSetWeight}
         setSets={mockSetSets}
-      />
+      />,
     );
 
-    await waitFor(() => {
-      const suggestionBox = screen.getByText('Progression Suggestion:').closest('.mt-4.p-4.bg-blue-100.rounded-md')!;
-      expect(within(suggestionBox).getByText('RPE is low. Consider increasing weight.')).toBeInTheDocument();
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const suggestionBox = screen
+          .getByText("Progression Suggestion:")
+          .closest(".mt-4.p-4.bg-blue-100.rounded-md")!;
+        expect(
+          within(suggestionBox).getByText(
+            "RPE is low. Consider increasing weight.",
+          ),
+        ).toBeInTheDocument();
+      },
+      { timeout: 1000 },
+    );
   });
 });

@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import WorkoutLogger from './WorkoutLogger';
-import * as supabase from '../../utils/supabase';
-import { screen } from '@testing-library/dom';
-import '@testing-library/jest-dom';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, fireEvent, waitFor } from "@testing-library/react";
+import WorkoutLogger from "./WorkoutLogger";
+import * as supabase from "../../utils/supabase";
+import { screen } from "@testing-library/dom";
+import "@testing-library/jest-dom";
 
-vi.mock('../../utils/supabase', () => {
+vi.mock("../../utils/supabase", () => {
   const from = vi.fn();
   from.mockImplementation((table: string) => {
-    if (table === 'workouts') {
+    if (table === "workouts") {
       return {
         insert: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({
@@ -20,7 +20,7 @@ vi.mock('../../utils/supabase', () => {
         }),
       };
     }
-    if (table === 'workout_sets') {
+    if (table === "workout_sets") {
       return {
         insert: vi.fn().mockResolvedValue({ error: null }),
       };
@@ -35,20 +35,22 @@ vi.mock('../../utils/supabase', () => {
         getSession: vi.fn(),
         getUser: vi.fn(),
         signOut: vi.fn(),
-        onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        })),
       },
     },
   };
 });
 
-describe('WorkoutLogger', () => {
+describe("WorkoutLogger", () => {
   const mockSetWorkouts = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders without crashing', () => {
+  it("renders without crashing", () => {
     render(
       <WorkoutLogger
         userId="5f9452e4-ddca-4b55-99f7-f956be84a46f"
@@ -59,9 +61,9 @@ describe('WorkoutLogger', () => {
         rpe={7}
         setWorkouts={mockSetWorkouts}
         isInitialized={true}
-      />
+      />,
     );
-    expect(screen.getByText('Log Workout')).toBeInTheDocument();
+    expect(screen.getByText("Log Workout")).toBeInTheDocument();
   });
 
   it('disables the "Log Workout" button while the API call is in progress', async () => {
@@ -75,15 +77,15 @@ describe('WorkoutLogger', () => {
         rpe={7}
         setWorkouts={mockSetWorkouts}
         isInitialized={true}
-      />
+      />,
     );
 
-    const button = screen.getByText('Log Workout');
+    const button = screen.getByText("Log Workout");
     fireEvent.click(button);
 
     expect(button).toBeDisabled();
-    expect(button).toHaveTextContent('Logging...');
-    await waitFor(() => expect(button).toHaveTextContent('Log Workout'));
+    expect(button).toHaveTextContent("Logging...");
+    await waitFor(() => expect(button).toHaveTextContent("Log Workout"));
   });
 
   it('calls the API to create a new workout on "Log Workout" button click', async () => {
@@ -97,14 +99,14 @@ describe('WorkoutLogger', () => {
         rpe={7}
         setWorkouts={mockSetWorkouts}
         isInitialized={true}
-      />
+      />,
     );
 
-    const button = screen.getByText('Log Workout');
+    const button = screen.getByText("Log Workout");
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(supabase.default.from).toHaveBeenCalledWith('workouts');
+      expect(supabase.default.from).toHaveBeenCalledWith("workouts");
       expect(mockSetWorkouts).toHaveBeenCalled();
     });
   });
@@ -120,10 +122,10 @@ describe('WorkoutLogger', () => {
         rpe={7}
         setWorkouts={mockSetWorkouts}
         isInitialized={false}
-      />
+      />,
     );
 
-    const button = screen.getByText('Log Workout');
+    const button = screen.getByText("Log Workout");
     expect(button).toBeDisabled();
   });
 });

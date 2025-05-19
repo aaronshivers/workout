@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import supabase from '../../utils/supabase';
-import type { Database } from '../../types/supabase';
+import React, { useState } from "react";
+import supabase from "../../utils/supabase";
+import type { Database } from "../../types/supabase";
 
 type WorkoutLoggerProps = {
   userId: string;
@@ -9,7 +9,9 @@ type WorkoutLoggerProps = {
   reps: number;
   weight: number;
   rpe: number;
-  setWorkouts: React.Dispatch<React.SetStateAction<Database['public']['Tables']['workouts']['Row'][]>>;
+  setWorkouts: React.Dispatch<
+    React.SetStateAction<Database["public"]["Tables"]["workouts"]["Row"][]>
+  >;
   isInitialized: boolean;
 };
 
@@ -27,7 +29,7 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
 
   const handleLogWorkout = async () => {
     if (!isInitialized || !exerciseId || !userId) {
-      console.error('Initialization or exercise/user not ready.');
+      console.error("Initialization or exercise/user not ready.");
       return;
     }
 
@@ -36,7 +38,7 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
     try {
       // Start a transaction to ensure consistency
       const { data: workoutData, error: workoutError } = await supabase
-        .from('workouts')
+        .from("workouts")
         .insert({ user_id: userId, created_at: new Date().toISOString() })
         .select()
         .single();
@@ -57,20 +59,20 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
       }));
 
       const { error: setError } = await supabase
-        .from('workout_sets')
+        .from("workout_sets")
         .insert(setData);
 
       if (setError) throw setError;
 
-      console.log('Workout logged successfully');
+      console.log("Workout logged successfully");
       const { data: newWorkouts } = await supabase
-        .from('workouts')
-        .select('*')
-        .eq('user_id', userId);
+        .from("workouts")
+        .select("*")
+        .eq("user_id", userId);
       setWorkouts(newWorkouts || []);
     } catch (error) {
-      console.error('Error logging workout:', error);
-      alert('Failed to log workout. Check console for details.');
+      console.error("Error logging workout:", error);
+      alert("Failed to log workout. Check console for details.");
     } finally {
       setIsLogging(false);
     }
@@ -83,7 +85,7 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
         disabled={isLogging || !isInitialized || !exerciseId}
         className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
       >
-        {isLogging ? 'Logging...' : 'Log Workout'}
+        {isLogging ? "Logging..." : "Log Workout"}
       </button>
     </div>
   );

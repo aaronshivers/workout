@@ -1,9 +1,9 @@
-import supabase from '../utils/supabase';
-import {Database} from '../types/supabase';
+import supabase from "../utils/supabase";
+import { Database } from "../types/supabase";
 
-type Workout = Database['public']['Tables']['workouts']['Row'] & {
-  workout_sets: (Database['public']['Tables']['workout_sets']['Row'] & {
-    exercises: Database['public']['Tables']['exercises']['Row'] | null;
+type Workout = Database["public"]["Tables"]["workouts"]["Row"] & {
+  workout_sets: (Database["public"]["Tables"]["workout_sets"]["Row"] & {
+    exercises: Database["public"]["Tables"]["exercises"]["Row"] | null;
   })[];
 };
 
@@ -19,9 +19,7 @@ export const fetchWorkouts = async (): Promise<FetchWorkoutsResult> => {
   let workouts: Workout[] = [];
 
   try {
-    const { data, error: fetchError } = await supabase
-      .from('workouts')
-      .select(`
+    const { data, error: fetchError } = await supabase.from("workouts").select(`
         *,
         workout_sets (
           *,
@@ -31,9 +29,9 @@ export const fetchWorkouts = async (): Promise<FetchWorkoutsResult> => {
 
     if (fetchError) throw fetchError;
 
-    workouts = (data as unknown) as Workout[];
+    workouts = data as unknown as Workout[];
   } catch (err) {
-    error = 'Error fetching workouts';
+    error = "Error fetching workouts";
     console.error(err);
   } finally {
     loading = false;
