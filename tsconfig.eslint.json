@@ -17,6 +17,8 @@
     "src/types/*.ts" //  Adjust this if you have types in a different dir
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "coverage",
   ]
 }
