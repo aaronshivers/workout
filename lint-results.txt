@@ -1,137 +1,115 @@
+yarn run v1.22.22
+$ eslint . --ext .js,.jsx,.ts,.tsx --fix
 
-/Users/aaron/repos/workout/src/components/Navigation/Navigation.test.tsx
-    1:42  warning  Strings must use singlequote  quotes
-    2:43  warning  Strings must use singlequote  quotes
-    3:45  warning  Strings must use singlequote  quotes
-    4:24  warning  Strings must use singlequote  quotes
-    5:29  warning  Strings must use singlequote  quotes
-    6:26  warning  Strings must use singlequote  quotes
-    9:9   warning  Strings must use singlequote  quotes
-   10:40  warning  Strings must use singlequote  quotes
-   18:9   warning  Strings must use singlequote  quotes
-   30:26  warning  Strings must use singlequote  quotes
-   46:10  warning  Strings must use singlequote  quotes
-   47:6   warning  Strings must use singlequote  quotes
-   49:29  warning  Strings must use singlequote  quotes
-   52:6   warning  Strings must use singlequote  quotes
-   54:44  warning  Strings must use singlequote  quotes
-   55:43  warning  Strings must use singlequote  quotes
-   55:51  warning  Strings must use singlequote  quotes
-   57:7   warning  Strings must use singlequote  quotes
-   58:7   warning  Strings must use singlequote  quotes
-   62:6   warning  Strings must use singlequote  quotes
-   63:28  warning  Strings must use singlequote  quotes
-   64:44  warning  Strings must use singlequote  quotes
-   65:39  warning  Strings must use singlequote  quotes
-   68:6   warning  Strings must use singlequote  quotes
-   70:45  warning  Strings must use singlequote  quotes
-   71:44  warning  Strings must use singlequote  quotes
-   71:52  warning  Strings must use singlequote  quotes
-   73:7   warning  Strings must use singlequote  quotes
-   74:7   warning  Strings must use singlequote  quotes
-   78:6   warning  Strings must use singlequote  quotes
-   79:28  warning  Strings must use singlequote  quotes
-   80:45  warning  Strings must use singlequote  quotes
-   81:40  warning  Strings must use singlequote  quotes
-   84:6   warning  Strings must use singlequote  quotes
-   86:42  warning  Strings must use singlequote  quotes
-   87:41  warning  Strings must use singlequote  quotes
-   87:49  warning  Strings must use singlequote  quotes
-   89:7   warning  Strings must use singlequote  quotes
-   90:7   warning  Strings must use singlequote  quotes
-   94:6   warning  Strings must use singlequote  quotes
-   95:28  warning  Strings must use singlequote  quotes
-   96:42  warning  Strings must use singlequote  quotes
-   97:37  warning  Strings must use singlequote  quotes
-  100:6   warning  Strings must use singlequote  quotes
-  102:43  warning  Strings must use singlequote  quotes
-  103:42  warning  Strings must use singlequote  quotes
-  103:50  warning  Strings must use singlequote  quotes
-  104:42  warning  Strings must use singlequote  quotes
-  104:56  warning  Strings must use singlequote  quotes
-  107:6   warning  Strings must use singlequote  quotes
-  108:28  warning  Strings must use singlequote  quotes
-  109:43  warning  Strings must use singlequote  quotes
-  110:38  warning  Strings must use singlequote  quotes
-  113:6   warning  Strings must use singlequote  quotes
-  115:43  warning  Strings must use singlequote  quotes
-  116:38  warning  Strings must use singlequote  quotes
-  116:52  warning  Strings must use singlequote  quotes
-  116:66  warning  Strings must use singlequote  quotes
-  119:6   warning  Strings must use singlequote  quotes
-  123:43  warning  Strings must use singlequote  quotes
-  127:43  warning  Strings must use singlequote  quotes
-  130:6   warning  Strings must use singlequote  quotes
-  132:34  warning  Strings must use singlequote  quotes
-  133:33  warning  Strings must use singlequote  quotes
-  133:47  warning  Strings must use singlequote  quotes
-  134:39  warning  Strings must use singlequote  quotes
-  136:36  warning  Strings must use singlequote  quotes
-  136:48  warning  Strings must use singlequote  quotes
-  140:6   warning  Strings must use singlequote  quotes
-  142:34  warning  Strings must use singlequote  quotes
-  143:29  warning  Strings must use singlequote  quotes
-  143:37  warning  Strings must use singlequote  quotes
-  143:50  warning  Strings must use singlequote  quotes
-  147:10  warning  Strings must use singlequote  quotes
-  148:6   warning  Strings must use singlequote  quotes
-  150:29  warning  Strings must use singlequote  quotes
-  153:6   warning  Strings must use singlequote  quotes
-  155:40  warning  Strings must use singlequote  quotes
-  156:39  warning  Strings must use singlequote  quotes
-  156:47  warning  Strings must use singlequote  quotes
-  157:39  warning  Strings must use singlequote  quotes
-  157:53  warning  Strings must use singlequote  quotes
-  160:6   warning  Strings must use singlequote  quotes
-  161:29  warning  Strings must use singlequote  quotes
-  162:40  warning  Strings must use singlequote  quotes
-  163:35  warning  Strings must use singlequote  quotes
-  166:6   warning  Strings must use singlequote  quotes
-  168:41  warning  Strings must use singlequote  quotes
-  169:40  warning  Strings must use singlequote  quotes
-  169:48  warning  Strings must use singlequote  quotes
-  170:40  warning  Strings must use singlequote  quotes
-  170:54  warning  Strings must use singlequote  quotes
-  173:6   warning  Strings must use singlequote  quotes
-  174:29  warning  Strings must use singlequote  quotes
-  175:41  warning  Strings must use singlequote  quotes
-  176:36  warning  Strings must use singlequote  quotes
-  179:6   warning  Strings must use singlequote  quotes
-  181:31  warning  Strings must use singlequote  quotes
-  182:31  warning  Strings must use singlequote  quotes
-  183:31  warning  Strings must use singlequote  quotes
-  184:31  warning  Strings must use singlequote  quotes
-  187:6   warning  Strings must use singlequote  quotes
-  189:34  warning  Strings must use singlequote  quotes
-  190:29  warning  Strings must use singlequote  quotes
-  190:37  warning  Strings must use singlequote  quotes
-  190:50  warning  Strings must use singlequote  quotes
+/Users/aaron/repos/workout/coverage/block-navigation.js
+  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/coverage/block-navigation.js` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.eslint.json
+However, that TSConfig does not include this file. Either:
+- Change ESLint's list of included files to not include this file
+- Change that TSConfig to include this file
+- Create a new TSConfig that includes this file and include it in your parserOptions.project
+See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
 
-/Users/aaron/repos/workout/src/components/Navigation/Navigation.tsx
-   1:38  warning  Strings must use singlequote  quotes
-   2:22  warning  Strings must use singlequote  quotes
-  15:14  warning  Strings must use singlequote  quotes
-  19:11  warning  Strings must use singlequote  quotes
-  19:31  warning  Strings must use singlequote  quotes
-  19:55  warning  Strings must use singlequote  quotes
-  21:11  warning  Strings must use singlequote  quotes
-  22:13  warning  Strings must use singlequote  quotes
-  23:18  warning  Strings must use singlequote  quotes
-  26:11  warning  Strings must use singlequote  quotes
-  27:13  warning  Strings must use singlequote  quotes
-  28:18  warning  Strings must use singlequote  quotes
-  30:11  warning  Strings must use singlequote  quotes
-  30:30  warning  Strings must use singlequote  quotes
-  30:53  warning  Strings must use singlequote  quotes
-  34:11  warning  Strings must use singlequote  quotes
-  34:27  warning  Strings must use singlequote  quotes
-  34:47  warning  Strings must use singlequote  quotes
-  35:11  warning  Strings must use singlequote  quotes
-  35:28  warning  Strings must use singlequote  quotes
-  35:50  warning  Strings must use singlequote  quotes
-  47:61  warning  Strings must use singlequote  quotes
-  47:79  warning  Strings must use singlequote  quotes
+/Users/aaron/repos/workout/coverage/prettify.js
+  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/coverage/prettify.js` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.eslint.json
+However, that TSConfig does not include this file. Either:
+- Change ESLint's list of included files to not include this file
+- Change that TSConfig to include this file
+- Create a new TSConfig that includes this file and include it in your parserOptions.project
+See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
 
-✖ 129 problems (0 errors, 129 warnings)
-  0 errors and 129 warnings potentially fixable with the `--fix` option.
+/Users/aaron/repos/workout/coverage/sorter.js
+  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/coverage/sorter.js` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.eslint.json
+However, that TSConfig does not include this file. Either:
+- Change ESLint's list of included files to not include this file
+- Change that TSConfig to include this file
+- Create a new TSConfig that includes this file and include it in your parserOptions.project
+See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
 
+/Users/aaron/repos/workout/src/components/AuthManager/AuthManager.test.tsx
+   85:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  127:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/AuthManager/AuthManager.tsx
+   27:32  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  148:15  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  154:33  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+
+/Users/aaron/repos/workout/src/components/CreateWorkout/CreateWorkout.test.tsx
+  153:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/CreateWorkout/CreateWorkout.tsx
+  14:29  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  26:49  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  66:27  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+
+/Users/aaron/repos/workout/src/components/EditWorkout/EditWorkout.test.tsx
+   41:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  186:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  187:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  205:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  220:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  251:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/EditWorkout/EditWorkout.tsx
+  180:19  error  'idNum' is not defined                    no-undef
+  187:27  error  'idNum' is not defined                    no-undef
+  219:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/ProgressionSuggestion/ProgressionSuggestion.test.tsx
+  48:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/WorkoutHistory/WorkoutHistory.test.tsx
+  4:13  warning  'supabase' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/aaron/repos/workout/src/components/WorkoutHistory/WorkoutHistory.tsx
+  24:3  warning  'muscleGroups' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/aaron/repos/workout/src/components/WorkoutList/WorkoutList.test.tsx
+   40:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   65:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   82:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  177:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  204:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  261:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  290:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  320:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  353:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  384:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  419:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  453:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  516:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  549:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  584:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/WorkoutList/WorkoutList.tsx
+  13:34  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  36:43  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  50:35  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+
+/Users/aaron/repos/workout/src/components/WorkoutLogger/WorkoutLogger.test.tsx
+  107:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  168:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/aaron/repos/workout/src/components/WorkoutLogger/WorkoutLogger.tsx
+  40:39  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+  71:37  warning  Missing return type on function  @typescript-eslint/explicit-function-return-type
+
+/Users/aaron/repos/workout/src/components/WorkoutTracker.tsx
+    8:8   warning  'ProgressionSuggestion' is defined but never used                                                              @typescript-eslint/no-unused-vars
+    9:8   warning  'DataFetcher' is defined but never used                                                                        @typescript-eslint/no-unused-vars
+   10:8   warning  'WorkoutLogger' is defined but never used                                                                      @typescript-eslint/no-unused-vars
+   49:20  warning  'setWorkouts' is assigned a value but never used                                                               @typescript-eslint/no-unused-vars
+   50:21  warning  'setExercises' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+   61:35  warning  Missing return type on function                                                                                @typescript-eslint/explicit-function-return-type
+   92:15  warning  Missing return type on function                                                                                @typescript-eslint/explicit-function-return-type
+   98:7   warning  'userId' is defined but never used                                                                             @typescript-eslint/no-unused-vars
+  160:5   warning  React Hook useCallback has a missing dependency: 'workouts'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 60 problems (38 errors, 22 warnings)
+
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

@@ -1,5 +1,5 @@
-import React from "react";
-import { WorkoutSet } from "../../types/supabase";
+import React from 'react';
+import { WorkoutSet } from '../../types/supabase';
 
 interface ProgressionSuggestionProps {
   workoutSet: WorkoutSet;

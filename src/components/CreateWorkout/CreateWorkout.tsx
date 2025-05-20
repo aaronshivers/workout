@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase';
 
 const CreateWorkout: React.FC = () => {
-  const [date, setDate] = useState("");
-  const [type, setType] = useState("");
-  const [duration, setDuration] = useState("");
-  const [exercises, setExercises] = useState("");
+  const [date, setDate] = useState('');
+  const [type, setType] = useState('');
+  const [duration, setDuration] = useState('');
+  const [exercises, setExercises] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const validateInputs = () => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      setError("Invalid date format");
+      setError('Invalid date format');
       return false;
     }
     if (isNaN(Number(duration))) {
-      setError("Duration must be a number");
+      setError('Duration must be a number');
       return false;
     }
     return true;
@@ -34,13 +34,13 @@ const CreateWorkout: React.FC = () => {
     const userId = sessionData?.session?.user?.id;
 
     const { error: insertError } = await supabase
-      .from("workouts")
+      .from('workouts')
       .insert({
         user_id: userId,
         created_at: date,
         type,
         duration: Number(duration),
-        workout_sets: exercises.split(",").map((exercise) => ({
+        workout_sets: exercises.split(',').map((exercise) => ({
           exercise_id: 1, // Simplified for testing
           sets: 3,
           reps: 10,
@@ -54,17 +54,17 @@ const CreateWorkout: React.FC = () => {
     if (insertError) {
       setError(`Error creating workout: ${insertError.message}`);
     } else {
-      setDate("");
-      setType("");
-      setDuration("");
-      setExercises("");
-      navigate("/");
+      setDate('');
+      setType('');
+      setDuration('');
+      setExercises('');
+      navigate('/');
     }
     setIsLoading(false);
   };
 
   const handleCancel = () => {
-    navigate("/");
+    navigate('/');
   };
 
   return (
@@ -139,7 +139,7 @@ const CreateWorkout: React.FC = () => {
             disabled={isLoading}
             className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 mb-2 disabled:bg-gray-400"
           >
-            {isLoading ? "Saving..." : "Save"}
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"

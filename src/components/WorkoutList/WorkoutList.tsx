@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase";
-import { Workout } from "../../types";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase';
+import { Workout } from '../../types';
 
 const WorkoutList: React.FC = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -12,7 +12,7 @@ const WorkoutList: React.FC = () => {
 
   const fetchWorkouts = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("workouts").select(`
+    const { data, error } = await supabase.from('workouts').select(`
         *,
         workout_sets (
           *,
@@ -20,7 +20,7 @@ const WorkoutList: React.FC = () => {
         )
       `);
     if (error) {
-      setError("Failed to fetch workouts");
+      setError('Failed to fetch workouts');
       console.error(error);
     } else {
       setWorkouts(data as Workout[]);
@@ -34,12 +34,12 @@ const WorkoutList: React.FC = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this workout?"))
+    if (!window.confirm('Are you sure you want to delete this workout?'))
       return;
     setDeleting(id);
-    const { error } = await supabase.from("workouts").delete().eq("id", id);
+    const { error } = await supabase.from('workouts').delete().eq('id', id);
     if (error) {
-      setError("Failed to delete workout");
+      setError('Failed to delete workout');
       console.error(error);
     } else {
       await fetchWorkouts();
@@ -58,7 +58,7 @@ const WorkoutList: React.FC = () => {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Workout List</h1>
       <button
-        onClick={() => navigate("/create-workout")}
+        onClick={() => navigate('/create-workout')}
         className="mb-4 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
       >
         Create New Workout
@@ -72,16 +72,16 @@ const WorkoutList: React.FC = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p>
-                    <strong>Date:</strong>{" "}
+                    <strong>Date:</strong>{' '}
                     {workout.created_at
                       ? new Date(workout.created_at).toLocaleDateString()
-                      : "N/A"}
+                      : 'N/A'}
                   </p>
                   <p>
-                    <strong>Exercises:</strong>{" "}
+                    <strong>Exercises:</strong>{' '}
                     {workout.workout_sets
                       .map((set) => set.exercises?.name)
-                      .join(", ")}
+                      .join(', ')}
                   </p>
                 </div>
                 <div className="space-x-2">
@@ -96,7 +96,7 @@ const WorkoutList: React.FC = () => {
                     disabled={deleting === workout.id}
                     className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 disabled:bg-gray-400"
                   >
-                    {deleting === workout.id ? "Deleting..." : "Delete"}
+                    {deleting === workout.id ? 'Deleting...' : 'Delete'}
                   </button>
                 </div>
               </div>

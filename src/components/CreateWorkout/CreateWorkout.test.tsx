@@ -1,7 +1,7 @@
 // src/components/CreateWorkout/CreateWorkout.tsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase';
 
 type ExerciseInput = {
   name: string;
@@ -12,9 +12,9 @@ type ExerciseInput = {
 };
 
 const CreateWorkout: React.FC = () => {
-  const [date, setDate] = useState<string>("");
+  const [date, setDate] = useState<string>('');
   const [exercises, setExercises] = useState<ExerciseInput[]>([
-    { name: "", sets: [], reps: [], weight: [], rpe: [] },
+    { name: '', sets: [], reps: [], weight: [], rpe: [] },
   ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,25 +22,25 @@ const CreateWorkout: React.FC = () => {
 
   const validateInputs = (): boolean => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      setError("Invalid date format (YYYY-MM-DD)");
+      setError('Invalid date format (YYYY-MM-DD)');
       return false;
     }
     for (const exercise of exercises) {
       if (!exercise.name) {
-        setError("Exercise name is required");
+        setError('Exercise name is required');
         return false;
       }
       if (exercise.sets.length === 0) {
-        setError("At least one set is required per exercise");
+        setError('At least one set is required per exercise');
         return false;
       }
       for (let i = 0; i < exercise.sets.length; i++) {
         if (isNaN(exercise.reps[i]) || exercise.reps[i] < 1) {
-          setError("Reps must be a positive number");
+          setError('Reps must be a positive number');
           return false;
         }
         if (isNaN(exercise.weight[i]) || exercise.weight[i] < 0) {
-          setError("Weight must be a non-negative number");
+          setError('Weight must be a non-negative number');
           return false;
         }
         if (
@@ -48,7 +48,7 @@ const CreateWorkout: React.FC = () => {
           exercise.rpe[i] < 1 ||
           exercise.rpe[i] > 10
         ) {
-          setError("RPE must be between 1 and 10");
+          setError('RPE must be between 1 and 10');
           return false;
         }
       }
@@ -59,7 +59,7 @@ const CreateWorkout: React.FC = () => {
   const addExercise = (): void => {
     setExercises([
       ...exercises,
-      { name: "", sets: [], reps: [], weight: [], rpe: [] },
+      { name: '', sets: [], reps: [], weight: [], rpe: [] },
     ]);
   };
 
@@ -91,7 +91,7 @@ const CreateWorkout: React.FC = () => {
           ? {
               ...ex,
               [field]:
-                field === "name"
+                field === 'name'
                   ? value
                   : [
                       ...ex[field],
@@ -116,7 +116,7 @@ const CreateWorkout: React.FC = () => {
 
       // Insert workout
       const { data: workoutData, error: workoutError } = await supabase
-        .from("workouts")
+        .from('workouts')
         .insert({ user_id: userId, created_at: date })
         .select()
         .single();
@@ -126,7 +126,7 @@ const CreateWorkout: React.FC = () => {
       // Insert exercises and sets
       for (const exercise of exercises) {
         const { data: exerciseData, error: exerciseError } = await supabase
-          .from("exercises")
+          .from('exercises')
           .insert({ name: exercise.name, user_id: userId })
           .select()
           .single();
@@ -142,14 +142,14 @@ const CreateWorkout: React.FC = () => {
         }));
 
         const { error: setError } = await supabase
-          .from("workout_sets")
+          .from('workout_sets')
           .insert(setData);
         if (setError) throw setError;
       }
 
-      setDate("");
-      setExercises([{ name: "", sets: [], reps: [], weight: [], rpe: [] }]);
-      navigate("/");
+      setDate('');
+      setExercises([{ name: '', sets: [], reps: [], weight: [], rpe: [] }]);
+      navigate('/');
     } catch (err: any) {
       setError(`Error creating workout: ${err.message}`);
     } finally {
@@ -158,7 +158,7 @@ const CreateWorkout: React.FC = () => {
   };
 
   const handleCancel = (): void => {
-    navigate("/");
+    navigate('/');
   };
 
   return (
@@ -189,7 +189,7 @@ const CreateWorkout: React.FC = () => {
                 type="text"
                 value={exercise.name}
                 onChange={(e) =>
-                  updateExercise(exerciseIndex, "name", e.target.value)
+                  updateExercise(exerciseIndex, 'name', e.target.value)
                 }
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -207,7 +207,7 @@ const CreateWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "reps",
+                        'reps',
                         e.target.value,
                         setIndex,
                       )
@@ -226,7 +226,7 @@ const CreateWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "weight",
+                        'weight',
                         e.target.value,
                         setIndex,
                       )
@@ -245,7 +245,7 @@ const CreateWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "rpe",
+                        'rpe',
                         e.target.value,
                         setIndex,
                       )
@@ -282,7 +282,7 @@ const CreateWorkout: React.FC = () => {
             disabled={isLoading}
             className="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
           >
-            {isLoading ? "Saving..." : "Save"}
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
           <button
             type="button"

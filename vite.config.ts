@@ -1,8 +1,8 @@
-import { defineConfig } from "vitest/config";
-import react from "@vitejs/plugin-react-swc";
-import postcss from "@tailwindcss/postcss";
-import autoprefixer from "autoprefixer";
-import type { AcceptedPlugin } from "postcss";
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react-swc';
+import postcss from '@tailwindcss/postcss';
+import autoprefixer from 'autoprefixer';
+import type { AcceptedPlugin } from 'postcss';
 
 export default defineConfig({
   plugins: [react()],
@@ -12,9 +12,9 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "jsdom",
-    setupFiles: ["./vitest.setup.ts"],
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
     globals: true,
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

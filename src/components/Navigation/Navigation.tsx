@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase"; // Changed to default import
+import { NavLink, useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase'; // Changed to default import
 
 interface NavigationProps {
   isAuthenticated: boolean;
@@ -12,27 +12,27 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
   const handleLogout = async (): Promise<void> => {
     await supabase.auth.signOut();
     if (logout) logout();
-    navigate("/login");
+    navigate('/login');
   };
 
   const loggedInLinks = [
-    { to: "/dashboard", text: "Dashboard", ariaLabel: "Navigate to Dashboard" },
+    { to: '/dashboard', text: 'Dashboard', ariaLabel: 'Navigate to Dashboard' },
     {
-      to: "/log-workout",
-      text: "Log Workout",
-      ariaLabel: "Navigate to Log Workout",
+      to: '/log-workout',
+      text: 'Log Workout',
+      ariaLabel: 'Navigate to Log Workout',
     },
     {
-      to: "/history",
-      text: "Workout History",
-      ariaLabel: "Navigate to Workout History",
+      to: '/history',
+      text: 'Workout History',
+      ariaLabel: 'Navigate to Workout History',
     },
-    { to: "/settings", text: "Settings", ariaLabel: "Navigate to Settings" },
+    { to: '/settings', text: 'Settings', ariaLabel: 'Navigate to Settings' },
   ];
 
   const loggedOutLinks = [
-    { to: "/login", text: "Login", ariaLabel: "Navigate to Login" },
-    { to: "/signup", text: "Sign Up", ariaLabel: "Navigate to Sign Up" },
+    { to: '/login', text: 'Login', ariaLabel: 'Navigate to Login' },
+    { to: '/signup', text: 'Sign Up', ariaLabel: 'Navigate to Sign Up' },
   ];
 
   const links = isAuthenticated ? loggedInLinks : loggedOutLinks;
@@ -44,7 +44,7 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
           key={link.to}
           to={link.to}
           className={({ isActive }) =>
-            `text-gray-700 hover:text-blue-500 ${isActive ? "text-blue-500" : ""}`
+            `text-gray-700 hover:text-blue-500 ${isActive ? 'text-blue-500' : ''}`
           }
           aria-label={link.ariaLabel}
           tabIndex={0}

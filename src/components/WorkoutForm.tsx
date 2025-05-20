@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type Exercise = {
   id: number;
@@ -44,14 +44,14 @@ const WorkoutForm: React.FC<WorkoutFormProps> = ({
       <div className="mb-4">
         <label className="block text-sm font-medium">Exercise</label>
         <select
-          value={exerciseId ?? ""}
+          value={exerciseId ?? ''}
           onChange={(e) => setExerciseId(Number(e.target.value) || null)}
           className="w-full p-2 border rounded"
         >
           <option value="">Select Exercise</option>
           {exercises.map((ex) => (
             <option key={ex.id} value={ex.id}>
-              {ex.name} ({ex.muscle_groups?.[0]?.name ?? "Unknown"})
+              {ex.name} ({ex.muscle_groups?.[0]?.name ?? 'Unknown'})
             </option>
           ))}
         </select>

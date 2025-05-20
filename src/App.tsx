@@ -8,26 +8,26 @@ import WorkoutHistory from './components/WorkoutHistory/WorkoutHistory';
 import Settings from './components/Settings/Settings';
 import CreateWorkout from './components/CreateWorkout/CreateWorkout';
 import Signup from './components/Signup/Signup';
-import { useState } from 'react';
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
   return (
-    <AuthManager setIsAuthenticated={setIsAuthenticated}>
-      {({ isAuthenticated: authStatus, handleLogout }) => (
+    <AuthManager setIsAuthenticated={() => {}}>
+      {({ handleLogout, isInitialized, userId }) => (
         <div className="min-h-screen bg-gray-100">
-          <Navigation
-            isAuthenticated={authStatus}
-            logout={handleLogout}
-          />
+          <Navigation isAuthenticated={isInitialized} logout={handleLogout} />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/log-workout"
-              element={<WorkoutLogger userId="placeholder" />}
+              element={
+                <WorkoutLogger
+                  userId={userId}
+                  setWorkouts={() => {}} // Placeholder, replace with actual state management
+                  isInitialized={isInitialized}
+                />
+              }
             />
             <Route
               path="/history"

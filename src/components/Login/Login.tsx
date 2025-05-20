@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -30,18 +30,18 @@ const Login: React.FC = () => {
       }
 
       if (!data.user || !data.session) {
-        setError("Invalid credentials");
+        setError('Invalid credentials');
         setIsLoading(false);
         return;
       }
 
-      localStorage.setItem("sb-auth-token", data.session.access_token);
-      setEmail("");
-      setPassword("");
+      localStorage.setItem('sb-auth-token', data.session.access_token);
+      setEmail('');
+      setPassword('');
       setIsLoading(false);
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     } catch {
-      setError("Network error");
+      setError('Network error');
       setIsLoading(false);
     }
   };
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
           disabled={isLoading}
           className="w-full bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
         >
-          {isLoading ? "Loading..." : "Login"}
+          {isLoading ? 'Loading...' : 'Login'}
         </button>
       </form>
     </div>

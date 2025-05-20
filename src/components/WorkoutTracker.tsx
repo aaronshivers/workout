@@ -1,55 +1,55 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Navigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Navigate } from 'react-router-dom';
 
-import type { Database } from "../types/supabase";
-import AuthManager from "./AuthManager/AuthManager";
-import WorkoutForm from "./WorkoutForm";
-import WorkoutHistory from "./WorkoutHistory/WorkoutHistory";
-import ProgressionSuggestion from "./ProgressionSuggestion/ProgressionSuggestion";
-import DataFetcher from "./DataFetcher";
-import WorkoutLogger from "./WorkoutLogger/WorkoutLogger";
-import supabase from "../utils/supabase";
+import type { Database } from '../types/supabase';
+import AuthManager from './AuthManager/AuthManager';
+import WorkoutForm from './WorkoutForm';
+import WorkoutHistory from './WorkoutHistory/WorkoutHistory';
+import ProgressionSuggestion from './ProgressionSuggestion/ProgressionSuggestion';
+import DataFetcher from './DataFetcher';
+import WorkoutLogger from './WorkoutLogger/WorkoutLogger';
+import supabase from '../utils/supabase';
 
 // Define custom types for joined data
 type ExerciseWithMuscleGroup =
-  Database["public"]["Tables"]["exercises"]["Row"] & {
+  Database['public']['Tables']['exercises']['Row'] & {
     muscle_groups: { name: string }[] | null;
   };
 
-type WorkoutSet = Database["public"]["Tables"]["workout_sets"]["Row"] & {
+type WorkoutSet = Database['public']['Tables']['workout_sets']['Row'] & {
   exercises: ExerciseWithMuscleGroup | null;
 };
 
-type Workout = Database["public"]["Tables"]["workouts"]["Row"] & {
+type Workout = Database['public']['Tables']['workouts']['Row'] & {
   workout_sets: WorkoutSet[];
 };
 
-type Exercise = Database["public"]["Tables"]["exercises"]["Row"] & {
+type Exercise = Database['public']['Tables']['exercises']['Row'] & {
   muscle_groups: { name: string }[] | null;
 };
 
 const muscleGroups: string[] = [
-  "Chest",
-  "Back",
-  "Quads",
-  "Hamstrings",
-  "Glutes",
-  "Biceps",
-  "Triceps",
-  "Traps",
-  "Forearms",
-  "Side Delts",
-  "Front Delts",
-  "Rear Delts",
-  "Calves",
-  "Abs",
+  'Chest',
+  'Back',
+  'Quads',
+  'Hamstrings',
+  'Glutes',
+  'Biceps',
+  'Triceps',
+  'Traps',
+  'Forearms',
+  'Side Delts',
+  'Front Delts',
+  'Rear Delts',
+  'Calves',
+  'Abs',
 ];
 
 const WorkoutTracker: React.FC = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseId, setExerciseId] = useState<number | null>(null);
-  const [muscleGroup, setMuscleGroup] = useState<string>("");
+  const [muscleGroup, setMuscleGroup] = useState<string>('');
   const [sets, setSets] = useState<number>(3);
   const [reps, setReps] = useState<number>(10);
   const [weight, setWeight] = useState<number>(100);
@@ -83,7 +83,7 @@ const WorkoutTracker: React.FC = () => {
     const timer = setTimeout(() => {
       if (isAuthenticated === null) {
         console.log(
-          "WorkoutTracker: Authentication timed out, redirecting to login",
+          'WorkoutTracker: Authentication timed out, redirecting to login',
         );
         setTimeoutReached(true);
       }

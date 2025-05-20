@@ -1,8 +1,7 @@
-// src/components/EditWorkout/EditWorkout.tsx
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import supabase from "../../utils/supabase";
-import type { Database } from "../../types/supabase";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import supabase from '../../utils/supabase';
+import type { Database } from '../../types/supabase';
 
 type ExerciseInput = {
   id?: number;
@@ -13,9 +12,9 @@ type ExerciseInput = {
   rpe: number[];
 };
 
-type Workout = Database["public"]["Tables"]["workouts"]["Row"] & {
-  workout_sets: (Database["public"]["Tables"]["workout_sets"]["Row"] & {
-    exercises: Database["public"]["Tables"]["exercises"]["Row"] | null;
+type Workout = Database['public']['Tables']['workouts']['Row'] & {
+  workout_sets: (Database['public']['Tables']['workout_sets']['Row'] & {
+    exercises: Database['public']['Tables']['exercises']['Row'] | null;
   })[];
 };
 
@@ -31,14 +30,15 @@ const EditWorkout: React.FC = () => {
 
   useEffect(() => {
     const fetchWorkout = async (): Promise<void> => {
-      if (!id) {
-        setError("Invalid workout ID");
+      const idNum = Number(id);
+      if (isNaN(idNum)) {
+        setError('Invalid workout ID');
         setIsLoading(false);
         return;
       }
       try {
         const { data, error: fetchError } = await supabase
-          .from("workouts")
+          .from('workouts')
           .select(
             `
             *,
@@ -48,7 +48,7 @@ const EditWorkout: React.FC = () => {
             )
           `,
           )
-          .eq("id", id)
+          .eq('id', idNum)
           .single();
         if (fetchError) {
           setError(fetchError.message);
@@ -67,7 +67,7 @@ const EditWorkout: React.FC = () => {
             } else {
               acc.push({
                 id: set.exercise_id,
-                name: set.exercises?.name || "Unknown",
+                name: set.exercises?.name || 'Unknown',
                 sets: [set.sets],
                 reps: [set.reps],
                 weight: [set.weight],
@@ -79,7 +79,7 @@ const EditWorkout: React.FC = () => {
         );
         setIsLoading(false);
       } catch {
-        setError("Network error");
+        setError('Network error');
         setIsLoading(false);
       }
     };
@@ -89,7 +89,7 @@ const EditWorkout: React.FC = () => {
   const addExercise = (): void => {
     setExercises([
       ...exercises,
-      { name: "", sets: [], reps: [], weight: [], rpe: [] },
+      { name: '', sets: [], reps: [], weight: [], rpe: [] },
     ]);
   };
 
@@ -121,12 +121,13 @@ const EditWorkout: React.FC = () => {
           ? {
               ...ex,
               [field]:
-                field === "name"
+                field === 'name'
                   ? value
-                  : [
-                      ...ex[field],
-                      ...(setIndex !== undefined ? [parseFloat(value)] : []),
-                    ],
+                  : setIndex !== undefined
+                    ? ex[field].map((v, idx) =>
+                        idx === setIndex ? parseFloat(value) : v,
+                      )
+                    : [...(ex[field] as number[]), parseFloat(value)],
             }
           : ex,
       ),
@@ -140,20 +141,20 @@ const EditWorkout: React.FC = () => {
     // Validate inputs
     for (const exercise of exercises) {
       if (!exercise.name) {
-        setValidationError("Exercise name is required");
+        setValidationError('Exercise name is required');
         return;
       }
       if (exercise.sets.length === 0) {
-        setValidationError("At least one set is required per exercise");
+        setValidationError('At least one set is required per exercise');
         return;
       }
       for (let i = 0; i < exercise.sets.length; i++) {
         if (isNaN(exercise.reps[i]) || exercise.reps[i] < 1) {
-          setValidationError("Reps must be a positive number");
+          setValidationError('Reps must be a positive number');
           return;
         }
         if (isNaN(exercise.weight[i]) || exercise.weight[i] < 0) {
-          setValidationError("Weight must be a non-negative number");
+          setValidationError('Weight must be a non-negative number');
           return;
         }
         if (
@@ -161,7 +162,7 @@ const EditWorkout: React.FC = () => {
           exercise.rpe[i] < 1 ||
           exercise.rpe[i] > 10
         ) {
-          setValidationError("RPE must be between 1 and 10");
+          setValidationError('RPE must be between 1 and 10');
           return;
         }
       }
@@ -174,16 +175,16 @@ const EditWorkout: React.FC = () => {
     try {
       // Update workout
       const { error: workoutError } = await supabase
-        .from("workouts")
+        .from('workouts')
         .update({ created_at: workout.created_at })
-        .eq("id", id);
+        .eq('id', idNum);
       if (workoutError) throw workoutError;
 
       // Delete existing workout sets
       const { error: deleteError } = await supabase
-        .from("workout_sets")
+        .from('workout_sets')
         .delete()
-        .eq("workout_id", id);
+        .eq('workout_id', idNum);
       if (deleteError) throw deleteError;
 
       // Insert new exercises and sets
@@ -191,7 +192,7 @@ const EditWorkout: React.FC = () => {
         let exerciseId = exercise.id;
         if (!exerciseId) {
           const { data: exerciseData, error: exerciseError } = await supabase
-            .from("exercises")
+            .from('exercises')
             .insert({ name: exercise.name, user_id: workout.user_id })
             .select()
             .single();
@@ -209,12 +210,12 @@ const EditWorkout: React.FC = () => {
         }));
 
         const { error: setError } = await supabase
-          .from("workout_sets")
+          .from('workout_sets')
           .insert(setData);
         if (setError) throw setError;
       }
 
-      navigate("/workouts");
+      navigate('/workouts');
     } catch (err: any) {
       setError(`Error updating workout: ${err.message}`);
     } finally {
@@ -223,7 +224,7 @@ const EditWorkout: React.FC = () => {
   };
 
   const handleCancel = (): void => {
-    navigate("/workouts");
+    navigate('/workouts');
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -240,7 +241,7 @@ const EditWorkout: React.FC = () => {
           </label>
           <input
             type="date"
-            value={workout.created_at.split("T")[0]}
+            value={workout.created_at.split('T')[0]}
             onChange={(e) =>
               setWorkout((prev) =>
                 prev ? { ...prev, created_at: e.target.value } : null,
@@ -261,7 +262,7 @@ const EditWorkout: React.FC = () => {
                 type="text"
                 value={exercise.name}
                 onChange={(e) =>
-                  updateExercise(exerciseIndex, "name", e.target.value)
+                  updateExercise(exerciseIndex, 'name', e.target.value)
                 }
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -279,7 +280,7 @@ const EditWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "reps",
+                        'reps',
                         e.target.value,
                         setIndex,
                       )
@@ -298,7 +299,7 @@ const EditWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "weight",
+                        'weight',
                         e.target.value,
                         setIndex,
                       )
@@ -317,7 +318,7 @@ const EditWorkout: React.FC = () => {
                     onChange={(e) =>
                       updateExercise(
                         exerciseIndex,
-                        "rpe",
+                        'rpe',
                         e.target.value,
                         setIndex,
                       )
@@ -359,7 +360,7 @@ const EditWorkout: React.FC = () => {
             disabled={isUpdating}
             className="flex-1 bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700 disabled:bg-gray-400"
           >
-            {isUpdating ? "Updating..." : "Update"}
+            {isUpdating ? 'Updating...' : 'Update'}
           </button>
           <button
             type="button"

@@ -51,11 +51,11 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "exercises_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: 'exercises_user_id_fkey';
+            columns: ['user_id'];
             isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -95,18 +95,18 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "exercise_muscle_groups_exercise_id_fkey";
-            columns: ["exercise_id"];
+            foreignKeyName: 'exercise_muscle_groups_exercise_id_fkey';
+            columns: ['exercise_id'];
             isOneToOne: false;
-            referencedRelation: "exercises";
-            referencedColumns: ["id"];
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "exercise_muscle_groups_muscle_group_id_fkey";
-            columns: ["muscle_group_id"];
+            foreignKeyName: 'exercise_muscle_groups_muscle_group_id_fkey';
+            columns: ['muscle_group_id'];
             isOneToOne: false;
-            referencedRelation: "muscle_groups";
-            referencedColumns: ["id"];
+            referencedRelation: 'muscle_groups';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -128,11 +128,11 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "workouts_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: 'workouts_user_id_fkey';
+            columns: ['user_id'];
             isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -169,18 +169,18 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "workout_sets_exercise_id_fkey";
-            columns: ["exercise_id"];
+            foreignKeyName: 'workout_sets_exercise_id_fkey';
+            columns: ['exercise_id'];
             isOneToOne: false;
-            referencedRelation: "exercises";
-            referencedColumns: ["id"];
+            referencedRelation: 'exercises';
+            referencedColumns: ['id'];
           },
           {
-            foreignKeyName: "workout_sets_workout_id_fkey";
-            columns: ["workout_id"];
+            foreignKeyName: 'workout_sets_workout_id_fkey';
+            columns: ['workout_id'];
             isOneToOne: false;
-            referencedRelation: "workouts";
-            referencedColumns: ["id"];
+            referencedRelation: 'workouts';
+            referencedColumns: ['id'];
           },
         ];
       };

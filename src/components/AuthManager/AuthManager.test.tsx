@@ -1,19 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import AuthManager from "./AuthManager";
-import * as supabase from "../../utils/supabase";
-import { screen } from "@testing-library/dom";
-import "@testing-library/jest-dom";
-import type { AuthSession, User } from "@supabase/supabase-js";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, waitFor } from '@testing-library/react';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import AuthManager from './AuthManager';
+import * as supabase from '../../utils/supabase';
+import { screen } from '@testing-library/dom';
+import '@testing-library/jest-dom';
+import type { AuthSession, User } from '@supabase/supabase-js';
 
-vi.mock("../../utils/supabase", () => {
+vi.mock('../../utils/supabase', () => {
   const from = vi.fn();
   from.mockImplementation(() => ({
     select: vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({
-          data: { id: "5f9452e4-ddca-4b55-99f7-f956be84a46f" },
+          data: { id: '5f9452e4-ddca-4b55-99f7-f956be84a46f' },
           error: null,
         }),
       }),
@@ -28,8 +28,8 @@ vi.mock("../../utils/supabase", () => {
           data: {
             session: {
               user: {
-                id: "5f9452e4-ddca-4b55-99f7-f956be84a46f",
-                email: "user@example.com",
+                id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
+                email: 'user@example.com',
               },
             } as AuthSession,
           },
@@ -38,8 +38,8 @@ vi.mock("../../utils/supabase", () => {
         getUser: vi.fn().mockResolvedValue({
           data: {
             user: {
-              id: "5f9452e4-ddca-4b55-99f7-f956be84a46f",
-              email: "user@example.com",
+              id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
+              email: 'user@example.com',
             } as User,
           },
           error: null,
@@ -53,14 +53,14 @@ vi.mock("../../utils/supabase", () => {
   };
 });
 
-describe("AuthManager", () => {
+describe('AuthManager', () => {
   const mockSetIsAuthenticated = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders without crashing", async () => {
+  it('renders without crashing', async () => {
     render(
       <MemoryRouter>
         <Routes>
@@ -77,17 +77,17 @@ describe("AuthManager", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Authenticated Content")).toBeInTheDocument();
+      expect(screen.getByText('Authenticated Content')).toBeInTheDocument();
     });
   });
 
-  it("renders children when authenticated", async () => {
+  it('renders children when authenticated', async () => {
     (supabase.default.auth.getSession as any).mockResolvedValue({
       data: {
         session: {
           user: {
-            id: "5f9452e4-ddca-4b55-99f7-f956be84a46f",
-            email: "user@example.com",
+            id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
+            email: 'user@example.com',
           },
         },
       },
@@ -96,8 +96,8 @@ describe("AuthManager", () => {
     (supabase.default.auth.getUser as any).mockResolvedValue({
       data: {
         user: {
-          id: "5f9452e4-ddca-4b55-99f7-f956be84a46f",
-          email: "user@example.com",
+          id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
+          email: 'user@example.com',
         },
       },
       error: null,
@@ -118,19 +118,19 @@ describe("AuthManager", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("User: 5f9452e4-ddca-4b55-99f7-f956be84a46f"),
+        screen.getByText('User: 5f9452e4-ddca-4b55-99f7-f956be84a46f'),
       ).toBeInTheDocument();
     });
   });
 
-  it("redirects to login when not authenticated", async () => {
+  it('redirects to login when not authenticated', async () => {
     (supabase.default.auth.getSession as any).mockResolvedValue({
       data: { session: null },
       error: null,
     });
 
     render(
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={['/']}>
         <Routes>
           <Route
             path="/"
@@ -147,7 +147,7 @@ describe("AuthManager", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByText("Login Page")).toBeInTheDocument();
+        expect(screen.getByText('Login Page')).toBeInTheDocument();
       },
       { timeout: 2000 },
     );

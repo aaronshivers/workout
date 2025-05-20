@@ -43,10 +43,10 @@ export default [
       ...typescript.configs['eslint-recommended'].rules,
       ...typescript.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
-      'prettier/prettier': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
-      "react/prop-types": "off", // Disable prop-types with TypeScript
+      'react/prop-types': 'off', // Disable prop-types with TypeScript
+      'prettier/prettier': ['warn', { singleQuote: true }],
       quotes: ['warn', 'single'],
     },
   },
