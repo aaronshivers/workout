@@ -114,12 +114,12 @@ const WorkoutTracker: React.FC = () => {
               Log Out
             </button>
           </div>
-          <DataFetcher
+          {/* <DataFetcher
             setWorkouts={setWorkouts}
             setExercises={setExercises}
             userId={userId}
             muscleGroups={muscleGroups}
-          />
+          /> */}
           <WorkoutForm
             exercises={exercises}
             muscleGroups={muscleGroups}
@@ -136,7 +136,7 @@ const WorkoutTracker: React.FC = () => {
             rpe={rpe}
             setRpe={setRpe}
           />
-          <WorkoutLogger
+          {/* <WorkoutLogger
             userId={userId}
             exerciseId={exerciseId}
             sets={sets}
@@ -152,7 +152,7 @@ const WorkoutTracker: React.FC = () => {
             weight={weight}
             setWeight={setWeight}
             setSets={setSets}
-          />
+          /> */}
           <WorkoutHistory workouts={workouts} muscleGroups={muscleGroups} />
         </div>
       );
