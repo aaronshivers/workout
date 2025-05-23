@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation/Navigation';
 import AuthManager from './components/AuthManager/AuthManager';
@@ -11,9 +12,12 @@ import Signup from './components/Signup/Signup';
 
 const App: React.FC = () => {
   return (
-    <AuthManager setIsAuthenticated={() => {}}>
+    <AuthManager>
       {({ handleLogout, isInitialized, userId }) => (
-        <div className="min-h-screen bg-gray-100">
+        <div
+          className="min-h-screen bg-gray-100 text-gray-900 flex flex-col items-center justify-start"
+          data-testid="app-container"
+        >
           <Navigation isAuthenticated={isInitialized} logout={handleLogout} />
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -23,7 +27,7 @@ const App: React.FC = () => {
               path="/log-workout"
               element={
                 <WorkoutLogger
-                  userId={userId}
+                  userId={userId || ''}
                   setWorkouts={() => {}} // Placeholder, replace with actual state management
                   isInitialized={isInitialized}
                 />
