@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navigation/Navigation';
 import AuthManager from './components/AuthManager/AuthManager';
 import Login from './components/Login/Login';
@@ -20,6 +20,16 @@ const App: React.FC = () => {
         >
           <Navigation isAuthenticated={isInitialized} logout={handleLogout} />
           <Routes>
+            <Route
+              path="/"
+              element={
+                isInitialized ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -39,6 +49,7 @@ const App: React.FC = () => {
             />
             <Route path="/settings" element={<Settings />} />
             <Route path="/create-workout" element={<CreateWorkout />} />
+            <Route path="*" element={<Navigate to={isInitialized ? "/dashboard" : "/login"} replace />} />
           </Routes>
         </div>
       )}

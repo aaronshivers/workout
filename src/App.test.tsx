@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'; // Added Mock to the import
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App'; // Import the App component itself
@@ -44,17 +44,20 @@ vi.mock('./components/CreateWorkout/CreateWorkout', () => ({
   default: vi.fn(() => <div>CreateWorkout Component</div>),
 }));
 
-// Mock AuthManager and Navigation as they provide context/props to App's children
+// Mock AuthManager to control isAuthenticated and isInitialized state for tests
+let mockIsInitialized: boolean;
+let mockUserId: string | null;
+const mockHandleLogout = vi.fn();
+
 vi.mock('./components/AuthManager/AuthManager', () => ({
   default: vi.fn(({ children }) => {
-    const isAuthenticated = true;
-    const userId = 'test-user-id';
-    const isInitialized = true;
-    const handleLogout = vi.fn();
-
     return (
       <div data-testid="mock-auth-manager">
-        {children({ isAuthenticated, userId, isInitialized, handleLogout })}
+        {children({
+          handleLogout: mockHandleLogout,
+          isInitialized: mockIsInitialized,
+          userId: mockUserId,
+        })}
       </div>
     );
   }),
@@ -81,15 +84,19 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return {
     ...actual,
     useNavigate: (): Mock => mockUseNavigate,
+    // Mock the Navigate component directly to capture its 'to' prop
+    Navigate: vi.fn(({ to }) => <div data-testid="mock-navigate" data-to={to}></div>),
   };
 });
 
 describe('App Component', () => {
   beforeEach((): void => {
+    // Reset mock states for AuthManager
+    mockIsInitialized = true; // Default to true for most tests unless overridden
+    mockUserId = 'test-user-id';
     // Clear all mocks before each test.
-    // vi.clearAllMocks() clears all vi.fn() instances created by the vi.mock calls.
     vi.clearAllMocks();
-    // mockUseNavigate is a top-level const, so its mockClear needs to be called explicitly.
+    mockHandleLogout.mockClear();
     mockUseNavigate.mockClear();
   });
 
@@ -240,6 +247,42 @@ describe('App Component', () => {
         expect.objectContaining({ isInitialized: true }),
         undefined, // Expect the second argument to be undefined
       );
+    });
+  });
+
+  // --- New tests for default and fallback routes ---
+
+  it('redirects to /login from / if not initialized', async () => {
+    mockIsInitialized = false; // Set AuthManager to not initialized
+    renderApp(['/']);
+    await waitFor(() => {
+      // Check that the Navigate component was rendered with the correct 'to' prop
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/login');
+    });
+  });
+
+  it('redirects to /dashboard from / if initialized', async () => {
+    mockIsInitialized = true; // Set AuthManager to initialized
+    renderApp(['/']);
+    await waitFor(() => {
+      // Check that the Navigate component was rendered with the correct 'to' prop
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/dashboard');
+    });
+  });
+
+  it('redirects to /login from an unknown route if not initialized', async () => {
+    mockIsInitialized = false; // Set AuthManager to not initialized
+    renderApp(['/some-unknown-route']);
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/login');
+    });
+  });
+
+  it('redirects to /dashboard from an unknown route if initialized', async () => {
+    mockIsInitialized = true; // Set AuthManager to initialized
+    renderApp(['/another-bad-route']);
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/dashboard');
     });
   });
 });
