@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import Login from './Login';
 import supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
@@ -19,19 +19,45 @@ vi.mock('../../utils/supabase', () => ({
   },
 }));
 
-// Mock useNavigate
+// Mock useNavigate to include all actual exports from react-router-dom
 const mockNavigate = vi.fn();
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom'); // Import actual module
+  return {
+    ...actual, // Spread all actual exports
+    useNavigate: () => mockNavigate, // Override useNavigate
+  };
+});
+
+// Mock localStorage to spy on its methods
+const localStorageMock = ((): Storage => {
+  let store: Record<string, string> = {};
+  return {
+    length: 0, // Not strictly used, but part of Storage interface
+    clear: vi.fn(() => {
+      store = {};
+    }),
+    getItem: vi.fn((key: string) => store[key] || null),
+    key: vi.fn((index: number) => Object.keys(store)[index] || null),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+  };
+})();
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true, // Allow re-assignment if needed, though not strictly necessary here
+});
 
 describe('Login Component', () => {
   const user = userEvent.setup();
 
-  beforeEach(() => {
+  beforeEach((): void => {
     vi.clearAllMocks();
-    localStorage.clear();
+    localStorageMock.clear(); // Use the mocked localStorage clear
   });
 
   it('renders without crashing', async () => {
@@ -219,7 +245,8 @@ describe('Login Component', () => {
     });
   });
 
-  it('persists the authentication token after successful login', async () => {
+  // Ensure Login component does NOT directly set localStorage
+  it('does NOT persist the authentication token in localStorage directly', async () => {
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
       data: {
         user: { id: '123', email: 'test@example.com' },
@@ -245,7 +272,9 @@ describe('Login Component', () => {
     await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(localStorage.getItem('sb-auth-token')).toBe('token');
+      // Expect localStorage.setItem NOT to have been called by Login component
+      expect(localStorageMock.setItem).not.toHaveBeenCalled();
+      // The token persistence is now the responsibility of AuthManager
     });
   });
 

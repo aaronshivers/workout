@@ -35,7 +35,6 @@ const Login: React.FC = () => {
         return;
       }
 
-      localStorage.setItem('sb-auth-token', data.session.access_token);
       setEmail('');
       setPassword('');
       setIsLoading(false);
