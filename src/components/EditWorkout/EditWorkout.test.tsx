@@ -8,16 +8,16 @@ import '@testing-library/jest-dom';
 
 // Mock Supabase
 vi.mock('../../utils/supabase', () => ({
-  supabase: {
+  default: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn(),
+          single: vi.fn().mockResolvedValue({ data: {}, error: null }),
         })),
       })),
       update: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn(),
+          single: vi.fn().mockResolvedValue({ data: {}, error: null }),
         })),
       })),
     })),

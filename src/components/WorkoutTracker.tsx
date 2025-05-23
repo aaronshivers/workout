@@ -5,9 +5,6 @@ import type { Database } from '../types/supabase';
 import AuthManager from './AuthManager/AuthManager';
 import WorkoutForm from './WorkoutForm';
 import WorkoutHistory from './WorkoutHistory/WorkoutHistory';
-import ProgressionSuggestion from './ProgressionSuggestion/ProgressionSuggestion';
-import DataFetcher from './DataFetcher';
-import WorkoutLogger from './WorkoutLogger/WorkoutLogger';
 import supabase from '../utils/supabase';
 
 // Define custom types for joined data

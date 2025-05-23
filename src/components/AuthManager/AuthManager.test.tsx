@@ -1,155 +1,673 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import AuthManager from './AuthManager';
-import * as supabase from '../../utils/supabase';
-import { screen } from '@testing-library/dom';
-import '@testing-library/jest-dom';
-import type { AuthSession, User } from '@supabase/supabase-js';
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  afterEach,
+  type Mock,
+} from 'vitest';
+import { render, screen, waitFor, act } from '@testing-library/react';
+import { AuthManager } from './AuthManager';
+import supabase from '../../utils/supabase';
+import type {
+  Session,
+  User,
+  AuthChangeEvent,
+  AuthError,
+  Subscription,
+} from '@supabase/supabase-js';
+import type { JSX } from 'react';
 
-vi.mock('../../utils/supabase', () => {
-  const from = vi.fn();
-  from.mockImplementation(() => ({
-    select: vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({
-          data: { id: '5f9452e4-ddca-4b55-99f7-f956be84a46f' },
-          error: null,
-        }),
-      }),
-    }),
-  }));
-
-  return {
-    default: {
-      from,
-      auth: {
-        getSession: vi.fn().mockResolvedValue({
-          data: {
-            session: {
-              user: {
-                id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
-                email: 'user@example.com',
-              },
-            } as AuthSession,
-          },
-          error: null,
-        }),
-        getUser: vi.fn().mockResolvedValue({
-          data: {
-            user: {
-              id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
-              email: 'user@example.com',
-            } as User,
-          },
-          error: null,
-        }),
-        signOut: vi.fn(),
-        onAuthStateChange: vi.fn(() => ({
-          data: { subscription: { unsubscribe: vi.fn() } },
-        })),
-      },
+// Mock the Supabase client
+vi.mock('../../utils/supabase', () => ({
+  default: {
+    auth: {
+      getSession: vi.fn(),
+      getUser: vi.fn(),
+      signOut: vi.fn(),
+      onAuthStateChange: vi.fn(),
     },
+  },
+}));
+
+// Define an interface for the mocked localStorage object
+interface IMockLocalStorage {
+  getItem: Mock<(key: string) => string | null>;
+  setItem: Mock<(key: string, value: string) => void>;
+  removeItem: Mock<(key: string) => void>;
+  clear: Mock<() => void>;
+}
+
+// Mock localStorage
+const localStorageMock = ((): IMockLocalStorage => {
+  // Added explicit return type here
+  let store: Record<string, string> = {};
+  return {
+    getItem: vi.fn((key: string): string | null => store[key] || null),
+    setItem: vi.fn((key: string, value: string): void => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string): void => {
+      delete store[key];
+    }),
+    clear: vi.fn((): void => {
+      store = {};
+    }),
   };
-});
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 describe('AuthManager', () => {
-  const mockSetIsAuthenticated = vi.fn();
+  // Helper to create a mock AuthError that extends Error
+  const createMockAuthError = (
+    message: string,
+    code: string = '500',
+    status: number = 500,
+  ): AuthError => {
+    // Create a real Error instance and then augment it with AuthError public properties
+    const error = new Error(message) as AuthError; // Cast to AuthError directly
+    error.name = 'AuthApiError';
+    error.code = code;
+    error.status = status;
+    return error;
+  };
 
-  beforeEach(() => {
+  const mockChild = vi.fn(
+    ({ isAuthenticated, userId, isInitialized, handleLogout }): JSX.Element => (
+      <div>
+        <span data-testid="is-authenticated">{isAuthenticated.toString()}</span>
+        <span data-testid="user-id">{userId || 'null'}</span>
+        <span data-testid="is-initialized">{isInitialized.toString()}</span>
+        <button data-testid="logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+    ),
+  );
+
+  let onAuthStateChangeCallback:
+    | ((event: AuthChangeEvent, session: Session | null) => void)
+    | undefined;
+
+  beforeEach((): void => {
+    // Reset all mocks before each test
     vi.clearAllMocks();
-  });
+    localStorageMock.clear();
 
-  it('renders without crashing', async () => {
-    render(
-      <MemoryRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <AuthManager setIsAuthenticated={mockSetIsAuthenticated}>
-                {() => <div>Authenticated Content</div>}
-              </AuthManager>
-            }
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('Authenticated Content')).toBeInTheDocument();
-    });
-  });
-
-  it('renders children when authenticated', async () => {
-    (supabase.default.auth.getSession as any).mockResolvedValue({
-      data: {
-        session: {
-          user: {
-            id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
-            email: 'user@example.com',
+    // Default mock for onAuthStateChange: It only provides the subscription.
+    // Individual tests will trigger the callback explicitly with the desired initial state.
+    vi.mocked(supabase.auth.onAuthStateChange).mockImplementation(
+      (callback) => {
+        onAuthStateChangeCallback = callback;
+        return {
+          data: {
+            subscription: {
+              id: 'mock-subscription-id',
+              callback: vi.fn(),
+              unsubscribe: vi.fn(),
+            } as Subscription,
           },
-        },
+        };
       },
-      error: null,
-    });
-    (supabase.default.auth.getUser as any).mockResolvedValue({
-      data: {
-        user: {
-          id: '5f9452e4-ddca-4b55-99f7-f956be84a46f',
-          email: 'user@example.com',
-        },
-      },
-      error: null,
-    });
-
-    render(
-      <MemoryRouter>
-        <AuthManager setIsAuthenticated={mockSetIsAuthenticated}>
-          {({ handleLogout, userId, isInitialized }) => (
-            <div>
-              {isInitialized && <span>User: {userId}</span>}
-              <button onClick={handleLogout}>Logout</button>
-            </div>
-          )}
-        </AuthManager>
-      </MemoryRouter>,
     );
-
-    await waitFor(() => {
-      expect(
-        screen.getByText('User: 5f9452e4-ddca-4b55-99f7-f956be84a46f'),
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('redirects to login when not authenticated', async () => {
-    (supabase.default.auth.getSession as any).mockResolvedValue({
+    // Mock getSession to return null by default, as AuthManager now relies solely on onAuthStateChange
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
       data: { session: null },
       error: null,
     });
+  });
 
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <AuthManager setIsAuthenticated={mockSetIsAuthenticated}>
-                {() => <div>Authenticated Content</div>}
-              </AuthManager>
-            }
-          />
-          <Route path="/login" element={<div>Login Page</div>} />
-        </Routes>
-      </MemoryRouter>,
+  afterEach((): void => {
+    onAuthStateChangeCallback = undefined;
+  });
+
+  it('renders its children when not initialized', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    expect(mockChild).toHaveBeenCalledWith(
+      expect.objectContaining({ isInitialized: false }),
+    );
+    // Trigger initial state from onAuthStateChange
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+    });
+  });
+
+  it('sets isInitialized to true after successful initialization', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+    });
+  });
+
+  it('sets userId to null if no authentication token is found on initialization', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+  });
+
+  it('sets userId to the correct ID if a valid authentication token is found on initialization', async (): Promise<void> => {
+    const mockSession = {
+      user: { id: 'test-user-id' } as User,
+      access_token: 'valid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-token',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange with a signed-in session
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-id').textContent).toBe('test-user-id');
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+  });
+
+  it('handles an invalid or expired authentication token on initialization', async (): Promise<void> => {
+    const invalidSession = {
+      user: { id: 'invalid-user-id' } as User,
+      access_token: 'invalid-token',
+      token_type: 'Bearer',
+      expires_in: 0,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-token',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange with an invalid session
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', invalidSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: createMockAuthError('Invalid token', '401', 401),
+    });
+    vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'supabase.auth.token',
+      );
+    });
+  });
+
+  it('updates isAuthenticated to true when a login event occurs', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+    });
+
+    const mockSession = {
+      user: { id: 'user-123' } as User,
+      access_token: 'valid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-token',
+    };
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+  });
+
+  it('updates userId to the correct ID when a login event occurs', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+
+    const mockSession = {
+      user: { id: 'user-456' } as User,
+      access_token: 'valid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-token',
+    };
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-id').textContent).toBe('user-456');
+    });
+  });
+
+  it('updates isAuthenticated to false when a logout event occurs', async (): Promise<void> => {
+    const initialSession = {
+      user: { id: 'user-initial' } as User,
+      access_token: 'initial-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'initial-refresh',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: initialSession.user },
+      error: null,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+    });
+  });
+
+  it('sets userId to null when a logout event occurs', async (): Promise<void> => {
+    const initialSession = {
+      user: { id: 'user-initial' } as User,
+      access_token: 'initial-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'initial-refresh',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: initialSession.user },
+      error: null,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-id').textContent).toBe('user-initial');
+    });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+  });
+
+  it('clears the authentication token from storage on logout', async (): Promise<void> => {
+    const initialSession = {
+      user: { id: 'user-initial' } as User,
+      access_token: 'initial-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'initial-refresh',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: initialSession.user },
+      error: null,
+    });
+    localStorageMock.setItem(
+      'supabase.auth.token',
+      JSON.stringify(initialSession),
     );
 
-    await waitFor(
-      () => {
-        expect(screen.getByText('Login Page')).toBeInTheDocument();
-      },
-      { timeout: 2000 },
+    await waitFor(() => {
+      expect(localStorageMock.getItem('supabase.auth.token')).not.toBeNull();
+    });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+
+    await waitFor(() => {
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'supabase.auth.token',
+      );
+    });
+  });
+
+  it('passes handleLogout function to its children', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(mockChild).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleLogout: expect.any(Function),
+        }),
+      );
+    });
+  });
+
+  it('passes isInitialized boolean to its children', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(mockChild).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isInitialized: true,
+        }),
+      );
+    });
+  });
+
+  it('passes userId to its children', async (): Promise<void> => {
+    const mockSession = {
+      user: { id: 'child-user-id' } as User,
+      access_token: 'valid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-token',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
+    await waitFor(() => {
+      expect(mockChild).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'child-user-id',
+        }),
+      );
+    });
+  });
+
+  it('stores the authentication token in local storage on successful login', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+    });
+
+    const mockSession = {
+      user: { id: 'storage-user' } as User,
+      access_token: 'storage-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'storage-refresh',
+    };
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+
+    await waitFor(() => {
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'supabase.auth.token',
+        JSON.stringify(mockSession),
+      );
+    });
+  });
+
+  it('retrieves the authentication token from storage on component mount', async (): Promise<void> => {
+    const storedSession = {
+      user: { id: 'stored-user-id' } as User,
+      access_token: 'stored-valid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'stored-refresh-token',
+    };
+    // Simulate localStorage having the token before render
+    localStorageMock.setItem(
+      'supabase.auth.token',
+      JSON.stringify(storedSession),
     );
+
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange with the stored session
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', storedSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: storedSession.user },
+      error: null,
+    });
+
+    await waitFor(() => {
+      // getSession should NOT be called by AuthManager itself, as it relies on onAuthStateChange
+      expect(supabase.auth.getSession).not.toHaveBeenCalled();
+      expect(screen.getByTestId('user-id').textContent).toBe('stored-user-id');
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+  });
+
+  it('removes the authentication token from storage if invalid on initialization', async (): Promise<void> => {
+    const invalidSession = {
+      user: { id: 'invalid-user' } as User,
+      access_token: 'invalid-token',
+      token_type: 'Bearer',
+      expires_in: 0,
+      expires_at: 1234567890,
+      refresh_token: 'invalid-refresh',
+    };
+    localStorageMock.setItem(
+      'supabase.auth.token',
+      JSON.stringify(invalidSession),
+    );
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Trigger initial state from onAuthStateChange with an invalid session
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', invalidSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: createMockAuthError('Token expired', '401', 401),
+    });
+    vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    await waitFor(() => {
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'supabase.auth.token',
+      );
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+  });
+
+  it('handles logout via handleLogout function', async (): Promise<void> => {
+    const initialSession = {
+      user: { id: 'user-to-logout' } as User,
+      access_token: 'token-to-logout',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'refresh-to-logout',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: initialSession.user },
+      error: null,
+    });
+    vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      // Get the handleLogout function from the rendered child props
+      const handleLogoutFromProps =
+        mockChild.mock.calls[mockChild.mock.calls.length - 1][0].handleLogout;
+      await handleLogoutFromProps();
+    });
+
+    await waitFor(() => {
+      expect(supabase.auth.signOut).toHaveBeenCalledTimes(1);
+      expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+        'supabase.auth.token',
+      );
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+  });
+
+  it('handles errors during logout gracefully', async (): Promise<void> => {
+    const initialSession = {
+      user: { id: 'error-user' } as User,
+      access_token: 'error-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'error-refresh',
+    };
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state: signed in
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: initialSession.user },
+      error: null,
+    });
+    vi.mocked(supabase.auth.signOut).mockResolvedValue({
+      error: createMockAuthError('Logout failed', '500', 500),
+    });
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
+    });
+
+    await act(async () => {
+      // Get the handleLogout function from the rendered child props
+      const handleLogoutFromProps =
+        mockChild.mock.calls[mockChild.mock.calls.length - 1][0].handleLogout;
+      await handleLogoutFromProps();
+    });
+
+    await waitFor(() => {
+      expect(supabase.auth.signOut).toHaveBeenCalledTimes(1);
+      // Find the specific call that matches our expected error message
+      const logoutErrorCall = consoleErrorSpy.mock.calls.find(
+        (call) =>
+          call[0] === 'Error during logout:' && call[1] instanceof Error,
+      );
+      expect(logoutErrorCall).toBeDefined(); // Ensure such a call exists
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('handles rapid successive authentication state changes gracefully', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+    });
+
+    const mockSession = {
+      user: { id: 'user-rapid' } as User,
+      access_token: 'rapid-token',
+      token_type: 'Bearer',
+      expires_in: 3600,
+      expires_at: 1234567890,
+      refresh_token: 'rapid-refresh',
+    };
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
+    });
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
+      expect(screen.getByTestId('user-id').textContent).toBe('null');
+    });
+  });
+
+  it('does not re-initialize or re-fetch token unnecessarily', async (): Promise<void> => {
+    render(<AuthManager>{mockChild}</AuthManager>);
+    // Initial state
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_OUT', null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('is-initialized').textContent).toBe('true');
+      // getSession should NOT be called by AuthManager itself, as it relies on onAuthStateChange
+      expect(supabase.auth.getSession).not.toHaveBeenCalled();
+    });
+
+    // Simulate a re-render without re-mounting (e.g., parent state change)
+    const { rerender } = render(<AuthManager>{mockChild}</AuthManager>);
+    rerender(<AuthManager>{mockChild}</AuthManager>);
+
+    await waitFor(() => {
+      // getSession should still NOT be called, as the component only initializes once via onAuthStateChange
+      expect(supabase.auth.getSession).not.toHaveBeenCalled();
+    });
   });
 });

@@ -10,6 +10,7 @@ import type {
   AuthError,
 } from '@supabase/supabase-js';
 
+// Mock supabase
 vi.mock('../../utils/supabase', () => ({
   default: {
     auth: {
@@ -18,11 +19,11 @@ vi.mock('../../utils/supabase', () => ({
   },
 }));
 
+// Mock useNavigate
+const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
-  MemoryRouter: vi
-    .importActual('react-router-dom')
-    .then((mod) => mod.MemoryRouter),
-  useNavigate: vi.fn(),
+  ...vi.importActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
 }));
 
 describe('Login Component', () => {
@@ -189,9 +190,6 @@ describe('Login Component', () => {
   });
 
   it('redirects to the dashboard on successful login', async () => {
-    const mockNavigate = vi.fn();
-    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
       data: {
         user: { id: '123', email: 'test@example.com' },
