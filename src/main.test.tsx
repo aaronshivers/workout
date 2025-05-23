@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
@@ -31,7 +31,7 @@ describe('main.tsx', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the App component without crashing', () => {
+  it('renders the App component without crashing', async () => {
     // Execute main.tsx logic
     const root = createRoot(container);
     root.render(
@@ -60,11 +60,14 @@ describe('main.tsx', () => {
       }),
     );
 
-    // Check that App rendered (mocked Navigation or other component text)
-    expect(screen.getByText(/Navigation Component/i)).toBeInTheDocument();
+    // Check that App rendered by looking for "Login" text
+    await waitFor(() => {
+      // Use waitFor for async rendering
+      expect(screen.getByText(/Login/i)).toBeInTheDocument();
+    });
   });
 
-  it('ensures the application successfully mounts into the DOM', () => {
+  it('ensures the application successfully mounts into the DOM', async () => {
     // Execute main.tsx logic
     const root = createRoot(container);
     root.render(
@@ -84,7 +87,10 @@ describe('main.tsx', () => {
     // Verify render was called
     expect(root.render).toHaveBeenCalled();
 
-    // Check that App mounted
-    expect(screen.getByText(/Navigation Component/i)).toBeInTheDocument();
+    // Check that App mounted by looking for "Login" text
+    await waitFor(() => {
+      // Use waitFor for async rendering
+      expect(screen.getByText(/Login/i)).toBeInTheDocument();
+    });
   });
 });
