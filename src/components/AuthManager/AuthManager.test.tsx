@@ -41,7 +41,6 @@ interface IMockLocalStorage {
 
 // Mock localStorage
 const localStorageMock = ((): IMockLocalStorage => {
-  // Added explicit return type here
   let store: Record<string, string> = {};
   return {
     getItem: vi.fn((key: string): string | null => store[key] || null),
@@ -111,7 +110,12 @@ describe('AuthManager', () => {
         };
       },
     );
-    // Mock getSession to return null by default, as AuthManager now relies solely on onAuthStateChange
+    // Default mock for getUser: No user means an AuthError, aligning with UserResponse type.
+    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+      data: { user: null },
+      error: createMockAuthError('No active session', '400', 400),
+    });
+    // Default mock for getSession
     vi.mocked(supabase.auth.getSession).mockResolvedValue({
       data: { session: null },
       error: null,
@@ -167,14 +171,16 @@ describe('AuthManager', () => {
       expires_at: 1234567890,
       refresh_token: 'refresh-token',
     };
-    render(<AuthManager>{mockChild}</AuthManager>);
-    // Trigger initial state from onAuthStateChange with a signed-in session
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
-    });
+
+    // Mock getUser to return the validated user BEFORE triggering the auth state change
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: mockSession.user },
       error: null,
+    });
+
+    render(<AuthManager>{mockChild}</AuthManager>);
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', mockSession);
     });
 
     await waitFor(() => {
@@ -192,16 +198,18 @@ describe('AuthManager', () => {
       expires_at: 1234567890,
       refresh_token: 'refresh-token',
     };
-    render(<AuthManager>{mockChild}</AuthManager>);
-    // Trigger initial state from onAuthStateChange with an invalid session
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', invalidSession);
-    });
+
+    // Mock getUser to return data with a null user and an error
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: null },
       error: createMockAuthError('Invalid token', '401', 401),
     });
     vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    render(<AuthManager>{mockChild}</AuthManager>);
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', invalidSession);
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('is-authenticated').textContent).toBe('false');
@@ -232,6 +240,12 @@ describe('AuthManager', () => {
       refresh_token: 'refresh-token',
     };
 
+    // Mock getUser to return the validated user after login
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
     await act(async () => {
       onAuthStateChangeCallback!('SIGNED_IN', mockSession);
     });
@@ -261,6 +275,12 @@ describe('AuthManager', () => {
       refresh_token: 'refresh-token',
     };
 
+    // Mock getUser to return the validated user after login
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
     await act(async () => {
       onAuthStateChangeCallback!('SIGNED_IN', mockSession);
     });
@@ -280,13 +300,15 @@ describe('AuthManager', () => {
       refresh_token: 'initial-refresh',
     };
     render(<AuthManager>{mockChild}</AuthManager>);
-    // Initial state: signed in
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser for the initial SIGNED_IN state
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: initialSession.user },
       error: null,
+    });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
     });
 
     await waitFor(() => {
@@ -312,13 +334,15 @@ describe('AuthManager', () => {
       refresh_token: 'initial-refresh',
     };
     render(<AuthManager>{mockChild}</AuthManager>);
-    // Initial state: signed in
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser for the initial SIGNED_IN state
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: initialSession.user },
       error: null,
+    });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
     });
 
     await waitFor(() => {
@@ -344,11 +368,9 @@ describe('AuthManager', () => {
       refresh_token: 'initial-refresh',
     };
     render(<AuthManager>{mockChild}</AuthManager>);
-    // Initial state: signed in
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser for the initial SIGNED_IN state
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: initialSession.user },
       error: null,
     });
@@ -356,6 +378,10 @@ describe('AuthManager', () => {
       'supabase.auth.token',
       JSON.stringify(initialSession),
     );
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
 
     await waitFor(() => {
       expect(localStorageMock.getItem('supabase.auth.token')).not.toBeNull();
@@ -411,14 +437,17 @@ describe('AuthManager', () => {
       expires_at: 1234567890,
       refresh_token: 'refresh-token',
     };
+
+    // Mock getUser to return the validated user
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
     render(<AuthManager>{mockChild}</AuthManager>);
     // Initial state: signed in
     await act(async () => {
       onAuthStateChangeCallback!('SIGNED_IN', mockSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
-      data: { user: mockSession.user },
-      error: null,
     });
 
     await waitFor(() => {
@@ -449,6 +478,12 @@ describe('AuthManager', () => {
       refresh_token: 'storage-refresh',
     };
 
+    // Mock getUser to return the validated user
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
+      data: { user: mockSession.user },
+      error: null,
+    });
+
     await act(async () => {
       onAuthStateChangeCallback!('SIGNED_IN', mockSession);
     });
@@ -476,14 +511,15 @@ describe('AuthManager', () => {
       JSON.stringify(storedSession),
     );
 
-    render(<AuthManager>{mockChild}</AuthManager>);
-    // Trigger initial state from onAuthStateChange with the stored session
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', storedSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+    // Mock getUser to return the validated user from stored session
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: storedSession.user },
       error: null,
+    });
+
+    render(<AuthManager>{mockChild}</AuthManager>);
+    await act(async () => {
+      onAuthStateChangeCallback!('INITIAL_SESSION', storedSession);
     });
 
     await waitFor(() => {
@@ -507,16 +543,18 @@ describe('AuthManager', () => {
       'supabase.auth.token',
       JSON.stringify(invalidSession),
     );
-    render(<AuthManager>{mockChild}</AuthManager>);
-    // Trigger initial state from onAuthStateChange with an invalid session
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', invalidSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser to return data with a null user and an error, aligning with UserResponse type
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: null },
       error: createMockAuthError('Token expired', '401', 401),
     });
     vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    render(<AuthManager>{mockChild}</AuthManager>);
+    await act(async () => {
+      onAuthStateChangeCallback!('INITIAL_SESSION', invalidSession);
+    });
 
     await waitFor(() => {
       expect(localStorageMock.removeItem).toHaveBeenCalledWith(
@@ -537,15 +575,17 @@ describe('AuthManager', () => {
       refresh_token: 'refresh-to-logout',
     };
     render(<AuthManager>{mockChild}</AuthManager>);
-    // Initial state: signed in
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser for the initial SIGNED_IN state
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: initialSession.user },
       error: null,
     });
     vi.mocked(supabase.auth.signOut).mockResolvedValue({ error: null });
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
@@ -578,20 +618,23 @@ describe('AuthManager', () => {
       refresh_token: 'error-refresh',
     };
     render(<AuthManager>{mockChild}</AuthManager>);
-    // Initial state: signed in
-    await act(async () => {
-      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
-    });
-    vi.mocked(supabase.auth.getUser).mockResolvedValue({
+
+    // Mock getUser for the initial SIGNED_IN state
+    vi.mocked(supabase.auth.getUser).mockResolvedValueOnce({
       data: { user: initialSession.user },
       error: null,
     });
-    vi.mocked(supabase.auth.signOut).mockResolvedValue({
-      error: createMockAuthError('Logout failed', '500', 500),
-    });
+    // Mock signOut to reject to simulate an error
+    vi.mocked(supabase.auth.signOut).mockRejectedValue(
+      createMockAuthError('Logout failed', '500', 500),
+    );
     const consoleErrorSpy = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
+
+    await act(async () => {
+      onAuthStateChangeCallback!('SIGNED_IN', initialSession);
+    });
 
     await waitFor(() => {
       expect(screen.getByTestId('is-authenticated').textContent).toBe('true');
@@ -636,6 +679,15 @@ describe('AuthManager', () => {
       expires_at: 1234567890,
       refresh_token: 'rapid-refresh',
     };
+
+    // Mock getUser for each state change
+    vi.mocked(supabase.auth.getUser)
+      .mockResolvedValueOnce({ data: { user: mockSession.user }, error: null }) // For SIGNED_IN
+      .mockResolvedValueOnce({
+        data: { user: null },
+        error: createMockAuthError('No active session', '400', 400),
+      }); // For SIGNED_OUT
+
     await act(async () => {
       onAuthStateChangeCallback!('SIGNED_IN', mockSession);
     });
