@@ -7,8 +7,7 @@ import App from './App'; // Import the App component itself
 // with our mocked versions defined below.
 import AuthManager from './components/AuthManager/AuthManager';
 import Navigation from './components/Navigation/Navigation';
-import Login from './components/Login/Login';
-import Signup from './components/Signup/Signup';
+import Login from './Pages/LoginPage/LoginPage';
 import Dashboard from './components/Dashboard/Dashboard';
 import WorkoutLogger from './components/WorkoutLogger/WorkoutLogger';
 import WorkoutHistory from './components/WorkoutHistory/WorkoutHistory';
@@ -20,11 +19,6 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 vi.mock('./components/Login/Login', () => ({
   default: vi.fn(() => (
     <div data-testid="login-component">Login Component</div>
-  )),
-}));
-vi.mock('./components/Signup/Signup', () => ({
-  default: vi.fn(() => (
-    <div data-testid="signup-component">Signup Component</div>
   )),
 }));
 vi.mock('./components/Dashboard/Dashboard', () => ({

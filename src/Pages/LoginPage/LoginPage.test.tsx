@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import Login from './Login';
+import Login from './LoginPage';
 import supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
 import type {

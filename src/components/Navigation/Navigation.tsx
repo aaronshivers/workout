@@ -32,7 +32,6 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
 
   const loggedOutLinks = [
     { to: '/login', text: 'Login', ariaLabel: 'Navigate to Login' },
-    { to: '/signup', text: 'Sign Up', ariaLabel: 'Navigate to Sign Up' },
   ];
 
   const links = isAuthenticated ? loggedInLinks : loggedOutLinks;

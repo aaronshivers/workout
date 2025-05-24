@@ -10,8 +10,4 @@ if (!supabaseUrl || !supabaseKey) {
   );
 }
 
-const supabase = createClient<Database>(supabaseUrl, supabaseKey);
-
-console.log('Supabase client initialized with URL:', supabaseUrl); // Debug log
-
-export default supabase;
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey);

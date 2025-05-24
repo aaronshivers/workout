@@ -1,7 +1,0 @@
-
-/Users/aaron/repos/workout/src/components/Login/Login.tsx
-  224:17  warning  Strings must use singlequote  quotes
-
-✖ 1 problem (0 errors, 1 warning)
-  0 errors and 1 warning potentially fixable with the `--fix` option.
-

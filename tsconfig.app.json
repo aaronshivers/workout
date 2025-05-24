@@ -20,5 +20,5 @@
     "noUncheckedSideEffectImports": true,
     "composite": true
   },
-  "include": ["src", "src/utils", "tailwind.config.js", "src/**/*.test.ts", "src/**/*.test.tsx"]
+  "include": ["src", "src/utils", "tailwind.config.js", "src//.ts", "src/**/.tsx", "src/hooks", "src/hooks/.ts", "src/hooks/**/.tsx"]
 }
