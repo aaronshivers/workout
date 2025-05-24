@@ -21,50 +21,49 @@ type WorkoutHistoryProps = {
 
 const WorkoutHistory: React.FC<WorkoutHistoryProps> = ({
   workouts,
-  muscleGroups,
 }) => {
   if (!workouts || workouts.length === 0) {
     return (
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Workout History</h2>
-        <p>No workouts found.</p>
+      <div className="text-center p-8">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Workout History</h2>
+        <p className="text-gray-600">No workouts found.</p>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-2">Workout History</h2>
+    <div className="p-8">
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4">Workout History</h2>
       <div className="space-y-4">
         {workouts.map((workout) => (
-          <div key={workout.id} className="p-4 border rounded-md shadow-sm">
-            <p>
+          <div key={workout.id} className="p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
+            <p className="text-lg text-gray-800 mb-2">
               <strong>Date:</strong>{' '}
               {new Date(workout.created_at).toISOString().split('T')[0]}
             </p>
             {workout.workout_sets && workout.workout_sets.length > 0 ? (
               workout.workout_sets.map((set) => (
-                <div key={set.id} className="mt-2">
-                  <p>
+                <div key={set.id} className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-100">
+                  <p className="text-md text-gray-700">
                     <strong>Exercise:</strong>{' '}
                     {set.exercises?.name || 'Unknown Exercise'}
                   </p>
-                  <p>
+                  <p className="text-md text-gray-700">
                     <strong>Sets:</strong> {set.sets}
                   </p>
-                  <p>
+                  <p className="text-md text-gray-700">
                     <strong>Reps:</strong> {set.reps}
                   </p>
-                  <p>
+                  <p className="text-md text-gray-700">
                     <strong>Weight:</strong> {set.weight}
                   </p>
-                  <p>
+                  <p className="text-md text-gray-700">
                     <strong>RPE:</strong> {set.rpe}
                   </p>
                 </div>
               ))
             ) : (
-              <p>No sets recorded.</p>
+              <p className="text-gray-600 mt-2">No sets recorded for this workout.</p>
             )}
           </div>
         ))}

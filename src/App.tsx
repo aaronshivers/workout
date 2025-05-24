@@ -1,4 +1,4 @@
-import { Route, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import { Route, createBrowserRouter, createRoutesFromElements } from 'react-router';
 import { LoginPage } from './Pages/LoginPage/LoginPage.tsx';
 import HomeLayout from './components/HomeLayout/HomeLayout';
 import HomePage from './Pages/HomePage/HomePage.tsx';
@@ -6,20 +6,22 @@ import ProtectedLayout from './components/ProtectedLayout/ProtectedLayout';
 import SettingsPage from './Pages/SettingsPage/SettingsPage.tsx';
 import ProfilePage from './Pages/ProfilePage/ProfilePage.tsx';
 import { AuthLayout } from './components/AuthLayout/AuthLayout.tsx';
+import { supabase } from './utils/supabase.ts';
 
-const getUserData = () =>
-  new Promise((resolve) =>
-    setTimeout(() => {
-      const user = window.localStorage.getItem("user");
-      resolve(user);
-    }, 3000)
-  );
+const getUserData = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error("Error fetching session:", error);
+    return null;
+  }
+  return session?.user || null;
+};
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
       element={<AuthLayout />}
-      loader={() => ({userPromise: getUserData()})}
+      loader={() => ({ userPromise: getUserData() })}
     >
       <Route element={<HomeLayout />}>
         <Route path="/" element={<HomePage />} />

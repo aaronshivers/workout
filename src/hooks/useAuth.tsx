@@ -1,18 +1,24 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { supabase } from "../utils/supabase";
 
-
-const AuthContext = createContext<{
+interface AuthContextType {
   user: any;
   login: (data: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
-} | null>(null);
+};
 
-export const AuthProvider = ({ children }: {children: React.ReactNode}) => {
-    const [user, setUser] = useState<any>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+interface AuthProviderProps {
+  children: React.ReactNode;
+  userData?: any;
+};
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children, userData }: AuthProviderProps) => {
+    const [user, setUser] = useState<any>(userData);
+    const [isAuthenticated, setIsAuthenticated] = useState(!!userData);
     const navigate = useNavigate();
 
   useEffect(() => {
