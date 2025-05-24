@@ -6,14 +6,15 @@ import React from 'react';
 
 // Define mock functions outside the vi.mock call so they can be accessed directly in tests.
 // These will be the actual mock functions used by the mocked createRoot.
-  const mockRender = vi.fn();
-  const mockUnmount = vi.fn();
+const mockRender = vi.fn();
+const mockUnmount = vi.fn();
 
 // Mock ReactDOM.createRoot to intercept the render call.
 // This mock will return an object with the globally defined mock render and unmount methods.
 vi.mock('react-dom/client', () => ({
-  createRoot: vi.fn(() => ({ // 'container' parameter is used by Vitest's mock setup
-    render: mockRender,   // Assign the globally defined mockRender
+  createRoot: vi.fn(() => ({
+    // 'container' parameter is used by Vitest's mock setup
+    render: mockRender, // Assign the globally defined mockRender
     unmount: mockUnmount, // Assign the globally defined mockUnmount
   })),
 }));

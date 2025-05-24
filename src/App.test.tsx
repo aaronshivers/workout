@@ -14,20 +14,27 @@ import WorkoutLogger from './components/WorkoutLogger/WorkoutLogger';
 import WorkoutHistory from './components/WorkoutHistory/WorkoutHistory';
 import Settings from './components/Settings/Settings';
 import CreateWorkout from './components/CreateWorkout/CreateWorkout';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 // Mock specific components used by App.tsx
 vi.mock('./components/Login/Login', () => ({
-  default: vi.fn(() => <div>Login Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="login-component">Login Component</div>
+  )),
 }));
 vi.mock('./components/Signup/Signup', () => ({
-  default: vi.fn(() => <div>Signup Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="signup-component">Signup Component</div>
+  )),
 }));
 vi.mock('./components/Dashboard/Dashboard', () => ({
-  default: vi.fn(() => <div>Dashboard Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="dashboard-component">Dashboard Component</div>
+  )),
 }));
 vi.mock('./components/WorkoutLogger/WorkoutLogger', () => ({
   default: vi.fn(({ userId, isInitialized }) => (
-    <div>
+    <div data-testid="workout-logger-component">
       WorkoutLogger Component
       <span data-testid="wl-userid">{userId}</span>
       <span data-testid="wl-isinitialized">{isInitialized.toString()}</span>
@@ -35,16 +42,23 @@ vi.mock('./components/WorkoutLogger/WorkoutLogger', () => ({
   )),
 }));
 vi.mock('./components/WorkoutHistory/WorkoutHistory', () => ({
-  default: vi.fn(() => <div>WorkoutHistory Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="workout-history-component">WorkoutHistory Component</div>
+  )),
 }));
 vi.mock('./components/Settings/Settings', () => ({
-  default: vi.fn(() => <div>Settings Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="settings-component">Settings Component</div>
+  )),
 }));
 vi.mock('./components/CreateWorkout/CreateWorkout', () => ({
-  default: vi.fn(() => <div>CreateWorkout Component</div>),
+  default: vi.fn(() => (
+    <div data-testid="create-workout-component">CreateWorkout Component</div>
+  )),
 }));
 
 // Mock AuthManager to control isAuthenticated and isInitialized state for tests
+let mockIsAuthenticated: boolean;
 let mockIsInitialized: boolean;
 let mockUserId: string | null;
 const mockHandleLogout = vi.fn();
@@ -54,9 +68,10 @@ vi.mock('./components/AuthManager/AuthManager', () => ({
     return (
       <div data-testid="mock-auth-manager">
         {children({
-          handleLogout: mockHandleLogout,
+          isAuthenticated: mockIsAuthenticated,
           isInitialized: mockIsInitialized,
           userId: mockUserId,
+          handleLogout: mockHandleLogout,
         })}
       </div>
     );
@@ -77,6 +92,20 @@ vi.mock('./components/Navigation/Navigation', () => ({
   )),
 }));
 
+// Mock ProtectedRoute to simplify App.test.tsx. We test ProtectedRoute separately.
+vi.mock('./components/ProtectedRoute/ProtectedRoute', () => ({
+  default: vi.fn(({ children }) => {
+    if (!mockIsInitialized) {
+      return null; // Simulate ProtectedRoute returning null if not initialized
+    }
+    if (!mockIsAuthenticated) {
+      // Simulate ProtectedRoute redirecting to /login if not authenticated
+      return <div data-testid="mock-navigate" data-to="/login"></div>;
+    }
+    return <div data-testid="mock-protected-route">{children}</div>; // Render children if authenticated and initialized
+  }),
+}));
+
 // Mock useNavigate from react-router-dom for redirect tests
 const mockUseNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -85,14 +114,17 @@ vi.mock('react-router-dom', async (importOriginal) => {
     ...actual,
     useNavigate: (): Mock => mockUseNavigate,
     // Mock the Navigate component directly to capture its 'to' prop
-    Navigate: vi.fn(({ to }) => <div data-testid="mock-navigate" data-to={to}></div>),
+    Navigate: vi.fn(({ to }) => (
+      <div data-testid="mock-navigate" data-to={to}></div>
+    )),
   };
 });
 
 describe('App Component', () => {
   beforeEach((): void => {
     // Reset mock states for AuthManager
-    mockIsInitialized = true; // Default to true for most tests unless overridden
+    mockIsAuthenticated = true; // Default to authenticated for most tests unless overridden
+    mockIsInitialized = true; // Default to initialized for most tests unless overridden
     mockUserId = 'test-user-id';
     // Clear all mocks before each test.
     vi.clearAllMocks();
@@ -148,39 +180,54 @@ describe('App Component', () => {
     );
   });
 
-  it('renders the Login component when navigating to /login', async (): Promise<void> => {
+  it('renders the Login component when navigating to /login and not authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = false; // Not authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/login']);
     await waitFor(() => {
       expect(vi.mocked(Login)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('Login Component')).toBeInTheDocument();
+      expect(screen.getByTestId('login-component')).toBeInTheDocument();
     });
   });
 
-  it('renders the Signup component when navigating to /signup', async (): Promise<void> => {
+  it('renders the Signup component when navigating to /signup and not authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = false; // Not authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/signup']);
     await waitFor(() => {
       expect(vi.mocked(Signup)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('Signup Component')).toBeInTheDocument();
+      expect(screen.getByTestId('signup-component')).toBeInTheDocument();
     });
   });
 
-  it('renders the Dashboard component when navigating to /dashboard', async (): Promise<void> => {
+  it('renders the Dashboard component when navigating to /dashboard and authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/dashboard']);
     await waitFor(() => {
+      expect(vi.mocked(ProtectedRoute)).toHaveBeenCalledTimes(1); // ProtectedRoute wraps it
       expect(vi.mocked(Dashboard)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('Dashboard Component')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-component')).toBeInTheDocument();
     });
   });
 
-  it('renders the WorkoutLogger component when navigating to /log-workout', async (): Promise<void> => {
+  it('renders the WorkoutLogger component when navigating to /log-workout and authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/log-workout']);
     await waitFor(() => {
+      expect(vi.mocked(ProtectedRoute)).toHaveBeenCalledTimes(1);
       expect(vi.mocked(WorkoutLogger)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('WorkoutLogger Component')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('workout-logger-component'),
+      ).toBeInTheDocument();
     });
   });
 
   it('passes the userId prop to WorkoutLogger when available', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
+    mockUserId = 'test-user-id';
     renderApp(['/log-workout']);
     await waitFor(() => {
       expect(screen.getByTestId('wl-userid').textContent).toBe('test-user-id');
@@ -191,31 +238,46 @@ describe('App Component', () => {
     });
   });
 
-  it('renders the WorkoutHistory component when navigating to /history', async (): Promise<void> => {
+  it('renders the WorkoutHistory component when navigating to /history and authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/history']);
     await waitFor(() => {
+      expect(vi.mocked(ProtectedRoute)).toHaveBeenCalledTimes(1);
       expect(vi.mocked(WorkoutHistory)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('WorkoutHistory Component')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('workout-history-component'),
+      ).toBeInTheDocument();
     });
   });
 
-  it('renders the Settings component when navigating to /settings', async (): Promise<void> => {
+  it('renders the Settings component when navigating to /settings and authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/settings']);
     await waitFor(() => {
+      expect(vi.mocked(ProtectedRoute)).toHaveBeenCalledTimes(1);
       expect(vi.mocked(Settings)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('Settings Component')).toBeInTheDocument();
+      expect(screen.getByTestId('settings-component')).toBeInTheDocument();
     });
   });
 
-  it('renders the CreateWorkout component when navigating to /create-workout', async (): Promise<void> => {
+  it('renders the CreateWorkout component when navigating to /create-workout and authenticated', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp(['/create-workout']);
     await waitFor(() => {
+      expect(vi.mocked(ProtectedRoute)).toHaveBeenCalledTimes(1);
       expect(vi.mocked(CreateWorkout)).toHaveBeenCalledTimes(1);
-      expect(screen.getByText('CreateWorkout Component')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('create-workout-component'),
+      ).toBeInTheDocument();
     });
   });
 
   it('passes the isAuthenticated prop to the Navigation component', async (): Promise<void> => {
+    mockIsAuthenticated = true; // Authenticated
+    mockIsInitialized = true; // AuthManager is done initializing
     renderApp();
     await waitFor(() => {
       expect(screen.getByTestId('nav-is-authenticated').textContent).toBe(
@@ -240,6 +302,7 @@ describe('App Component', () => {
   });
 
   it('passes the isInitialized prop to WorkoutLogger', async (): Promise<void> => {
+    mockIsInitialized = true; // Initialized
     renderApp(['/log-workout']);
     await waitFor(() => {
       expect(screen.getByTestId('wl-isinitialized').textContent).toBe('true');
@@ -250,39 +313,133 @@ describe('App Component', () => {
     });
   });
 
-  // --- New tests for default and fallback routes ---
-
-  it('redirects to /login from / if not initialized', async () => {
-    mockIsInitialized = false; // Set AuthManager to not initialized
+  it('redirects to /login from / if not authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = false; // Not authenticated
     renderApp(['/']);
     await waitFor(() => {
-      // Check that the Navigate component was rendered with the correct 'to' prop
-      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/login');
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/login',
+      );
     });
   });
 
-  it('redirects to /dashboard from / if initialized', async () => {
-    mockIsInitialized = true; // Set AuthManager to initialized
+  it('redirects to /dashboard from / if authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = true; // Authenticated
     renderApp(['/']);
     await waitFor(() => {
-      // Check that the Navigate component was rendered with the correct 'to' prop
-      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/dashboard');
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/dashboard',
+      );
     });
   });
 
-  it('redirects to /login from an unknown route if not initialized', async () => {
-    mockIsInitialized = false; // Set AuthManager to not initialized
+  it('redirects to /dashboard from /login if authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = true; // Authenticated
+    renderApp(['/login']);
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/dashboard',
+      );
+      expect(vi.mocked(Login)).not.toHaveBeenCalled(); // Login component should not be rendered
+    });
+  });
+
+  it('redirects to /dashboard from /signup if authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = true; // Authenticated
+    renderApp(['/signup']);
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/dashboard',
+      );
+      expect(vi.mocked(Signup)).not.toHaveBeenCalled(); // Signup component should not be rendered
+    });
+  });
+
+  it('redirects to /login from a protected route if not authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = false; // Not authenticated
+    renderApp(['/dashboard']); // Trying to access a protected route
+    await waitFor(() => {
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/login',
+      );
+      expect(vi.mocked(Dashboard)).not.toHaveBeenCalled(); // Dashboard should not be rendered
+    });
+  });
+
+  it('redirects to /login from an unknown route if not authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = false; // Not authenticated
     renderApp(['/some-unknown-route']);
     await waitFor(() => {
-      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/login');
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/login',
+      );
     });
   });
 
-  it('redirects to /dashboard from an unknown route if initialized', async () => {
-    mockIsInitialized = true; // Set AuthManager to initialized
+  it('redirects to /dashboard from an unknown route if authenticated and initialized', async () => {
+    mockIsInitialized = true;
+    mockIsAuthenticated = true; // Authenticated
     renderApp(['/another-bad-route']);
     await waitFor(() => {
-      expect(screen.getByTestId('mock-navigate')).toHaveAttribute('data-to', '/dashboard');
+      expect(screen.getByTestId('mock-navigate')).toHaveAttribute(
+        'data-to',
+        '/dashboard',
+      );
     });
+  });
+
+  // Test for preventing login/signup flash when AuthManager is NOT initialized
+  it('renders null for /login path while AuthManager is not initialized (prevent flash)', async () => {
+    mockIsInitialized = false; // AuthManager is still initializing
+    renderApp(['/login']);
+    // We expect no redirect and no Login component while initializing
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('login-component')).not.toBeInTheDocument();
+  });
+
+  it('renders null for /signup path while AuthManager is not initialized (prevent flash)', async () => {
+    mockIsInitialized = false; // AuthManager is still initializing
+    renderApp(['/signup']);
+    // We expect no redirect and no Signup component while initializing
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('signup-component')).not.toBeInTheDocument();
+  });
+
+  it('renders null for root path while AuthManager is not initialized', async () => {
+    mockIsInitialized = false; // AuthManager is still initializing
+    renderApp(['/']);
+    // We expect no redirect and no content while initializing
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('login-component')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-component')).not.toBeInTheDocument();
+  });
+
+  it('renders null for protected path while AuthManager is not initialized', async () => {
+    mockIsInitialized = false; // AuthManager is still initializing
+    renderApp(['/dashboard']);
+    // We expect no redirect and no content while initializing
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-component')).not.toBeInTheDocument();
+  });
+
+  it('renders null for unknown path while AuthManager is not initialized', async () => {
+    mockIsInitialized = false; // AuthManager is still initializing
+    renderApp(['/some-random-path']);
+    // We expect no redirect and no content while initializing
+    expect(screen.queryByTestId('mock-navigate')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('login-component')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-component')).not.toBeInTheDocument();
   });
 });

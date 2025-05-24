@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, type NavigateFunction } from 'react-router-dom';
 import Login from './Login';
 import supabase from '../../utils/supabase';
 import '@testing-library/jest-dom';
@@ -25,7 +25,7 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom'); // Import actual module
   return {
     ...actual, // Spread all actual exports
-    useNavigate: () => mockNavigate, // Override useNavigate
+    useNavigate: (): NavigateFunction => mockNavigate, // Override useNavigate
   };
 });
 

@@ -9,47 +9,111 @@ import WorkoutHistory from './components/WorkoutHistory/WorkoutHistory';
 import Settings from './components/Settings/Settings';
 import CreateWorkout from './components/CreateWorkout/CreateWorkout';
 import Signup from './components/Signup/Signup';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
     <AuthManager>
-      {({ handleLogout, isInitialized, userId }) => (
+      {({ handleLogout, isAuthenticated, isInitialized, userId }) => (
         <div
           className="min-h-screen bg-gray-100 text-gray-900 flex flex-col items-center justify-start"
           data-testid="app-container"
         >
-          <Navigation isAuthenticated={isInitialized} logout={handleLogout} />
+          <Navigation isAuthenticated={isAuthenticated} logout={handleLogout} />
           <Routes>
+            {/* Root path redirection */}
             <Route
               path="/"
               element={
-                isInitialized ? (
+                !isInitialized ? null : isAuthenticated ? ( // If NOT initialized, render null (or a loading spinner)
                   <Navigate to="/dashboard" replace />
                 ) : (
                   <Navigate to="/login" replace />
                 )
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Login and Signup routes: Redirect if already authenticated OR render null if not initialized */}
+            <Route
+              path="/login"
+              element={
+                !isInitialized ? null : isAuthenticated ? ( // If NOT initialized, render null (to prevent flash) // If initialized AND authenticated, redirect
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  // If initialized AND not authenticated, show login
+                  <Login />
+                )
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                !isInitialized ? null : isAuthenticated ? ( // If NOT initialized, render null (to prevent flash) // If initialized AND authenticated, redirect
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  // If initialized AND not authenticated, show signup
+                  <Signup />
+                )
+              }
+            />
+
+            {/* Protected Routes (already handled by ProtectedRoute, which itself handles isInitialized) */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/log-workout"
               element={
-                <WorkoutLogger
-                  userId={userId || ''}
-                  setWorkouts={() => {}} // Placeholder, replace with actual state management
-                  isInitialized={isInitialized}
-                />
+                <ProtectedRoute>
+                  <WorkoutLogger
+                    userId={userId || ''}
+                    setWorkouts={() => {}} // Placeholder, replace with actual state management
+                    isInitialized={isInitialized}
+                  />
+                </ProtectedRoute>
               }
             />
             <Route
               path="/history"
-              element={<WorkoutHistory workouts={[]} muscleGroups={[]} />}
+              element={
+                <ProtectedRoute>
+                  <WorkoutHistory workouts={[]} muscleGroups={[]} />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/create-workout" element={<CreateWorkout />} />
-            <Route path="*" element={<Navigate to={isInitialized ? "/dashboard" : "/login"} replace />} />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-workout"
+              element={
+                <ProtectedRoute>
+                  <CreateWorkout />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Fallback for any unmatched routes */}
+            <Route
+              path="*"
+              element={
+                !isInitialized ? null : isAuthenticated ? ( // If NOT initialized, render null (to prevent flash)
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
           </Routes>
         </div>
       )}
