@@ -1,16 +1,7 @@
 
-/Users/aaron/repos/workout/src/components/Login/Login.test.tsx
-  218:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  275:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  304:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  377:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  411:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  442:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-  514:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
 /Users/aaron/repos/workout/src/components/Login/Login.tsx
   224:17  warning  Strings must use singlequote  quotes
 
-✖ 8 problems (7 errors, 1 warning)
+✖ 1 problem (0 errors, 1 warning)
   0 errors and 1 warning potentially fixable with the `--fix` option.
 

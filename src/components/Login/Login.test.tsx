@@ -215,7 +215,7 @@ describe('Login/Sign Up Component', () => {
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
       data: {
         user: { id: '123', email: 'test@example.com' },
-        session: {} as any,
+        session: {},
       }, // Minimal session mock
       error: null,
     } as AuthTokenResponsePassword);
@@ -272,7 +272,7 @@ describe('Login/Sign Up Component', () => {
     vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
       data: {
         user: { id: '123', email: 'test@example.com' },
-        session: {} as any,
+        session: {},
       },
       error: null,
     } as AuthTokenResponsePassword);
@@ -301,7 +301,7 @@ describe('Login/Sign Up Component', () => {
           setTimeout(
             () =>
               resolve({
-                data: { user: { id: '123' }, session: {} as any },
+                data: { user: { id: '123' }, session: {} },
                 error: null,
               } as AuthTokenResponsePassword),
             500,
@@ -374,7 +374,7 @@ describe('Login/Sign Up Component', () => {
     vi.mocked(supabase.auth.signUp).mockResolvedValue({
       data: {
         user: { id: '456', email: 'newuser@example.com' },
-        session: {} as any,
+        session: {},
       },
       error: null,
     } as AuthResponse); // Use AuthResponse for signUp
@@ -408,7 +408,7 @@ describe('Login/Sign Up Component', () => {
     vi.mocked(supabase.auth.signUp).mockResolvedValue({
       data: {
         user: { id: '456', email: 'newuser@example.com' },
-        session: {} as any,
+        session: {},
       },
       error: null,
     } as AuthResponse);
@@ -439,7 +439,7 @@ describe('Login/Sign Up Component', () => {
     vi.mocked(supabase.auth.signUp).mockResolvedValue({
       data: {
         user: { id: '456', email: 'newuser@example.com' },
-        session: {} as any,
+        session: {},
       },
       error: null,
     } as AuthResponse);
@@ -511,7 +511,7 @@ describe('Login/Sign Up Component', () => {
           setTimeout(
             () =>
               resolve({
-                data: { user: { id: '456' }, session: {} as any },
+                data: { user: { id: '456' }, session: {} },
                 error: null,
               } as AuthResponse),
             500,
