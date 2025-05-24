@@ -7,11 +7,6 @@
   resolved "https://registry.yarnpkg.com/@adobe/css-tools/-/css-tools-4.4.3.tgz#beebbefb0264fdeb32d3052acae0e0d94315a9a2"
   integrity sha512-VQKMkwriZbaOgVCby1UDY/LDk5fIjhQicCvVPFqfe+69fWaPWydbWJ3wRt59/YzIwda1I81loas3oCoHxnqvdA==
 
-"@alloc/quick-lru@^5.2.0":
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
-  integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
-
 "@ampproject/remapping@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.3.0.tgz#ed441b6fa600072520ce18b43d2c8cc8caecc7f4"
@@ -779,15 +774,13 @@
     "@tailwindcss/oxide-win32-arm64-msvc" "4.1.7"
     "@tailwindcss/oxide-win32-x64-msvc" "4.1.7"
 
-"@tailwindcss/postcss@^4.1.7":
+"@tailwindcss/vite@^4.1.7":
   version "4.1.7"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/postcss/-/postcss-4.1.7.tgz#8cbc1f81d6a1805910c7cd14f544de930552b8e5"
-  integrity sha512-88g3qmNZn7jDgrrcp3ZXEQfp9CVox7xjP1HN2TFKI03CltPVd/c61ydn5qJJL8FYunn0OqBaW5HNUga0kmPVvw==
+  resolved "https://registry.yarnpkg.com/@tailwindcss/vite/-/vite-4.1.7.tgz#73fb55d2341982fb920f916e1ef6781099cf2df6"
+  integrity sha512-tYa2fO3zDe41I7WqijyVbRd8oWT0aEID1Eokz5hMT6wShLIHj3yvwj9XbfuloHP9glZ6H+aG2AN/+ZrxJ1Y5RQ==
   dependencies:
-    "@alloc/quick-lru" "^5.2.0"
     "@tailwindcss/node" "4.1.7"
     "@tailwindcss/oxide" "4.1.7"
-    postcss "^8.4.41"
     tailwindcss "4.1.7"
 
 "@testing-library/dom@^10.4.0":
@@ -2895,7 +2888,7 @@ postcss-value-parser@^4.2.0:
   resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz#723c09920836ba6d3e5af019f92bc0971c02e514"
   integrity sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==
 
-postcss@^8.4.41, postcss@^8.5.3:
+postcss@^8.5.3:
   version "8.5.3"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.3.tgz#1463b6f1c7fb16fe258736cba29a2de35237eafb"
   integrity sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==
