@@ -35,14 +35,17 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
   const links = isAuthenticated ? loggedInLinks : loggedOutLinks;
 
   return (
-    <nav className="flex flex-wrap justify-center space-x-4 p-4 bg-blue-50 rounded-lg shadow-inner border border-blue-100" aria-label="Main navigation">
+    <nav className="flex flex-wrap justify-center gap-2 p-3 bg-blue-50 rounded-xl shadow-lg border border-blue-100" aria-label="Main navigation">
       {links.map((link) => (
         <NavLink
           key={link.to}
           to={link.to}
           className={({ isActive }) =>
-            `text-gray-700 hover:text-blue-700 px-4 py-2 rounded-md transition-all duration-300 ease-in-out
-            ${isActive ? 'bg-blue-200 text-blue-800 font-semibold shadow-md' : 'hover:bg-blue-100'}`
+            `text-gray-700 hover:text-blue-800 px-3 py-1 rounded-lg transition-all duration-300 ease-in-out font-medium text-sm
+            ${isActive
+              ? 'bg-blue-300 text-blue-900 font-bold shadow-md transform scale-105'
+              : 'hover:bg-blue-100 hover:shadow-sm'
+            }`
           }
           aria-label={link.ariaLabel}
           tabIndex={0}
@@ -53,7 +56,7 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
       {isAuthenticated && (
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white rounded-md px-4 py-2 hover:bg-red-600 transition-colors duration-200 shadow-md ml-4"
+          className="bg-red-500 text-white rounded-lg px-4 py-1 hover:bg-red-600 transition-colors duration-300 ease-in-out shadow-md hover:shadow-lg ml-2 font-semibold text-sm"
           aria-label="Log out of your account"
         >
           Logout
