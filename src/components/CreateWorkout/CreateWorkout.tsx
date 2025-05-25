@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import supabase from '../../utils/supabase';
+import { useNavigate } from 'react-router';
+import {supabase} from '../../utils/supabase';
 
 const CreateWorkout: React.FC = () => {
   const [date, setDate] = useState('');

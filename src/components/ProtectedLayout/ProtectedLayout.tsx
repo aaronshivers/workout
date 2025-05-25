@@ -1,10 +1,10 @@
 import { Navigate, useOutlet } from 'react-router';
 import { useAuth } from '../../hooks/useAuth';
-import Navigation from '../Navigation/Navigation';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-
+import {AppSidebar} from '../AppSidebar/AppSidebar';
+import { Card, CardContent } from "@/components/ui/card";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 export const ProtectedLayout = () => {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated } = useAuth();
     const outlet = useOutlet();
 
     if (!isAuthenticated) {
@@ -12,21 +12,19 @@ export const ProtectedLayout = () => {
     }
 
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen w-full">
-            <Card className="w-full max-w-full sm:max-w-4xl mb-4">
-                <CardHeader>
-                    <CardTitle>Dashboard</CardTitle>
-                </CardHeader>
-                <CardContent>
-                <Navigation isAuthenticated={isAuthenticated} logout={logout} />
-                </CardContent>
-            </Card>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-gray-100">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col items-center justify-start p-6">
+          <SidebarTrigger className="mb-4 self-start" />
             <Card className="w-full max-w-full sm:max-w-4xl flex-grow flex flex-col items-center justify-start">
                 <CardContent className="w-full">
                 {outlet}
                 </CardContent>
             </Card>
         </div>
+      </div>
+    </SidebarProvider>
     );
 };
 

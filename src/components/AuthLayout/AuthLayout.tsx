@@ -7,11 +7,13 @@ export const AuthLayout: React.FC = () => {
     const { userPromise } = useLoaderData() as { userPromise: Promise<any> };
 
     return (
-        <Suspense fallback={
+    <Suspense
+      fallback={
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-3xl">Loading application...</div>
             </div>
-        }>
+      }
+    >
             <Await
             resolve={userPromise}
             errorElement={
@@ -21,9 +23,7 @@ export const AuthLayout: React.FC = () => {
                 }
             children={(user) => (
                 <AuthProvider userData={user}>
-                    <div className="min-h-screen flex flex-col items-center justify-start w-full">
                         {outlet}
-                    </div>
                 </AuthProvider>
                 )}
             />
