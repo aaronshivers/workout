@@ -7,7 +7,7 @@ export const HomeLayout: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

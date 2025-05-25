@@ -10,6 +10,8 @@ import { supabase } from './utils/supabase';
 import WorkoutLogger from './components/WorkoutLogger/WorkoutLogger';
 import WorkoutHistory from './components/WorkoutHistory/WorkoutHistory';
 import CreateWorkout from './components/CreateWorkout/CreateWorkout';
+import {CustomExercises} from './components/CustomExercises/CustomExercises';
+import Dashboard from './components/Dashboard/Dashboard';
 
 const getUserData = async () => {
   const { data: { session }, error } = await supabase.auth.getSession();
@@ -30,15 +32,15 @@ export const router = createBrowserRouter(
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
       </Route>
-
-      <Route path="/dashboard" element={<ProtectedLayout />}>
-        <Route index element={<WorkoutLogger />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="history" element={<WorkoutHistory />} />
-        <Route path="templates" element={<div>Templates Page</div>} />
-        <Route path="custom-exercises" element={<div>Custom Exercises Page</div>} />
-        <Route path="create-workout" element={<CreateWorkout />} />
+      <Route element={<ProtectedLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/log-workout" element={<WorkoutLogger />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/history" element={<WorkoutHistory />} />
+        <Route path="/templates" element={<div>Templates Page</div>} />
+        <Route path="/custom-exercises" element={<CustomExercises />} />
+        <Route path="/create-workout" element={<CreateWorkout />} />
       </Route>
     </Route>
   )
