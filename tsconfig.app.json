@@ -18,7 +18,13 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "composite": true
+    "composite": true,
+        "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": ["src", "src/utils", "tailwind.config.js", "src//.ts", "src/**/.tsx", "src/hooks", "src/hooks/.ts", "src/hooks/**/.tsx"]
 }

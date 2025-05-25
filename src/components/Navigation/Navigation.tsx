@@ -1,5 +1,7 @@
 import { NavLink, useNavigate } from 'react-router';
-import { supabase } from '../../utils/supabase'; // Changed to default import
+import { supabase } from '../../utils/supabase';
+import {Button} from "@/components/ui/button";
+
 
 interface NavigationProps {
   isAuthenticated: boolean;
@@ -14,10 +16,9 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     if (logout) logout();
-      navigate('/login'); // Redirect to login page after logout
+      navigate('/login');
     } catch (error) {
       console.error("Logout failed:", error);
-      // Optionally, show a user-friendly message
     }
   };
 
@@ -35,16 +36,16 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
   const links = isAuthenticated ? loggedInLinks : loggedOutLinks;
 
   return (
-    <nav className="flex flex-wrap justify-center gap-2 p-3 bg-blue-50 rounded-xl shadow-lg border border-blue-100" aria-label="Main navigation">
+    <nav className="flex flex-wrap justify-center gap-2">
       {links.map((link) => (
         <NavLink
           key={link.to}
           to={link.to}
           className={({ isActive }) =>
-            `text-gray-700 hover:text-blue-800 px-3 py-1 rounded-lg transition-all duration-300 ease-in-out font-medium text-sm
+            `px-3 py-1 rounded-md
             ${isActive
-              ? 'bg-blue-300 text-blue-900 font-bold shadow-md transform scale-105'
-              : 'hover:bg-blue-100 hover:shadow-sm'
+              ? 'bg-accent text-accent-foreground'
+              : 'text-foreground hover:bg-muted'
             }`
           }
           aria-label={link.ariaLabel}
@@ -54,13 +55,15 @@ const Navigation: React.FC<NavigationProps> = ({ isAuthenticated, logout }) => {
         </NavLink>
       ))}
       {isAuthenticated && (
-        <button
+        <Button
           onClick={handleLogout}
-          className="bg-red-500 text-white rounded-lg px-4 py-1 hover:bg-red-600 transition-colors duration-300 ease-in-out shadow-md hover:shadow-lg ml-2 font-semibold text-sm"
+          variant="destructive"
+          size="sm"
+          className="ml-2"
           aria-label="Log out of your account"
         >
           Logout
-        </button>
+        </Button>
       )}
     </nav>
   );

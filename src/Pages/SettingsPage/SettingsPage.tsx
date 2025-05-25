@@ -1,10 +1,15 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 const SettingsPage: React.FC = () => {
   return (
-    <div className="text-center p-6 bg-white rounded-xl shadow-2xl border border-blue-200 transform hover:scale-105 transition-all duration-300 ease-in-out w-full max-w-xs sm:max-w-md mx-auto">
-      <h2 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-4">Application Settings</h2>
-      <p className="text-gray-700 text-sm sm:text-lg leading-relaxed mb-4">
+    <Card className="w-full max-w-xs sm:max-w-md mx-auto text-center">
+      <CardHeader>
+        <CardTitle className="text-2xl sm:text-4xl font-bold text-gray-800">Application Settings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CardDescription className="text-gray-700 text-sm sm:text-lg leading-relaxed">
         This is where you can manage various settings for your application.
-      </p>
+        </CardDescription>
       <p className="text-gray-600 mt-2 text-xs sm:text-md italic p-4 bg-yellow-50 rounded-lg border border-yellow-200 shadow-sm">
         (This page is currently a placeholder. Future updates will include customizable options!)
       </p>
@@ -13,7 +18,8 @@ const SettingsPage: React.FC = () => {
           Coming Soon!
         </span>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

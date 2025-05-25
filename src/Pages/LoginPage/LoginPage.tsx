@@ -1,11 +1,45 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {z} from "zod";
+import { cn } from "@/lib/utils";
+
+const FormSchema = z.object({
+  email: z.string().email({
+    message: "Invalid email address.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  }),
+})
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,49 +53,83 @@ export const LoginPage = () => {
   };
 
   return(
-    <div className="flex flex-col items-center w-full py-8 px-4">
-      <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-xs sm:max-w-sm mx-auto border border-blue-100 transform hover:shadow-3xl transition-shadow duration-300">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 mb-6">Login</h1>
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded-lg relative mb-4 shadow-md animate-shake text-sm" role="alert">
-            <span className="block sm:inline font-medium">{error}</span>
-          </div>
-        )}
-        <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-            <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Email Address:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-400"
-            placeholder="your.email@example.com"
-            autoComplete="email"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-400"
-            placeholder="••••••••"
-            autoComplete="current-password"
-          />
-        </div>
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 px-3 rounded-lg hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 ease-in-out font-semibold text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            Login
-          </button>
-      </form>
-      </div>
+    <div className={cn("flex flex-col gap-6")}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTitle>Login Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )} */}
+          <Form {...form}>
+            <form onSubmit={handleLogin} className="space-y-4">
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        id="email"
+                        required
+                        placeholder="your.email@example.com"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e: any) => setEmail(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Please enter your email address.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        id="password"
+                        required
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e: any) => setPassword(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Please enter your password.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button className="w-full" type="submit">Login</Button>
+              <div className="mt-4 text-center text-sm">
+                Don&apos;t have an account?{" "}
+                <a href="#" className="underline underline-offset-4">
+                  Sign up
+                </a>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -6,7 +6,12 @@
   ],
   "compilerOptions": {
     "types": ["vitest/globals", "node", "jest"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "strict": true
   },
   "exclude": [
     "node_modules",
