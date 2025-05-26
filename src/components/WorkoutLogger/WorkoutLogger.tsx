@@ -1,33 +1,45 @@
+// src/components/WorkoutLogger/WorkoutLogger.tsx
 import React, { useState, useEffect } from 'react';
-import {supabase} from '../../utils/supabase';
+import { supabase } from '../../utils/supabase';
+import { useWorkout } from '../WorkoutProvider';
+import { toast } from 'sonner';
 import type { Database } from '../../types/supabase';
+
+type WorkoutExercise = Database['public']['Tables']['workout_exercises']['Row'];
+type WorkoutSet = Database['public']['Tables']['workout_sets']['Row'];
+type Exercise = Database['public']['Tables']['exercises']['Row'];
 
 interface WorkoutLoggerProps {
   userId: string;
-  exerciseId?: number | null;
-  sets?: number;
-  reps?: number;
-  weight?: number;
-  rpe?: number;
+  exerciseId: string | null;
+  sets: number;
+  reps: number;
+  weight: number | null;
+  rpe: number | null;
   setWorkouts: React.Dispatch<
-    React.SetStateAction<Database['public']['Tables']['workouts']['Row'][]>
+    React.SetStateAction<
+      (Database['public']['Tables']['workouts']['Row'] & {
+        workout_exercises: (WorkoutExercise & { workout_sets: WorkoutSet[] })[];
+      })[]
+    >
   >;
   isInitialized: boolean;
 }
 
 interface ProgressionSuggestion {
-  weight: number;
+  weight: number | null;
   sets: number;
+  reps: number;
   suggestion: string;
 }
 
 const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
   userId,
-  exerciseId = null,
+  exerciseId,
   sets = 3,
   reps = 10,
-  weight = 100,
-  rpe = 7,
+  weight = null,
+  rpe = null,
   setWorkouts,
   isInitialized,
 }) => {
@@ -35,96 +47,271 @@ const WorkoutLogger: React.FC<WorkoutLoggerProps> = ({
   const [progression, setProgression] = useState<ProgressionSuggestion | null>(
     null,
   );
+  const [formData, setFormData] = useState({ sets, reps, weight, rpe });
+  const { exercises } = useWorkout();
 
   useEffect(() => {
     const fetchLastWorkout = async () => {
       if (!userId || !exerciseId) return;
-      const { data } = await supabase
-        .from('workout_sets')
-        .select('weight, sets, rpe')
+      const { data, error } = await supabase
+        .from('workout_exercises')
+        .select(
+          `
+          *,
+          workout_sets (
+            set_number,
+            reps,
+            weight_kg,
+            rpe,
+            created_at
+          )
+        `,
+        )
         .eq('user_id', userId)
         .eq('exercise_id', exerciseId)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
-      if (data) {
+
+      if (error) {
+        console.error('Error fetching last workout:', error);
+        return;
+      }
+
+      if (data && data.workout_sets.length > 0) {
+        const lastSet = data.workout_sets.reduce((max, set) =>
+          new Date(set.created_at || '') > new Date(max.created_at || '')
+            ? set
+            : max,
+        );
         let suggestion = '';
-        let newWeight = data.weight;
-        let newSets = data.sets;
-        if (data.rpe < 7) {
-          suggestion = `RPE ${data.rpe} is low. Increase weight by 5-10% or add 1 set.`;
-          newWeight *= 1.05;
-          newSets += 1;
-        } else if (data.rpe > 8) {
-          suggestion = `RPE ${data.rpe} is high. Decrease weight by 5-10% or reduce 1 set.`;
-          newWeight *= 0.95;
-          if (newSets > 1) newSets -= 1;
+        let newWeight = lastSet.weight_kg;
+        let newSets = data.workout_sets.length;
+        let newReps = lastSet.reps;
+
+        // RP Set Progression Algorithm
+        if (lastSet.rpe && lastSet.rpe < 7) {
+          suggestion = `RPE ${lastSet.rpe} is low. Increase weight by 5-10% or add 1 set.`;
+          newWeight = newWeight
+            ? Math.round(newWeight * 1.075 * 10) / 10
+            : null;
+          newSets = newSets < 4 ? newSets + 1 : newSets;
+        } else if (lastSet.rpe && lastSet.rpe > 8) {
+          suggestion = `RPE ${lastSet.rpe} is high. Decrease weight by 5-10% or reduce 1 set.`;
+          newWeight = newWeight
+            ? Math.round(newWeight * 0.925 * 10) / 10
+            : null;
+          newSets = newSets > 1 ? newSets - 1 : newSets;
         } else {
-          suggestion = `RPE ${data.rpe} is optimal. Maintain current weight and sets.`;
+          suggestion = `RPE ${lastSet.rpe || 'N/A'} is optimal. Increase weight by 2.5-5% for next session.`;
+          newWeight = newWeight
+            ? Math.round(newWeight * 1.0375 * 10) / 10
+            : null;
         }
-        setProgression({ weight: newWeight, sets: newSets, suggestion });
+
+        setProgression({
+          weight: newWeight,
+          sets: newSets,
+          reps: newReps,
+          suggestion,
+        });
       }
     };
     fetchLastWorkout();
   }, [userId, exerciseId]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value === '' ? null : parseFloat(value),
+    }));
+  };
+
   const handleLogWorkout = async () => {
     if (!isInitialized || !exerciseId || !userId) {
-      console.error('Initialization or exercise/user not ready.');
+      toast('Please select an exercise and ensure you are logged in.', {
+        style: { background: 'red', color: 'white' },
+      });
       return;
     }
 
     setIsLogging(true);
 
     try {
+      // Insert workout
       const { data: workoutData, error: workoutError } = await supabase
         .from('workouts')
-        .insert({ user_id: userId, created_at: new Date().toISOString() })
-        .select()
+        .insert({
+          user_id: userId,
+          date: new Date().toISOString().split('T')[0],
+          name: `Workout ${new Date().toLocaleDateString()}`,
+        })
+        .select('id')
         .single();
 
-      if (workoutError) throw workoutError;
+      if (workoutError) {
+        throw new Error(`Failed to insert workout: ${workoutError.message}`);
+      }
 
       const workoutId = workoutData.id;
 
-      const setData = Array.from({ length: progression?.sets ?? sets }, () => ({
-        workout_id: workoutId,
-        exercise_id: exerciseId,
-        sets: progression?.sets ?? sets,
-        reps,
-        weight: progression?.weight ?? weight,
-        rpe,
-        created_at: new Date().toISOString(),
-      }));
+      // Insert workout_exercise
+      const { data: workoutExerciseData, error: workoutExerciseError } =
+        await supabase
+          .from('workout_exercises')
+          .insert({
+            workout_id: workoutId,
+            exercise_id: exerciseId,
+            user_id: userId,
+            order_index: 0,
+          })
+          .select('id')
+          .single();
+
+      if (workoutExerciseError) {
+        throw new Error(
+          `Failed to insert workout exercise: ${workoutExerciseError.message}`,
+        );
+      }
+
+      const workoutExerciseId = workoutExerciseData.id;
+
+      // Insert sets
+      const setData = Array.from(
+        { length: progression?.sets ?? formData.sets },
+        (_, i) => ({
+          workout_exercise_id: workoutExerciseId,
+          user_id: userId,
+          set_number: i + 1,
+          reps: progression?.reps ?? formData.reps,
+          weight_kg: progression?.weight ?? formData.weight,
+          rpe: formData.rpe,
+        }),
+      );
 
       const { error: setError } = await supabase
         .from('workout_sets')
         .insert(setData);
 
-      if (setError) throw setError;
+      if (setError) {
+        throw new Error(`Failed to insert sets: ${setError.message}`);
+      }
 
-      const { data: newWorkouts } = await supabase
+      // Refresh workouts
+      const { data: newWorkouts, error: fetchError } = await supabase
         .from('workouts')
-        .select('*')
+        .select(
+          `
+          *,
+          workout_exercises (
+            *,
+            workout_sets (*)
+          )
+        `,
+        )
         .eq('user_id', userId);
+
+      if (fetchError) {
+        throw new Error(
+          `Failed to fetch updated workouts: ${fetchError.message}`,
+        );
+      }
+
       setWorkouts(newWorkouts || []);
-    } catch (error) {
+      toast('Workout logged successfully!');
+    } catch (error: any) {
       console.error('Error logging workout:', error);
-      alert('Failed to log workout. Check console for details.');
+      toast(`Failed to log workout: ${error.message}`, {
+        style: { background: 'red', color: 'white' },
+      });
     } finally {
       setIsLogging(false);
     }
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 p-4 border border-gray-200 rounded-lg shadow-sm">
+      <h3 className="text-lg font-semibold mb-2">Log Workout</h3>
       {progression && (
-        <div className="text-gray-700 mb-2">{progression.suggestion}</div>
+        <div className="text-gray-700 mb-4 bg-gray-50 p-2 rounded">
+          <p>
+            <strong>Suggestion:</strong> {progression.suggestion}
+          </p>
+          <p>
+            <strong>Recommended Weight:</strong>{' '}
+            {progression.weight ? `${progression.weight.toFixed(1)} kg` : 'N/A'}
+          </p>
+          <p>
+            <strong>Recommended Sets:</strong> {progression.sets}
+          </p>
+          <p>
+            <strong>Recommended Reps:</strong> {progression.reps}
+          </p>
+        </div>
       )}
+      <div className="space-y-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Sets
+          </label>
+          <input
+            type="number"
+            name="sets"
+            value={formData.sets || ''}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Reps
+          </label>
+          <input
+            type="number"
+            name="reps"
+            value={formData.reps || ''}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Weight (kg)
+          </label>
+          <input
+            type="number"
+            name="weight"
+            value={formData.weight || ''}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            min="0"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            RPE (1-10)
+          </label>
+          <input
+            type="number"
+            name="rpe"
+            value={formData.rpe || ''}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            min="1"
+            max="10"
+            step="0.5"
+          />
+        </div>
+      </div>
       <button
         onClick={handleLogWorkout}
         disabled={isLogging || !isInitialized || !exerciseId}
-        className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
+        className="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
       >
         {isLogging ? 'Logging...' : 'Log Workout'}
       </button>

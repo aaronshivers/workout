@@ -1,6 +1,9 @@
+import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Button} from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Form,
   FormControl,
@@ -9,16 +12,47 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {z} from "zod";
 import { cn } from "@/lib/utils";
-import { useLoginForm } from '../../hooks/useLoginForm';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
+const FormSchema = z.object({
+  email: z.string().email({
+    message: "Invalid email address.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  }),
+})
 
 export const LoginPage = () => {
-  console.log("LoginPage rendered");
-  const { form, error, handleLogin } = useLoginForm();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
-  return (
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await login({ email, password });
+    } catch (error: any) {
+      setError(error.message || "Login failed. Please try again.");
+      console.error("Login failed:", error);
+    }
+  };
+
+  return(
     <div className={cn("flex flex-col gap-6")}>
       <Card>
         <CardHeader>
@@ -32,7 +66,8 @@ export const LoginPage = () => {
             </Alert>
           )}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4">
+
               <FormField
                 control={form.control}
                 name="email"
@@ -47,6 +82,8 @@ export const LoginPage = () => {
                         required
                         placeholder="your.email@example.com"
                         autoComplete="email"
+                        value={email}
+                        onChange={(e: any) => setEmail(e.target.value)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -56,6 +93,7 @@ export const LoginPage = () => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -70,6 +108,8 @@ export const LoginPage = () => {
                         required
                         placeholder="••••••••"
                         autoComplete="current-password"
+                        value={password}
+                        onChange={(e: any) => setPassword(e.target.value)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -79,9 +119,6 @@ export const LoginPage = () => {
                   </FormItem>
                 )}
               />
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
-              )}
               <Button className="w-full" type="submit">Login</Button>
               <div className="mt-4 text-center text-sm">
                 Don&apos;t have an account?{" "}
@@ -95,6 +132,6 @@ export const LoginPage = () => {
       </Card>
     </div>
   );
-};
+}
 
 export default LoginPage;

@@ -8,149 +8,114 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import {
-  Dumbbell,
-  Calendar,
-  FileText,
-  Edit,
-  User,
-  LogOut,
-} from "lucide-react";
-import { NavLink } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
+} from '@/components/ui/sidebar';
+import { NavLink } from 'react-router';
+import { useAuth } from '../../hooks/useAuth';
+import { navItems, userItems } from '../../config/navItems';
+import { useLogout } from '@/hooks/useLogout';
+import React from 'react';
 
-const navItems = [
-  {
-    title: "Current Workout",
-    url: "/log-workout",
-    icon: Dumbbell,
-    ariaLabel: "Navigate to Current Workout",
-  },
-  {
-    title: "Mesocycles",
-    url: "/history",
-    icon: Calendar,
-    ariaLabel: "Navigate to Mesocycles",
-  },
-  {
-    title: "Templates",
-    url: "/templates",
-    icon: FileText,
-    ariaLabel: "Navigate to Templates",
-  },
-  {
-    title: "Custom Exercises",
-    url: "/custom-exercises",
-    icon: Edit,
-    ariaLabel: "Navigate to Custom Exercises",
-  },
-  {
-    title: "Plan a New Mesocycle",
-    url: "/create-workout",
-    icon: Calendar,
-    ariaLabel: "Navigate to Plan a New Mesocycle",
-  },
-];
+interface NavGroupProps {
+  title: string;
+  items: typeof navItems | typeof userItems;
+  isAuthenticated: boolean;
+  onLogout?: () => void;
+}
 
-const userItems = [
-  {
-    title: "Profile",
-    url: "/dashboard/profile",
-    icon: User,
-    ariaLabel: "Navigate to Profile",
-  },
-];
+const NavGroup: React.FC<NavGroupProps> = React.memo(({ title, items, isAuthenticated, onLogout }) => (
+  <SidebarGroup>
+    <SidebarGroupLabel>{title}</SidebarGroupLabel>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        {items
+          .filter((item) =>
+            (isAuthenticated ? item.authRequired : !item.authRequired)
+          )
+          .map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                {item.url ? (
+                  <NavLink
+                    to={item.url}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2 ${
+                        isActive
+                          ? 'text-sidebar-primary-foreground bg-sidebar-primary'
+                          : 'text-sidebar-foreground'
+                      } hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`
+                    }
+                    aria-label={item.ariaLabel}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </NavLink>
+                ) : (
+                  <button
+                    onClick={onLogout}
+                    className="flex items-center gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full text-left"
+                    aria-label={item.ariaLabel}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </button>
+                )}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+      </SidebarMenu>
+    </SidebarGroupContent>
+  </SidebarGroup>
+));
+
+const UnauthenticatedNav: React.FC = React.memo(() => {
+  const unauthenticatedLinks = navItems.filter((item) => !item.authRequired);
+
+  return (
+    <nav className="flex flex-wrap justify-center gap-2 p-4 bg-gray-100 w-full">
+      {unauthenticatedLinks.map((item) => (
+        <NavLink
+          key={item.title}
+          to={item.url}
+          className={({ isActive }) =>
+            `px-3 py-1 rounded-md flex items-center gap-2 ${
+              isActive ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-muted'
+            }`
+          }
+          aria-label={item.ariaLabel}
+        >
+          <item.icon className="h-5 w-5" />
+          <span>{item.title}</span>
+        </NavLink>
+      ))}
+    </nav>
+  );
+});
 
 export function AppSidebar() {
-  const { logout, isAuthenticated } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  const { isAuthenticated } = useAuth();
+  const handleLogout = useLogout();
 
   if (!isAuthenticated) {
-    return null;
+    return <UnauthenticatedNav />;
   }
 
   return (
     <Sidebar collapsible="icon" className="bg-sidebar-background">
-      <SidebarHeader>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl font-bold text-sidebar-foreground">
-            Workout
-          </SidebarGroupLabel>
-        </SidebarGroup>
-      </SidebarHeader>
+        <SidebarHeader>
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-2xl font-bold text-sidebar-foreground">
+              Workout
+            </SidebarGroupLabel>
+          </SidebarGroup>
+        </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 ${
-                          isActive
-                            ? "text-sidebar-primary-foreground bg-sidebar-primary"
-                            : "text-sidebar-foreground"
-                        } hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`
-                      }
-                      aria-label={item.ariaLabel}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>User</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {userItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={({ isActive }) =>
-                        `flex items-center gap-2 ${
-                          isActive
-                            ? "text-sidebar-primary-foreground bg-sidebar-primary"
-                            : "text-sidebar-foreground"
-                        } hover:bg-sidebar-accent hover:text-sidebar-accent-foreground`
-                      }
-                      aria-label={item.ariaLabel}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  aria-label="Log out of your account"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>Sign Out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroup title="Navigation" items={navItems} isAuthenticated={isAuthenticated} />
+          <NavGroup
+            title="User"
+            items={userItems}
+            isAuthenticated={isAuthenticated}
+            onLogout={handleLogout}
+          />
       </SidebarContent>
     </Sidebar>
   );

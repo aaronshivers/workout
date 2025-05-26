@@ -3,8 +3,9 @@
   "packages": [
     "nodejs@24.0.1",
     "yarn@1.22.22",
-    "supabase-cli@2.22.12",
-    "deno@2.2.12"
+    "deno@2.2.12",
+    "corepack@22.14.0",
+    "supabase-cli@2.23.1"
   ],
   "env": {
     "NODE_ENV": "development"

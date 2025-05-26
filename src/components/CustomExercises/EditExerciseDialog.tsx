@@ -1,12 +1,24 @@
-import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { supabase } from "../../utils/supabase";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Plus } from "lucide-react";
+import { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../utils/supabase';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Plus } from 'lucide-react';
 
 interface CustomExercise {
   id?: string;
@@ -21,25 +33,28 @@ interface EditExerciseDialogProps {
 }
 
 const muscleGroups = [
-  "Abs",
-  "Back",
-  "Biceps",
-  "Calves",
-  "Chest",
-  "Glutes",
-  "Hamstrings",
-  "Quads",
-  "Shoulders",
-  "Triceps",
+  'Abs',
+  'Back',
+  'Biceps',
+  'Calves',
+  'Chest',
+  'Glutes',
+  'Hamstrings',
+  'Quads',
+  'Shoulders',
+  'Triceps',
 ];
 
-export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise, onSave }) => {
+export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({
+  exercise,
+  onSave,
+}) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: exercise?.name || "",
-    muscle_group: exercise?.muscle_group || "",
-    notes: exercise?.notes || "",
+    name: exercise?.name || '',
+    muscle_group: exercise?.muscle_group || '',
+    notes: exercise?.notes || '',
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +63,7 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
     e.preventDefault();
     if (!user) return;
     if (!formData.name.trim()) {
-      setError("Exercise name is required.");
+      setError('Exercise name is required.');
       return;
     }
 
@@ -57,19 +72,19 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
       if (exercise?.id) {
         // Update existing exercise
         const { error } = await supabase
-          .from("custom_exercises")
+          .from('custom_exercises')
           .update({
             name: formData.name,
             muscle_group: formData.muscle_group || null,
             notes: formData.notes || null,
           })
-          .eq("id", exercise.id)
-          .eq("user_id", user.id);
+          .eq('id', exercise.id)
+          .eq('user_id', user.id);
 
         if (error) throw error;
       } else {
         // Create new exercise
-        const { error } = await supabase.from("custom_exercises").insert({
+        const { error } = await supabase.from('custom_exercises').insert({
           name: formData.name,
           muscle_group: formData.muscle_group || null,
           notes: formData.notes || null,
@@ -79,11 +94,11 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
         if (error) throw error;
       }
       setOpen(false);
-      setFormData({ name: "", muscle_group: "", notes: "" });
+      setFormData({ name: '', muscle_group: '', notes: '' });
       setError(null);
       onSave();
     } catch (err) {
-      setError("Failed to save exercise. Please try again.");
+      setError('Failed to save exercise. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -94,16 +109,18 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant={exercise ? "outline" : "default"}
-          size={exercise ? "icon" : "default"}
-          aria-label={exercise ? "Edit exercise" : "Add new exercise"}
+          variant={exercise ? 'outline' : 'default'}
+          size={exercise ? 'icon' : 'default'}
+          aria-label={exercise ? 'Edit exercise' : 'Add new exercise'}
         >
-          {exercise ? <Plus className="h-4 w-4" /> : "Add Exercise"}
+          {exercise ? <Plus className="h-4 w-4" /> : 'Add Exercise'}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{exercise ? "Edit Exercise" : "Add Exercise"}</DialogTitle>
+          <DialogTitle>
+            {exercise ? 'Edit Exercise' : 'Add Exercise'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <div className="text-destructive text-sm">{error}</div>}
@@ -112,7 +129,9 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="e.g., Goblet Squat"
               required
             />
@@ -120,8 +139,10 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
           <div>
             <Label htmlFor="muscle_group">Muscle Group (Optional)</Label>
             <Select
-              value={formData.muscle_group || ""}
-              onValueChange={(value) => setFormData({ ...formData, muscle_group: value })}
+              value={formData.muscle_group || ''}
+              onValueChange={(value) =>
+                setFormData({ ...formData, muscle_group: value })
+              }
             >
               <SelectTrigger id="muscle_group">
                 <SelectValue placeholder="Select a muscle group" />
@@ -140,7 +161,9 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
             <Input
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               placeholder="e.g., Use dumbbell"
             />
           </div>
@@ -154,7 +177,7 @@ export const EditExerciseDialog: React.FC<EditExerciseDialogProps> = ({ exercise
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
             </Button>
           </div>
         </form>

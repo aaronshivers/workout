@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "corepack@22.14.0": {
+      "last_modified": "2025-05-16T20:19:48Z",
+      "resolved": "github:NixOS/nixpkgs/12a55407652e04dcf2309436eb06fef0d3713ef3#corepack",
+      "source": "devbox-search",
+      "version": "22.14.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/789rzm9rd90kn7aa2yjcfhwhw5lbg7ki-corepack-nodejs-22.14.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/789rzm9rd90kn7aa2yjcfhwhw5lbg7ki-corepack-nodejs-22.14.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/1bpjhw8z2zgvvxgb8ia6kxaqzs9bqzsl-corepack-nodejs-22.14.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/1bpjhw8z2zgvvxgb8ia6kxaqzs9bqzsl-corepack-nodejs-22.14.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/qk25ynm7yvv12b1nai81nnchi9c7dm20-corepack-nodejs-22.14.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/qk25ynm7yvv12b1nai81nnchi9c7dm20-corepack-nodejs-22.14.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rb5pf6zs4rn3nivcrnbklyqmc83hc886-corepack-nodejs-22.14.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/rb5pf6zs4rn3nivcrnbklyqmc83hc886-corepack-nodejs-22.14.0"
+        }
+      }
+    },
     "deno@2.2.12": {
       "last_modified": "2025-05-12T14:38:58Z",
       "resolved": "github:NixOS/nixpkgs/eaeed9530c76ce5f1d2d8232e08bec5e26f18ec1#deno",
@@ -134,51 +182,51 @@
         }
       }
     },
-    "supabase-cli@2.22.12": {
-      "last_modified": "2025-05-12T14:38:58Z",
-      "resolved": "github:NixOS/nixpkgs/eaeed9530c76ce5f1d2d8232e08bec5e26f18ec1#supabase-cli",
+    "supabase-cli@2.23.1": {
+      "last_modified": "2025-05-17T07:32:44Z",
+      "resolved": "github:NixOS/nixpkgs/3fcbdcfc707e0aa42c541b7743e05820472bdaec#supabase-cli",
       "source": "devbox-search",
-      "version": "2.22.12",
+      "version": "2.23.1",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ngbz093w08igjjh03psrbngqza19c7la-supabase-cli-2.22.12",
+              "path": "/nix/store/fczyrwxzz0rd2fcdasv389033z7bk95f-supabase-cli-2.23.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ngbz093w08igjjh03psrbngqza19c7la-supabase-cli-2.22.12"
+          "store_path": "/nix/store/fczyrwxzz0rd2fcdasv389033z7bk95f-supabase-cli-2.23.1"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/030x5n786baa30pdfpx6h7g49s4r7wa1-supabase-cli-2.22.12",
+              "path": "/nix/store/fj0i37bj18bn5k9jsrsqag2mv2xgmw3n-supabase-cli-2.23.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/030x5n786baa30pdfpx6h7g49s4r7wa1-supabase-cli-2.22.12"
+          "store_path": "/nix/store/fj0i37bj18bn5k9jsrsqag2mv2xgmw3n-supabase-cli-2.23.1"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/b2wm5nbnmf31k0y6kkjgwac04bffk57m-supabase-cli-2.22.12",
+              "path": "/nix/store/hixdvm0h9c68cg197ywvb7ys67i4715y-supabase-cli-2.23.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/b2wm5nbnmf31k0y6kkjgwac04bffk57m-supabase-cli-2.22.12"
+          "store_path": "/nix/store/hixdvm0h9c68cg197ywvb7ys67i4715y-supabase-cli-2.23.1"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/rfil87q8dmpjlxdvc83m0yadgravi52g-supabase-cli-2.22.12",
+              "path": "/nix/store/lwdiv823xhs5lj8y4pm6a1pr3cq9wnqb-supabase-cli-2.23.1",
               "default": true
             }
           ],
-          "store_path": "/nix/store/rfil87q8dmpjlxdvc83m0yadgravi52g-supabase-cli-2.22.12"
+          "store_path": "/nix/store/lwdiv823xhs5lj8y4pm6a1pr3cq9wnqb-supabase-cli-2.23.1"
         }
       }
     },

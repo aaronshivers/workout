@@ -1,11 +1,21 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { supabase } from "../../utils/supabase";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { EditExerciseDialog } from "./EditExerciseDialog";
-import { Loader2, Trash2 } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../utils/supabase';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { EditExerciseDialog } from './EditExerciseDialog';
+import { Loader2, Trash2 } from 'lucide-react';
 
 interface CustomExercise {
   id: string;
@@ -25,15 +35,15 @@ export const CustomExercises: React.FC = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("custom_exercises")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('custom_exercises')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setExercises(data || []);
     } catch (err) {
-      setError("Failed to fetch exercises. Please try again.");
+      setError('Failed to fetch exercises. Please try again.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -43,15 +53,15 @@ export const CustomExercises: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
-        .from("custom_exercises")
+        .from('custom_exercises')
         .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
       setExercises(exercises.filter((exercise) => exercise.id !== id));
     } catch (err) {
-      setError("Failed to delete exercise. Please try again.");
+      setError('Failed to delete exercise. Please try again.');
       console.error(err);
     }
   };
@@ -98,10 +108,17 @@ export const CustomExercises: React.FC = () => {
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <EditExerciseDialog exercise={exercise} onSave={fetchExercises} />
+                  <EditExerciseDialog
+                    exercise={exercise}
+                    onSave={fetchExercises}
+                  />
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon" aria-label="Delete exercise">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        aria-label="Delete exercise"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
@@ -109,12 +126,15 @@ export const CustomExercises: React.FC = () => {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Exercise</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete "{exercise.name}"? This action cannot be undone.
+                          Are you sure you want to delete "{exercise.name}"?
+                          This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(exercise.id)}>
+                        <AlertDialogAction
+                          onClick={() => handleDelete(exercise.id)}
+                        >
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>

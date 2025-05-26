@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { supabase } from "../utils/supabase";
+import type { User } from "@supabase/supabase-js";
+import { SupabaseAuthService } from "../services/authService";
 
 interface AuthContextType {
-  user: any;
+  user: User | null;
   login: (data: { email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -11,19 +12,18 @@ interface AuthContextType {
 
 interface AuthProviderProps {
   children: React.ReactNode;
-  userData?: any;
-};
+  userData?: User | null;
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children, userData }: AuthProviderProps) => {
-    const [user, setUser] = useState<any>(userData);
+  const [user, setUser] = useState<User | null>(userData || null);
     const [isAuthenticated, setIsAuthenticated] = useState(!!userData);
     const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = SupabaseAuthService.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setIsAuthenticated(!!session?.user);
       if (event === "SIGNED_IN") {
@@ -33,11 +33,10 @@ export const AuthProvider = ({ children, userData }: AuthProviderProps) => {
       }
     });
 
-    // Check initial session
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setIsAuthenticated(!!session?.user);
+      const user = await SupabaseAuthService.checkSession();
+      setUser(user);
+      setIsAuthenticated(!!user);
     };
     checkSession();
 
@@ -46,19 +45,14 @@ export const AuthProvider = ({ children, userData }: AuthProviderProps) => {
     };
   }, [navigate]);
 
-    const login = async (data: {email: string; password: string}) => {
-        const { error } = await supabase.auth.signInWithPassword({
-            email: data.email,
-            password: data.password,
-        });
-        if (error) throw error;
+  const login = async (data: { email: string; password: string }) => {
+    await SupabaseAuthService.login(data);
     };
 
     const logout = async () => {
-        await supabase.auth.signOut();
+    await SupabaseAuthService.logout();
         setUser(null);
         setIsAuthenticated(false);
-        navigate("/", { replace: true });
     };
 
     const value = {
