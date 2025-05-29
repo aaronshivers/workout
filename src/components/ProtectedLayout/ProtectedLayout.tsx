@@ -1,6 +1,6 @@
 import { AppSidebar } from '../AppSidebar/AppSidebar';
-import { Card, CardContent } from "@/components/ui/card";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Card, CardContent } from '@/components/ui/card';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AuthGuard } from '../AuthGuard';
 
 export const ProtectedLayout = () => {

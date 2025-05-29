@@ -63,6 +63,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      mesocycles: {
+        Row: {
+          created_at: string | null;
+          duration_weeks: number;
+          goal: string;
+          id: string;
+          name: string;
+          start_date: string;
+          updated_at: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          duration_weeks: number;
+          goal: string;
+          id?: string;
+          name: string;
+          start_date: string;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          duration_weeks?: number;
+          goal?: string;
+          id?: string;
+          name?: string;
+          start_date?: string;
+          updated_at?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       muscle_groups: {
         Row: {
           id: number;
@@ -186,34 +219,36 @@ export type Database = {
         Row: {
           created_at: string | null;
           date: string;
-          duration_weeks: number | null;
           id: string;
-          mesocycle_name: string | null;
+          mesocycle_id: string | null;
           name: string;
-          start_date: string | null;
           user_id: string | null;
         };
         Insert: {
           created_at?: string | null;
           date?: string;
-          duration_weeks?: number | null;
           id?: string;
-          mesocycle_name?: string | null;
+          mesocycle_id?: string | null;
           name: string;
-          start_date?: string | null;
           user_id?: string | null;
         };
         Update: {
           created_at?: string | null;
           date?: string;
-          duration_weeks?: number | null;
           id?: string;
-          mesocycle_name?: string | null;
+          mesocycle_id?: string | null;
           name?: string;
-          start_date?: string | null;
           user_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'workouts_mesocycle_id_fkey';
+            columns: ['mesocycle_id'];
+            isOneToOne: false;
+            referencedRelation: 'mesocycles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {

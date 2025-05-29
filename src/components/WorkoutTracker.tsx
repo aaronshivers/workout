@@ -3,7 +3,7 @@ import { Navigate } from 'react-router';
 import { useAuth } from '../hooks/useAuth';
 import { useWorkout } from './WorkoutProvider';
 import WorkoutForm from './WorkoutForm';
-import WorkoutHistory from './WorkoutHistory/WorkoutHistory';
+import WorkoutHistory from './Workout/WorkoutDetail';
 import WorkoutLogger from './WorkoutLogger/WorkoutLogger';
 import type { Database } from '../types/supabase';
 import { supabase } from '@/utils/supabase';

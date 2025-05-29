@@ -1,0 +1,616 @@
+File: src/App.tsx
+```
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from 'react-router';
+import { LoginPage } from './Pages/LoginPage/LoginPage';
+import HomeLayout from './components/HomeLayout/HomeLayout';
+import HomePage from './Pages/HomePage/HomePage';
+import ProtectedLayout from './components/ProtectedLayout/ProtectedLayout';
+import SettingsPage from './Pages/SettingsPage/SettingsPage';
+import ProfilePage from './Pages/ProfilePage/ProfilePage';
+import { AuthLayout } from './components/AuthLayout/AuthLayout';
+import WorkoutHistory from './components/Workout/WorkoutDetail';
+import { CustomExercises } from './components/CustomExercises/CustomExercises';
+import Dashboard from './components/Dashboard/Dashboard';
+import { WorkoutProvider } from './components/WorkoutProvider';
+import { SupabaseAuthService } from './services/authService';
+import { MesocycleList } from './components/Mesocycle/MesocycleList';
+import { MesocycleCreate } from './components/Mesocycle/MesocycleCreate';
+import { MesocycleDetail } from './components/Mesocycle/MesocycleDetail';
+import { MesocycleEdit } from './components/Mesocycle/MesocycleEdit';
+import WorkoutList from './components/Workout/WorkoutList';
+import WorkoutEdit from './components/Workout/WorkoutEdit';
+import WorkoutDetail from './components/Workout/WorkoutDetail';
+import WorkoutCreate from './components/Workout/WorkoutCreate';
+
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route
+      element={<AuthLayout />}
+      loader={() => ({ userPromise: SupabaseAuthService.getUserData() })}
+    >
+      <Route element={<HomeLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
+      <Route
+        element={
+          <WorkoutProvider>
+            <ProtectedLayout />
+          </WorkoutProvider>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/history" element={<WorkoutHistory />} />
+        <Route path="/templates" element={<div>Templates Page</div>} />
+        <Route path="/custom-exercises" element={<CustomExercises />} />
+        <Route path="/workouts" element={<WorkoutList />} />
+        <Route path="/workout/create" element={<WorkoutCreate />} />
+        <Route path="/workouts/:id" element={<WorkoutDetail />} />
+        <Route path="/workouts/:id/edit" element={<WorkoutEdit />} />
+        <Route path="/mesocycles" element={<MesocycleList />} />
+        <Route path="/mesocycles/create" element={<MesocycleCreate />} />
+        <Route path="/mesocycles/:id" element={<MesocycleDetail />} />
+        <Route path="/mesocycles/:id/edit" element={<MesocycleEdit />} />
+      </Route>
+    </Route>,
+  ),
+);
+
+export default router;
+```
+
+File: src/components/Mesocycle/MesocycleCreate.tsx
+```
+import { useState, type FormEvent, type JSX } from 'react';
+import { useNavigate } from 'react-router';
+import { supabase } from '../../utils/supabase';
+import type { TablesInsert } from '../../types/supabase';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+export function MesocycleCreate(): JSX.Element {
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [goal, setGoal] = useState('');
+  const [durationWeeks, setDurationWeeks] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user?.id) {
+      setError('User not authenticated.');
+      return;
+    }
+
+    const data: TablesInsert<'mesocycles'> = {
+      name,
+      goal,
+      duration_weeks: parseInt(durationWeeks),
+      start_date: startDate,
+      user_id: user.id,
+    };
+
+    try {
+      const { error: supabaseError } = await supabase
+        .from('mesocycles')
+        .insert(data);
+      if (supabaseError) {
+        setError(supabaseError.message);
+        return;
+      }
+      navigate('/mesocycles');
+    } catch (error) {
+      setError('Failed to create mesocycle.');
+    }
+  };
+
+  return (
+    <div className="max-w-[390px] mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Create Mesocycle</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g., Strength Block 1"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="goal">Goal</Label>
+          <Input
+            id="goal"
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+            placeholder="e.g., Build Strength"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="duration">Duration (Weeks)</Label>
+          <Input
+            id="duration"
+            type="number"
+            value={durationWeeks}
+            onChange={(e) => setDurationWeeks(e.target.value)}
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input
+            id="startDate"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <Button type="submit" className="w-full">
+          Create
+        </Button>
+      </form>
+    </div>
+  );
+}
+```
+
+File: src/components/Mesocycle/MesocycleDetail.tsx
+```
+import { useEffect, useState, type JSX } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { supabase } from '../../utils/supabase';
+import { type Tables } from '../../types/supabase';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export function MesocycleDetail(): JSX.Element {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [mesocycle, setMesocycle] = useState<Tables<'mesocycles'> | null>(null);
+  const [workouts, setWorkouts] = useState<Tables<'workouts'>[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData(): Promise<void> {
+      if (!id) {
+        setError('Invalid mesocycle ID.');
+        return;
+      }
+
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user?.id) {
+        setError('User not authenticated.');
+        return;
+      }
+
+      try {
+        // Fetch mesocycle
+        const { data: mesocycleData, error: mesocycleError } = await supabase
+          .from('mesocycles')
+          .select('*')
+          .eq('id', id)
+          .eq('user_id', user.id)
+          .single();
+        if (mesocycleError) {
+          setError(mesocycleError.message);
+          return;
+        }
+        setMesocycle(mesocycleData);
+
+        // Fetch associated workouts
+        const { data: workoutsData, error: workoutsError } = await supabase
+          .from('workouts')
+          .select('*')
+          .eq('mesocycle_id', id)
+          .eq('user_id', user.id)
+          .order('date', { ascending: true });
+        if (workoutsError) {
+          setError(workoutsError.message);
+          return;
+        }
+        setWorkouts(workoutsData || []);
+      } catch (error) {
+        setError('Failed to load mesocycle data.');
+      }
+    }
+    fetchData();
+  }, [id]);
+
+  if (error) {
+    return (
+      <div className="max-w-[390px] mx-auto p-4">
+        <p className="text-red-500 text-sm">{error}</p>
+      </div>
+    );
+  }
+
+  if (!mesocycle) {
+    return (
+      <div className="max-w-[390px] mx-auto p-4">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-[390px] mx-auto p-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{mesocycle.name}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>
+            <strong>Goal:</strong> {mesocycle.goal}
+          </p>
+          <p>
+            <strong>Duration:</strong> {mesocycle.duration_weeks} weeks
+          </p>
+          <p>
+            <strong>Start Date:</strong>{' '}
+            {new Date(mesocycle.start_date).toLocaleDateString()}
+          </p>
+          <h2 className="text-xl font-semibold mt-4 mb-2">Workouts</h2>
+          {workouts.length === 0 ? (
+            <p>No workouts in this mesocycle.</p>
+          ) : (
+            <ul className="space-y-2">
+              {workouts.map((workout) => (
+                <li key={workout.id}>
+                  <Button
+                    variant="link"
+                    onClick={() => navigate('/history')} // TODO: Replace with /workouts/:id when available
+                    className="p-0 text-left"
+                  >
+                    {workout.name} (
+                    {new Date(workout.date).toLocaleDateString()})
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex space-x-2 mt-4">
+            <Button
+              onClick={() => navigate(`/mesocycles/${mesocycle.id}/edit`)}
+              variant="outline"
+            >
+              Edit
+            </Button>
+            <Button onClick={() => navigate('/mesocycles')} variant="secondary">
+              Back to List
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+```
+
+File: src/components/Mesocycle/MesocycleEdit.tsx
+```
+import { useState, type FormEvent, useEffect, type JSX } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { supabase } from '../../utils/supabase';
+import { type TablesUpdate } from '../../types/supabase';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+export function MesocycleEdit(): JSX.Element {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [goal, setGoal] = useState('');
+  const [durationWeeks, setDurationWeeks] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      async function fetchMesocycle(): Promise<void> {
+        const user = (await supabase.auth.getUser()).data.user;
+        if (!user?.id) {
+          setError('User not authenticated.');
+          return;
+        }
+
+        try {
+          const { data, error: supabaseError } = await supabase
+            .from('mesocycles')
+            .select('*')
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .single();
+          if (supabaseError) {
+            setError(supabaseError.message);
+            return;
+          }
+          if (data) {
+            setName(data.name);
+            setGoal(data.goal);
+            setDurationWeeks(data.duration_weeks.toString());
+            setStartDate(data.start_date);
+          }
+        } catch (error) {
+          setError('Failed to load mesocycle.');
+        }
+      }
+      fetchMesocycle();
+    }
+  }, [id]);
+
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+
+    if (!id) {
+      setError('Invalid mesocycle ID.');
+      return;
+    }
+
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user?.id) {
+      setError('User not authenticated.');
+      return;
+    }
+
+    const data: TablesUpdate<'mesocycles'> = {
+      name,
+      goal,
+      duration_weeks: parseInt(durationWeeks),
+      start_date: startDate,
+      user_id: user.id,
+    };
+
+    try {
+      const { error: supabaseError } = await supabase
+        .from('mesocycles')
+        .update(data)
+        .eq('id', id)
+        .eq('user_id', user.id);
+      if (supabaseError) {
+        setError(supabaseError.message);
+        return;
+      }
+      navigate('/mesocycles');
+    } catch (error) {
+      setError('Failed to update mesocycle.');
+    }
+  };
+
+  return (
+    <div className="max-w-[390px] mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Edit Mesocycle</h1>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g., Strength Block 1"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="goal">Goal</Label>
+          <Input
+            id="goal"
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+            placeholder="e.g., Build Strength"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="duration">Duration (Weeks)</Label>
+          <Input
+            id="duration"
+            type="number"
+            value={durationWeeks}
+            onChange={(e) => setDurationWeeks(e.target.value)}
+            min="1"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input
+            id="startDate"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            required
+          />
+        </div>
+        <Button type="submit" className="w-full">
+          Update
+        </Button>
+      </form>
+    </div>
+  );
+}
+```
+
+File: src/components/Mesocycle/MesocycleList.tsx
+```
+import { useEffect, useState, type JSX } from 'react';
+import { useNavigate } from 'react-router';
+import { supabase } from '../../utils/supabase';
+import type { Tables } from '../../types/supabase';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export function MesocycleList(): JSX.Element {
+  const navigate = useNavigate();
+  const [mesocycles, setMesocycles] = useState<Tables<'mesocycles'>[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchMesocycles(): Promise<void> {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user?.id) {
+        setError('User not authenticated.');
+        return;
+      }
+
+      try {
+        const { data, error: supabaseError } = await supabase
+          .from('mesocycles')
+          .select('*')
+          .eq('user_id', user.id);
+        if (supabaseError) {
+          setError(supabaseError.message);
+          return;
+        }
+        setMesocycles(data || []);
+      } catch (error) {
+        setError('Failed to load mesocycles.');
+      }
+    }
+    fetchMesocycles();
+  }, []);
+
+  const handleDelete = async (id: string): Promise<void> => {
+    try {
+      const { error: supabaseError } = await supabase
+        .from('mesocycles')
+        .delete()
+        .eq('id', id);
+      if (supabaseError) {
+        setError(supabaseError.message);
+        return;
+      }
+      setMesocycles(mesocycles.filter((m) => m.id !== id));
+    } catch (error) {
+      setError('Failed to delete mesocycle.');
+    }
+  };
+
+  return (
+    <div className="max-w-[390px] mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Mesocycles</h1>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {mesocycles.length === 0 && !error && <p>No mesocycles found.</p>}
+      <div className="space-y-4">
+        {mesocycles.map((mesocycle) => (
+          <Card key={mesocycle.id}>
+            <CardHeader>
+              <CardTitle>{mesocycle.name}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Goal: {mesocycle.goal}</p>
+              <p>Duration: {mesocycle.duration_weeks} weeks</p>
+              <p>
+                Start: {new Date(mesocycle.start_date).toLocaleDateString()}
+              </p>
+              <div className="flex space-x-2 mt-2">
+                <Button
+                  onClick={() => navigate(`/mesocycles/${mesocycle.id}`)}
+                  variant="outline"
+                >
+                  View
+                </Button>
+                <Button
+                  onClick={() => navigate(`/mesocycles/${mesocycle.id}/edit`)}
+                  variant="outline"
+                >
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => handleDelete(mesocycle.id)}
+                  variant="destructive"
+                >
+                  Delete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Button
+        onClick={() => navigate('/mesocycles/create')}
+        className="w-full mt-4"
+      >
+        Create New Mesocycle
+      </Button>
+    </div>
+  );
+}
+```
+
+File: src/components/Workout/WorkoutCreate.tsx
+```
+const WorkoutCreate = () => {
+  return (
+    <div>
+      <h1>Create Workout</h1>
+      {/* Add your form or components for creating a workout here */}
+    </div>
+  );
+}
+export default WorkoutCreate;
+// This is a placeholder component for creating a workout.
+```
+
+File: src/components/Workout/WorkoutDetail.tsx
+```
+const WorkoutDetail = () => {
+  return (
+    <div>
+      <h1>Workout Detail</h1>
+      <p>This is the workout detail page.</p>
+      {/* Add more details about the workout here */}
+    </div>
+  );
+}
+export default WorkoutDetail;
+// This component is a placeholder for the workout detail page.
+```
+
+File: src/components/Workout/WorkoutEdit.tsx
+```
+const WorkoutEdit = () => {
+  return (
+    <div>
+      <h1>Edit Workout</h1>
+      {/* Add your workout edit form or components here */}
+    </div>
+  );
+}
+export default WorkoutEdit;
+// This is a placeholder component for editing a workout.
+```
+
+File: src/components/Workout/WorkoutList.tsx
+```
+const WorkoutList = () => {
+  return (
+    <div>
+      <h1>Workout List</h1>
+      <p>This is where the list of workouts will be displayed.</p>
+      {/* Add your workout list rendering logic here */}
+    </div>
+  );
+}
+export default WorkoutList;
+// This component is a placeholder for the workout list page.
+```
+

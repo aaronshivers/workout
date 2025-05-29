@@ -1,4 +1,13 @@
-import { Dumbbell, Calendar, FileText, Edit, User, LogOut, Home, LogIn } from 'lucide-react';
+import {
+  Dumbbell,
+  Calendar,
+  FileText,
+  Edit,
+  User,
+  LogOut,
+  Home,
+  LogIn,
+} from 'lucide-react';
 
 export const navItems = [
   // Unauthenticated links

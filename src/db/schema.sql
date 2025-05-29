@@ -6,8 +6,21 @@ DROP TABLE IF EXISTS workout_sets CASCADE;
 DROP TABLE IF EXISTS workout_exercises CASCADE;
 DROP TABLE IF EXISTS workouts CASCADE;
 DROP TABLE IF EXISTS exercises CASCADE;
+DROP TABLE IF EXISTS mesocycles CASCADE;
 
--- Create exercises table (replacing custom_exercises)
+-- Create mesocycles table
+CREATE TABLE mesocycles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  goal TEXT NOT NULL,
+  duration_weeks INTEGER NOT NULL CHECK (duration_weeks > 0),
+  start_date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create exercises table
 CREATE TABLE exercises (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -21,11 +34,9 @@ CREATE TABLE exercises (
 CREATE TABLE workouts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  mesocycle_id UUID REFERENCES mesocycles(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
   date DATE NOT NULL DEFAULT CURRENT_DATE,
-  mesocycle_name TEXT,
-  start_date DATE,
-  duration_weeks INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -52,10 +63,21 @@ CREATE TABLE workout_sets (
 );
 
 -- Enable Row Level Security (RLS)
+ALTER TABLE mesocycles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workouts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_exercises ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_sets ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for mesocycles
+CREATE POLICY mesocycles_select ON mesocycles FOR SELECT
+  USING (auth.uid() = user_id);
+CREATE POLICY mesocycles_insert ON mesocycles FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+CREATE POLICY mesocycles_update ON mesocycles FOR UPDATE
+  USING (auth.uid() = user_id);
+CREATE POLICY mesocycles_delete ON mesocycles FOR DELETE
+  USING (auth.uid() = user_id);
 
 -- Create RLS policies for exercises
 CREATE POLICY exercises_select ON exercises FOR SELECT
@@ -98,8 +120,10 @@ CREATE POLICY workout_sets_delete ON workout_sets FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Create indexes for performance
+CREATE INDEX idx_mesocycles_user_id ON mesocycles(user_id);
 CREATE INDEX idx_exercises_user_id ON exercises(user_id);
 CREATE INDEX idx_workouts_user_id ON workouts(user_id);
+CREATE INDEX idx_workouts_mesocycle_id ON workouts(mesocycle_id);
 CREATE INDEX idx_workout_exercises_workout_id ON workout_exercises(workout_id);
 CREATE INDEX idx_workout_exercises_exercise_id ON workout_exercises(exercise_id);
 CREATE INDEX idx_workout_exercises_user_id ON workout_exercises(user_id);
