@@ -20,6 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { X } from 'lucide-react';
 
 interface Exercise {
   id: string;
@@ -39,10 +40,10 @@ interface DayExercises {
 export function MesocycleCreate(): JSX.Element {
   const navigate = useNavigate();
   const [name, setName] = useState<string>('');
-  const [durationWeeks, setDurationWeeks] = useState<string>('6'); // Default to 6 weeks including deload
-  const [workoutDays, setWorkoutDays] = useState<string[]>([]); // Selected workout days
-  const [dayExercises, setDayExercises] = useState<DayExercises>({}); // Exercises assigned to each day
-  const [exercises, setExercises] = useState<Exercise[]>([]); // Combined global and custom exercises
+  const [durationWeeks, setDurationWeeks] = useState<string>('6');
+  const [workoutDays, setWorkoutDays] = useState<string[]>([]);
+  const [dayExercises, setDayExercises] = useState<DayExercises>({});
+  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [customExerciseName, setCustomExerciseName] = useState<string>('');
   const [customMuscleGroup, setCustomMuscleGroup] = useState<string>('');
   const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
@@ -73,21 +74,29 @@ export function MesocycleCreate(): JSX.Element {
         const { data: globalExercises, error: geError } = await supabase
           .from('exercises')
           .select('id, name')
-          .is('user_id', null);
-        if (geError) throw geError;
+          .is('user_id', null); // Fetch global exercises (user_id is NULL)
+        if (geError) {
+          console.error('Global exercises fetch error:', geError);
+          throw geError;
+        }
 
         // Fetch custom exercises
         const { data: customExercises, error: ceError } = await supabase
           .from('custom_exercises')
           .select('id, name')
           .eq('user_id', user.id);
-        if (ceError) throw ceError;
+        if (ceError) {
+          console.error('Custom exercises fetch error:', ceError);
+          throw ceError;
+        }
 
-        // Combine exercises
-        setExercises([
+        // Combine exercises with fallback to ensure all are included
+        const combinedExercises: Exercise[] = [
           ...(globalExercises || []).map((e) => ({ ...e, type: 'global' as const })),
           ...(customExercises || []).map((e) => ({ ...e, type: 'custom' as const })),
-        ]);
+        ];
+        console.log('Fetched exercises:', combinedExercises); // Debug log
+        setExercises(combinedExercises);
 
         // Fetch muscle groups
         const { data: mgData, error: mgError } = await supabase
@@ -107,7 +116,6 @@ export function MesocycleCreate(): JSX.Element {
     fetchData();
   }, []);
 
-  // Initialize dayExercises when workoutDays change
   useEffect(() => {
     setDayExercises((prev) => {
       const newDayExercises: DayExercises = {};
@@ -152,25 +160,30 @@ export function MesocycleCreate(): JSX.Element {
     }
   };
 
-  const handleAddExerciseToDay = (day: string, exerciseId: string) => {
+  const handleAddExerciseToDay = (day: string, exerciseId: string): void => {
     setDayExercises((prev) => {
-      const exercisesForDay = prev[day] || [];
-      if (exercisesForDay.includes(exerciseId)) {
-        // Remove the exercise if already selected
-        return {
-          ...prev,
-          [day]: exercisesForDay.filter((id) => id !== exerciseId),
-        };
-      }
-      if (exercisesForDay.length >= MAX_EXERCISES_PER_DAY) {
+      const exercisesForDay = new Set(prev[day] || []);
+      if (exercisesForDay.size >= MAX_EXERCISES_PER_DAY) {
         setError(`Cannot exceed ${MAX_EXERCISES_PER_DAY} exercises on ${day}.`);
         return prev;
       }
+      exercisesForDay.add(exerciseId);
       return {
         ...prev,
-        [day]: [...exercisesForDay, exerciseId],
+        [day]: Array.from(exercisesForDay),
       };
     });
+  };
+
+  const handleRemoveExerciseFromDay = (day: string, exerciseId: string): void => {
+    setDayExercises((prev) => {
+      const exercisesForDay = (prev[day] || []).filter((id) => id !== exerciseId);
+      return {
+        ...prev,
+        [day]: exercisesForDay,
+      };
+    });
+    setError(null);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -189,32 +202,27 @@ export function MesocycleCreate(): JSX.Element {
     }
 
     const duration = parseInt(durationWeeks, 10);
-    const daysCount = workoutDays.length;
     if (isNaN(duration) || duration < 1) {
       setError('Invalid duration.');
       return;
     }
 
-    if (daysCount < 1 || daysCount > 7) {
-      setError('Please select between 1 and 7 workout days.');
+    const hasExercises = workoutDays.every((day) => (dayExercises[day]?.length || 0) > 0);
+    if (!hasExercises) {
+      setError('Please assign at least one exercise to each workout day.');
       return;
     }
 
-    // Collect all selected exercises
-    const allExercises = Object.values(dayExercises).flat();
-    if (allExercises.length === 0) {
-      setError('Please assign at least one exercise to a workout day.');
-      return;
-    }
+    const allExercises = [...new Set(Object.values(dayExercises).flat())];
 
     const mesocycleData: TablesInsert<'mesocycles'> = {
       name,
       duration_weeks: duration,
-      goal: 'Hypertrophy', // Default goal, can be extended
+      goal: 'Hypertrophy',
       start_date: new Date().toISOString().split('T')[0]!,
       user_id: user.id,
       workout_days: workoutDays,
-      exercise_ids: [...new Set(allExercises)], // Unique exercise IDs
+      exercise_ids: allExercises,
     };
 
     try {
@@ -226,23 +234,50 @@ export function MesocycleCreate(): JSX.Element {
       if (mesoError) throw mesoError;
 
       const workouts: TablesInsert<'workouts'>[] = [];
+      const workoutDayMap: { [workoutId: string]: string } = {};
       for (let week = 0; week < duration; week++) {
         for (const day of workoutDays) {
           const workoutDate = new Date(mesocycle.start_date);
           workoutDate.setDate(workoutDate.getDate() + week * 7 + daysOfWeek.indexOf(day));
-          workouts.push({
+          const workout: TablesInsert<'workouts'> = {
             name: `${mesocycle.name} Week ${week + 1} ${day}`,
             date: workoutDate.toISOString().split('T')[0]!,
             mesocycle_id: mesocycle.id,
             user_id: user.id,
-          });
+          };
+          workouts.push(workout);
         }
       }
 
-      const { error: workoutError } = await supabase
+      const { data: insertedWorkouts, error: workoutError } = await supabase
         .from('workouts')
-        .insert(workouts);
+        .insert(workouts)
+        .select();
       if (workoutError) throw workoutError;
+
+      insertedWorkouts.forEach((workout) => {
+        const day = workout.name.split(' ').pop()!;
+        workoutDayMap[workout.id] = day;
+      });
+
+      const workoutExercises: TablesInsert<'workout_exercises'>[] = [];
+      insertedWorkouts.forEach((workout, index) => {
+        const day = workoutDayMap[workout.id];
+        const exerciseIds = dayExercises[day] || [];
+        exerciseIds.forEach((exerciseId, exIndex) => {
+          workoutExercises.push({
+            workout_id: workout.id,
+            exercise_id: exerciseId,
+            user_id: user.id,
+            order_index: index * 100 + exIndex,
+          });
+        });
+      });
+
+      const { error: workoutExerciseError } = await supabase
+        .from('workout_exercises')
+        .insert(workoutExercises);
+      if (workoutExerciseError) throw workoutExerciseError;
 
       navigate('/mesocycles');
     } catch (err) {
@@ -277,93 +312,122 @@ export function MesocycleCreate(): JSX.Element {
         </div>
         <div>
           <Label>Workout Days</Label>
-            <div className="space-y-2">
-              {daysOfWeek.map((day) => (
-                <div key={day} className="flex items-center">
-                  <Checkbox
-                    id={`day-${day}`}
-                    checked={workoutDays.includes(day)}
-                    onCheckedChange={(checked: boolean) => {
-                      setWorkoutDays((prev) =>
-                        checked
-                        ? [...prev, day]
-                          : prev.filter((d) => d !== day)
-                      );
-                    }}
-                  />
-                  <Label htmlFor={`day-${day}`} className="ml-2">
-                    {day}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        {workoutDays.length > 0 && (
-        <div>
-            <Label>Assign Exercises to Days</Label>
-            {workoutDays.map((day) => (
-              <div key={day} className="mt-4">
-                <h3 className="text-lg font-semibold">{day}</h3>
           <div className="space-y-2">
-            {exercises.map((ex) => (
-              <div key={ex.id} className="flex items-center">
+            {daysOfWeek.map((day) => (
+              <div key={day} className="flex items-center">
                 <Checkbox
-                        id={`exercise-${day}-${ex.id}`}
-                        checked={(dayExercises[day] || []).includes(ex.id)}
-                        onCheckedChange={() => handleAddExerciseToDay(day, ex.id)}
+                  id={`day-${day}`}
+                  checked={workoutDays.includes(day)}
+                  onCheckedChange={(checked: boolean) => {
+                    setWorkoutDays((prev) =>
+                      checked ? [...prev, day] : prev.filter((d) => d !== day),
+                    );
+                    setError(null);
+                  }}
                 />
-                      <Label htmlFor={`exercise-${day}-${ex.id}`} className="ml-2">
-                  {ex.name} ({ex.type})
+                <Label htmlFor={`day-${day}`} className="ml-2">
+                  {day}
                 </Label>
               </div>
             ))}
           </div>
-              </div>
-            ))}
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button type="button" variant="outline" className="w-full mt-2">
-                Add Custom Exercise
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Custom Exercise</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCustomExercise} className="space-y-4">
-                <div>
-                  <Label htmlFor="customName">Name</Label>
-                  <Input
-                    id="customName"
-                    value={customExerciseName}
-                    onChange={(e) => setCustomExerciseName(e.target.value)}
-                    placeholder="e.g., Incline DB Press"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="customMuscleGroup">Muscle Group</Label>
+        </div>
+        {workoutDays.length > 0 && (
+          <div>
+            <Label>Assign Exercises to Days</Label>
+            {workoutDays.map((day) => (
+              <div key={day} className="mt-4">
+                <h3 className="text-lg font-semibold">{day}</h3>
+                <div className="space-y-2 pl-4">
                   <Select
-                    onValueChange={setCustomMuscleGroup}
-                    value={customMuscleGroup}
+                    onValueChange={(exerciseId) => {
+                      handleAddExerciseToDay(day, exerciseId);
+                      setError(null);
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Muscle Group" />
+                      <SelectValue placeholder="Select an exercise to add" />
                     </SelectTrigger>
                     <SelectContent>
-                      {muscleGroups.map((mg) => (
-                        <SelectItem key={mg.id} value={mg.name}>
-                          {mg.name}
+                      {exercises.map((ex) => (
+                        <SelectItem key={ex.id} value={ex.id}>
+                          {ex.name} ({ex.type})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  <div className="space-y-1">
+                    {(dayExercises[day] || []).length === 0 ? (
+                      <p className="text-gray-500">No exercises assigned.</p>
+                    ) : (
+                      (dayExercises[day] || []).map((exerciseId) => {
+                        const exercise = exercises.find((ex) => ex.id === exerciseId);
+                        return (
+                          <div
+                            key={exerciseId}
+                            className="flex items-center justify-between bg-gray-100 p-2 rounded"
+                          >
+                            <span>{exercise?.name || 'Unknown Exercise'}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveExerciseFromDay(day, exerciseId)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-                <Button type="submit">Save</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </div>
+            ))}
+          </div>
         )}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button type="button" variant="outline" className="w-full mt-2">
+              Add Custom Exercise
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Custom Exercise</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCustomExercise} className="space-y-4">
+              <div>
+                <Label htmlFor="customName">Name</Label>
+                <Input
+                  id="customName"
+                  value={customExerciseName}
+                  onChange={(e) => setCustomExerciseName(e.target.value)}
+                  placeholder="e.g., Incline DB Press"
+                />
+              </div>
+              <div>
+                <Label htmlFor="customMuscleGroup">Muscle Group</Label>
+                <Select
+                  onValueChange={setCustomMuscleGroup}
+                  value={customMuscleGroup}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Muscle Group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {muscleGroups.map((mg) => (
+                      <SelectItem key={mg.id} value={mg.name}>
+                        {mg.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button type="submit">Save</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" className="w-full">
           Create

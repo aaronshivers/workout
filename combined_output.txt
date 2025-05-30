@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { X } from 'lucide-react';
 
 interface Exercise {
   id: string;
@@ -34,13 +35,16 @@ interface MuscleGroup {
   name: string;
 }
 
+interface DayExercises {
+  [day: string]: string[]; // Maps each workout day to a list of exercise IDs
+}
+
 export function MesocycleCreate(): JSX.Element {
   const navigate = useNavigate();
   const [name, setName] = useState<string>('');
-  const [durationWeeks, setDurationWeeks] = useState<string>('');
-  const [daysPerWeek, setDaysPerWeek] = useState<string>('');
+  const [durationWeeks, setDurationWeeks] = useState<string>('6');
   const [workoutDays, setWorkoutDays] = useState<string[]>([]);
-  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const [dayExercises, setDayExercises] = useState<DayExercises>({});
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [customExerciseName, setCustomExerciseName] = useState<string>('');
   const [customMuscleGroup, setCustomMuscleGroup] = useState<string>('');
@@ -61,9 +65,7 @@ export function MesocycleCreate(): JSX.Element {
 
   useEffect(() => {
     async function fetchData(): Promise<void> {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user?.id) {
         setError('User not authenticated.');
         return;
@@ -74,7 +76,7 @@ export function MesocycleCreate(): JSX.Element {
         const { data: globalExercises, error: geError } = await supabase
           .from('exercises')
           .select('id, name')
-          .eq('user_id', null as any);
+          .is('user_id', null);
         if (geError) throw geError;
 
         // Fetch custom exercises
@@ -85,16 +87,11 @@ export function MesocycleCreate(): JSX.Element {
         if (ceError) throw ceError;
 
         // Combine exercises
-        setExercises([
-          ...(globalExercises || []).map((e) => ({
-            ...e,
-            type: 'global' as const,
-          })),
-          ...(customExercises || []).map((e) => ({
-            ...e,
-            type: 'custom' as const,
-          })),
-        ]);
+        const combinedExercises: Exercise[] = [
+          ...(globalExercises || []).map((e) => ({ ...e, type: 'global' as const })),
+          ...(customExercises || []).map((e) => ({ ...e, type: 'custom' as const })),
+        ];
+        setExercises(combinedExercises);
 
         // Fetch muscle groups
         const { data: mgData, error: mgError } = await supabase
@@ -114,11 +111,20 @@ export function MesocycleCreate(): JSX.Element {
     fetchData();
   }, []);
 
+  // Initialize dayExercises when workoutDays change
+  useEffect(() => {
+    setDayExercises((prev) => {
+      const newDayExercises: DayExercises = {};
+      workoutDays.forEach((day) => {
+        newDayExercises[day] = prev[day] || [];
+      });
+      return newDayExercises;
+    });
+  }, [workoutDays]);
+
   const handleCustomExercise = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user?.id) {
       setError('User not authenticated.');
       return;
@@ -142,64 +148,82 @@ export function MesocycleCreate(): JSX.Element {
       if (error) throw error;
 
       setExercises([...exercises, { ...data, type: 'custom' as const }]);
-      setSelectedExercises([...selectedExercises, data.id.toString()]);
       setCustomExerciseName('');
       setCustomMuscleGroup('');
       setDialogOpen(false);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to add custom exercise.',
-      );
+      setError(err instanceof Error ? err.message : 'Failed to add custom exercise.');
     }
+  };
+
+  const handleAddExerciseToDay = (day: string, exerciseId: string): void => {
+    setDayExercises((prev) => {
+      const exercisesForDay = new Set(prev[day] || []);
+        if (exercisesForDay.size >= MAX_EXERCISES_PER_DAY) {
+        setError(`Cannot exceed ${MAX_EXERCISES_PER_DAY} exercises on ${day}.`);
+          return prev;
+        }
+        exercisesForDay.add(exerciseId);
+      return {
+        ...prev,
+        [day]: Array.from(exercisesForDay),
+      };
+    });
+  };
+
+  const handleRemoveExerciseFromDay = (day: string, exerciseId: string): void => {
+    setDayExercises((prev) => {
+      const exercisesForDay = (prev[day] || []).filter((id) => id !== exerciseId);
+      return {
+        ...prev,
+        [day]: exercisesForDay,
+      };
+    });
+    setError(null);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user?.id) {
       setError('User not authenticated.');
       return;
     }
 
-    if (!name || !durationWeeks || !daysPerWeek || workoutDays.length === 0) {
+    if (!name || !durationWeeks || workoutDays.length === 0) {
       setError('Please fill all required fields.');
       return;
     }
 
     const duration = parseInt(durationWeeks, 10);
-    const daysCount = parseInt(daysPerWeek, 10);
-    if (isNaN(duration) || isNaN(daysCount)) {
-      setError('Invalid duration or days per week.');
+    if (isNaN(duration) || duration < 1) {
+      setError('Invalid duration.');
       return;
     }
 
-    if (workoutDays.length !== daysCount) {
-      setError(`Please select exactly ${daysCount} workout days.`);
+    const hasExercises = workoutDays.every((day) => (dayExercises[day]?.length || 0) > 0);
+    if (!hasExercises) {
+      setError('Please assign at least one exercise to each workout day.');
       return;
     }
 
-    if (selectedExercises.length > daysCount * MAX_EXERCISES_PER_DAY) {
-      setError(
-        `Cannot exceed ${MAX_EXERCISES_PER_DAY} exercises per workout day.`,
-      );
-      return;
-    }
+    // Collect all unique exercise IDs for the mesocycle
+    const allExercises = [...new Set(Object.values(dayExercises).flat())];
 
     const mesocycleData: TablesInsert<'mesocycles'> = {
       name,
       duration_weeks: duration,
-      goal: 'Hypertrophy',
+      goal: 'Hypertrophy', // Default goal, can be extended
       start_date: new Date().toISOString().split('T')[0]!,
       user_id: user.id,
       workout_days: workoutDays,
-      exercise_ids: selectedExercises,
+      exercise_ids: allExercises,
     };
 
     try {
+      // Insert mesocycle
       const { data: mesocycle, error: mesoError } = await supabase
         .from('mesocycles')
         .insert(mesocycleData)
@@ -207,32 +231,62 @@ export function MesocycleCreate(): JSX.Element {
         .single();
       if (mesoError) throw mesoError;
 
+      // Create workouts for each week and day
       const workouts: TablesInsert<'workouts'>[] = [];
+      const workoutDayMap: { [workoutId: string]: string } = {}; // Map workout IDs to days
       for (let week = 0; week < duration; week++) {
         for (const day of workoutDays) {
           const workoutDate = new Date(mesocycle.start_date);
           workoutDate.setDate(
             workoutDate.getDate() + week * 7 + daysOfWeek.indexOf(day),
           );
-          workouts.push({
+          const workout: TablesInsert<'workouts'> = {
             name: `${mesocycle.name} Week ${week + 1} ${day}`,
             date: workoutDate.toISOString().split('T')[0]!,
             mesocycle_id: mesocycle.id,
             user_id: user.id,
-          });
+          };
+          workouts.push(workout);
         }
       }
 
-      const { error: workoutError } = await supabase
+      // Insert workouts
+      const { data: insertedWorkouts, error: workoutError } = await supabase
         .from('workouts')
-        .insert(workouts);
+        .insert(workouts)
+        .select();
       if (workoutError) throw workoutError;
+
+      // Map inserted workouts to their days
+      insertedWorkouts.forEach((workout) => {
+        const day = workout.name.split(' ').pop()!; // Extract day from workout name (e.g., "Monday")
+        workoutDayMap[workout.id] = day;
+      });
+
+      // Assign exercises to each workout based on the day
+      const workoutExercises: TablesInsert<'workout_exercises'>[] = [];
+      insertedWorkouts.forEach((workout, index) => {
+        const day = workoutDayMap[workout.id];
+        const exerciseIds = dayExercises[day] || [];
+        exerciseIds.forEach((exerciseId, exIndex) => {
+          workoutExercises.push({
+            workout_id: workout.id,
+            exercise_id: exerciseId,
+            user_id: user.id,
+            order_index: index * 100 + exIndex, // Ensure unique order_index
+          });
+        });
+      });
+
+      // Insert workout-exercise mappings
+      const { error: workoutExerciseError } = await supabase
+        .from('workout_exercises')
+        .insert(workoutExercises);
+      if (workoutExerciseError) throw workoutExerciseError;
 
       navigate('/mesocycles');
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create mesocycle.',
-      );
+      setError(err instanceof Error ? err.message : 'Failed to create mesocycle.');
     }
   };
 
@@ -251,7 +305,7 @@ export function MesocycleCreate(): JSX.Element {
           />
         </div>
         <div>
-          <Label htmlFor="duration">Duration (Weeks)</Label>
+          <Label htmlFor="duration">Duration (Weeks, including deload)</Label>
           <Input
             id="duration"
             type="number"
@@ -262,542 +316,324 @@ export function MesocycleCreate(): JSX.Element {
           />
         </div>
         <div>
-          <Label htmlFor="daysPerWeek">Days per Week</Label>
-          <Select onValueChange={setDaysPerWeek} value={daysPerWeek}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select number" />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5].map((num) => (
-                <SelectItem key={num} value={`${num}`}>
-                  {num}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {daysPerWeek && (
-          <div>
-            <Label>Workout Days</Label>
-            <div className="space-y-2">
-              {daysOfWeek.map((day) => (
-                <div key={day} className="flex items-center">
-                  <Checkbox
-                    id={`day-${day}`}
-                    checked={workoutDays.includes(day)}
-                    onCheckedChange={(checked: boolean) => {
-                      setWorkoutDays((prev) =>
-                        checked
-                          ? [...prev, day]
-                          : prev.filter((d) => d !== day),
-                      );
-                    }}
-                  />
-                  <Label htmlFor={`day-${day}`} className="ml-2">
-                    {day}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div>
-          <Label>Exercises</Label>
+          <Label>Workout Days</Label>
           <div className="space-y-2">
-            {exercises.map((ex) => (
-              <div key={ex.id} className="flex items-center">
+            {daysOfWeek.map((day) => (
+              <div key={day} className="flex items-center">
                 <Checkbox
-                  id={`exercise-${ex.id}`}
-                  checked={selectedExercises.includes(ex.id)}
+                  id={`day-${day}`}
+                  checked={workoutDays.includes(day)}
                   onCheckedChange={(checked: boolean) => {
-                    setSelectedExercises((prev) =>
-                      checked
-                        ? [...prev, ex.id]
-                        : prev.filter((id) => id !== ex.id),
+                    setWorkoutDays((prev) =>
+                      checked ? [...prev, day] : prev.filter((d) => d !== day),
                     );
+                    setError(null); // Clear error on change
                   }}
                 />
-                <Label htmlFor={`exercise-${ex.id}`} className="ml-2">
-                  {ex.name} ({ex.type})
+                <Label htmlFor={`day-${day}`} className="ml-2">
+                  {day}
                 </Label>
               </div>
             ))}
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button type="button" variant="outline" className="w-full mt-2">
-                Add Custom Exercise
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Custom Exercise</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCustomExercise} className="space-y-4">
-                <div>
-                  <Label htmlFor="customName">Name</Label>
-                  <Input
-                    id="customName"
-                    value={customExerciseName}
-                    onChange={(e) => setCustomExerciseName(e.target.value)}
-                    placeholder="e.g., Incline DB Press"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="customMuscleGroup">Muscle Group</Label>
+        </div>
+        {workoutDays.length > 0 && (
+          <div>
+            <Label>Assign Exercises to Days</Label>
+            {workoutDays.map((day) => (
+              <div key={day} className="mt-4">
+                <h3 className="text-lg font-semibold">{day}</h3>
+                <div className="space-y-2 pl-4">
                   <Select
-                    onValueChange={setCustomMuscleGroup}
-                    value={customMuscleGroup}
+                    onValueChange={(exerciseId) => {
+                      handleAddExerciseToDay(day, exerciseId);
+                      setError(null);
+                    }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Muscle Group" />
+                      <SelectValue placeholder="Select an exercise to add" />
                     </SelectTrigger>
                     <SelectContent>
-                      {muscleGroups.map((mg) => (
-                        <SelectItem key={mg.id} value={mg.name}>
-                          {mg.name}
+                      {exercises.map((ex) => (
+                        <SelectItem key={ex.id} value={ex.id}>
+                          {ex.name} ({ex.type})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  <div className="space-y-1">
+                    {(dayExercises[day] || []).length === 0 ? (
+                      <p className="text-gray-500">No exercises assigned.</p>
+                    ) : (
+                      (dayExercises[day] || []).map((exerciseId) => {
+                        const exercise = exercises.find((ex) => ex.id === exerciseId);
+                        return (
+                          <div
+                            key={exerciseId}
+                            className="flex items-center justify-between bg-gray-100 p-2 rounded"
+                          >
+                            <span>{exercise?.name || 'Unknown Exercise'}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveExerciseFromDay(day, exerciseId)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                      </div>
+                        );
+                      })
+                  )}
+                  </div>
                 </div>
-                <Button type="submit">Save</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button type="submit" className="w-full">
-          Create
-        </Button>
-      </form>
-    </div>
-  );
-}
-```
-
-File: src/components/Workout/WorkoutCreate.tsx
-```
-import { useState, useEffect, type FormEvent, type JSX } from 'react';
-import { useNavigate, useLocation } from 'react-router';
-import { supabase } from '@/utils/supabase';
-import type { Tables, TablesInsert } from '@/types/supabase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { FeedbackDialog } from './FeedbackDialog';
-import type { Feedback } from '@/services/WorkoutService';
-
-interface ExerciseEntry {
-  exerciseId: string;
-  sets: { id?: string; reps: number; weight_kg?: number; rpe?: number }[];
-}
-
-export function WorkoutCreate(): JSX.Element {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const preselectedMesocycleId = (location.state as { mesocycleId?: string })
-    ?.mesocycleId;
-  const [name, setName] = useState<string>('');
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split('T')[0],
-  );
-  const [mesocycle, setMesocycle] = useState<Tables<'mesocycles'> | null>(null);
-  const [exerciseEntries, setExerciseEntries] = useState<ExerciseEntry[]>([]);
-  const [exercises, setExercises] = useState<
-    Array<{ id: string; name: string; type: 'global' | 'custom' }>
-  >([]);
-  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
-  const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(
-    null,
-  );
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState<
-    number | null
-  >(null);
-  const [feedback, setFeedback] = useState<Feedback>({
-    joint_pain: 'LOW',
-    pump: 'LOW',
-    workload: 'EASY',
-    performance: 1,
-  });
-  const [error, setError] = useState<string | null>(null);
-
-  const MAX_EXERCISES = 12;
-
-  useEffect(() => {
-    async function fetchData(): Promise<void> {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user?.id) {
-        setError('User not authenticated.');
-        return;
-      }
-
-      try {
-        if (preselectedMesocycleId) {
-          const { data: mesoData, error: mesoError } = await supabase
-            .from('mesocycles')
-            .select('*')
-            .eq('id', preselectedMesocycleId)
-            .eq('user_id', user.id)
-            .single();
-          if (mesoError) throw mesoError;
-          setMesocycle(mesoData);
-
-          const initialEntries = mesoData.exercise_ids.map((id: string) => ({
-            exerciseId: id,
-            sets: [{ reps: 0 }],
-          }));
-          setExerciseEntries(initialEntries);
-        }
-
-        const { data: globalExercises, error: geError } = await supabase
-          .from('exercises')
-          .select('id, name')
-          .eq('user_id', null as any);
-        if (geError) throw geError;
-
-        const { data: customExercises, error: ceError } = await supabase
-          .from('custom_exercises')
-          .select('id, name')
-          .eq('user_id', user.id);
-        if (ceError) throw ceError;
-
-        setExercises([
-          ...(globalExercises || []).map((e) => ({
-            ...e,
-            type: 'global' as const,
-          })),
-          ...(customExercises || []).map((e) => ({
-            ...e,
-            type: 'custom' as const,
-          })),
-        ]);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load data.');
-      }
-    }
-    fetchData();
-  }, [preselectedMesocycleId]);
-
-  const addExercise = (): void => {
-    if (exerciseEntries.length >= MAX_EXERCISES) {
-      setError('Cannot exceed 12 exercises per workout.');
-      return;
-    }
-    setExerciseEntries([
-      ...exerciseEntries,
-      { exerciseId: '', sets: [{ reps: 0 }] },
-    ]);
-  };
-
-  const updateExercise = (index: number, exerciseId: string): void => {
-    const newEntries = [...exerciseEntries];
-    newEntries[index] = { ...newEntries[index], exerciseId };
-    setExerciseEntries(newEntries);
-  };
-
-  const addSet = (exerciseIndex: number): void => {
-    const newEntries = [...exerciseEntries];
-    newEntries[exerciseIndex].sets.push({ reps: 0 });
-    setExerciseEntries(newEntries);
-  };
-
-  const updateSet = (
-    index: number,
-    setIndex: number,
-    field: 'reps' | 'weight_kg' | 'rpe',
-    value: number,
-  ): void => {
-    const newEntries = [...exerciseEntries];
-    newEntries[index].sets[setIndex] = {
-      ...newEntries[index].sets[setIndex],
-      [field]: value,
-    };
-    setExerciseEntries(newEntries);
-  };
-
-  const handleSaveSets = (exerciseIndex: number): void => {
-    setCurrentExerciseId(exerciseEntries[exerciseIndex].exerciseId);
-    setCurrentExerciseIndex(exerciseIndex);
-    setFeedbackOpen(true);
-  };
-
-  const handleSaveFeedback = async (): Promise<void> => {
-    if (!currentExerciseId || currentExerciseIndex === null) return;
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user?.id) {
-      setError('User not authenticated.');
-      return;
-    }
-
-    try {
-      const { data: weData, error: weError } = await supabase
-        .from('workout_exercises')
-        .select('id')
-        .eq('exercise_id', currentExerciseId)
-        .eq('workout_id', null as any)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      if (weError) throw weError;
-
-      const feedbackData: TablesInsert<'feedback'> = {
-        user_id: user.id,
-        workout_exercise_id: weData.id,
-        joint_pain: feedback.joint_pain,
-        pump: feedback.pump,
-        workload: feedback.workload,
-        performance: feedback.performance,
-      };
-
-      const { error: feedbackError } = await supabase
-        .from('feedback')
-        .insert(feedbackData);
-      if (feedbackError) throw feedbackError;
-
-      setFeedbackOpen(false);
-      setFeedback({
-        joint_pain: 'LOW',
-        pump: 'LOW',
-        workload: 'EASY',
-        performance: 1,
-      });
-      setCurrentExerciseId(null);
-      setCurrentExerciseIndex(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save feedback.');
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
-    setError(null);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user?.id) {
-      setError('User not authenticated.');
-      return;
-    }
-
-    if (exerciseEntries.length > MAX_EXERCISES) {
-      setError('Cannot exceed 12 exercises per workout.');
-      return;
-    }
-
-    const workoutData: TablesInsert<'workouts'> = {
-      name,
-      date,
-      mesocycle_id: mesocycle?.id || null,
-      user_id: user.id,
-    };
-
-    try {
-      const { data: workout, error: workoutError } = await supabase
-        .from('workouts')
-        .insert(workoutData)
-        .select()
-        .single();
-      if (workoutError) throw workoutError;
-
-      for (let i = 0; i < exerciseEntries.length; i++) {
-        const entry = exerciseEntries[i];
-        if (!entry.exerciseId) continue;
-
-        const workoutExerciseData: TablesInsert<'workout_exercises'> = {
-          workout_id: workout.id,
-          exercise_id: entry.exerciseId,
-          order_index: i,
-          user_id: user.id,
-        };
-
-        const { data: workoutExercise, error: weError } = await supabase
-          .from('workout_exercises')
-          .insert(workoutExerciseData)
-          .select()
-          .single();
-        if (weError) throw weError;
-
-        for (let j = 0; j < entry.sets.length; j++) {
-          const set = entry.sets[j];
-          const setData: TablesInsert<'workout_sets'> = {
-            workout_exercise_id: workoutExercise.id,
-            set_number: j + 1,
-            reps: set.reps,
-            weight_kg: set.weight_kg || null,
-            rpe: set.rpe || null,
-            user_id: user.id,
-          };
-
-          const { error: setError } = await supabase
-            .from('workout_sets')
-            .insert(setData);
-          if (setError) throw setError;
-        }
-      }
-
-      navigate('/workouts');
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create workout.',
-      );
-    }
-  };
-
-  return (
-    <div className="max-w-[390px] mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create Workout</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Week 1 Day 1"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="date">Date</Label>
-          <Input
-            id="date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </div>
-        <h2 className="text-xl font-semibold mt-4">Exercises</h2>
-        {exerciseEntries.map((entry, exerciseIndex) => (
-          <Card key={exerciseIndex} className="mb-4">
-            <CardHeader>
-              <CardTitle>
-                {exercises.find((e) => e.id === entry.exerciseId)?.name ||
-                  'Select Exercise'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-2">
-                <Label htmlFor={`exercise-${exerciseIndex}`}>Exercise</Label>
+              </div>
+            ))}
+          </div>
+        )}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button type="button" variant="outline" className="w-full mt-2">
+              Add Custom Exercise
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Custom Exercise</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCustomExercise} className="space-y-4">
+              <div>
+                <Label htmlFor="customName">Name</Label>
+                <Input
+                  id="customName"
+                  value={customExerciseName}
+                  onChange={(e) => setCustomExerciseName(e.target.value)}
+                  placeholder="e.g., Incline DB Press"
+                />
+              </div>
+              <div>
+                <Label htmlFor="customMuscleGroup">Muscle Group</Label>
                 <Select
-                  onValueChange={(value) =>
-                    updateExercise(exerciseIndex, value)
-                  }
-                  value={entry.exerciseId}
+                  onValueChange={setCustomMuscleGroup}
+                  value={customMuscleGroup}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Exercise" />
+                    <SelectValue placeholder="Select Muscle Group" />
                   </SelectTrigger>
                   <SelectContent>
-                    {exercises.map((exercise) => (
-                      <SelectItem key={exercise.id} value={exercise.id}>
-                        {exercise.name} ({exercise.type})
+                    {muscleGroups.map((mg) => (
+                      <SelectItem key={mg.id} value={mg.name}>
+                        {mg.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              {entry.sets.map((set, setIndex) => (
-                <div key={setIndex} className="space-y-2 mb-2">
-                  <Label>Set {setIndex + 1}</Label>
-                  <Input
-                    type="number"
-                    placeholder="Reps"
-                    value={set.reps}
-                    onChange={(e) =>
-                      updateSet(
-                        exerciseIndex,
-                        setIndex,
-                        'reps',
-                        parseInt(e.target.value, 10),
-                      )
-                    }
-                    min="0"
-                    required
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Weight (kg)"
-                    value={set.weight_kg || ''}
-                    onChange={(e) =>
-                      updateSet(
-                        exerciseIndex,
-                        setIndex,
-                        'weight_kg',
-                        parseFloat(e.target.value),
-                      )
-                    }
-                    min="0"
-                    step="0.1"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="RPE"
-                    value={set.rpe || ''}
-                    onChange={(e) =>
-                      updateSet(
-                        exerciseIndex,
-                        setIndex,
-                        'rpe',
-                        parseFloat(e.target.value),
-                      )
-                    }
-                    min="0"
-                    max="10"
-                    step="0.5"
-                  />
-                </div>
-              ))}
-              <Button
-                type="button"
-                onClick={() => addSet(exerciseIndex)}
-                variant="outline"
-                className="w-full mb-2"
-              >
-                Add Set
-              </Button>
-              <Button
-                type="button"
-                onClick={() => handleSaveSets(exerciseIndex)}
-                className="w-full"
-              >
-                Save Exercise
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-        <Button type="button" onClick={addExercise} className="w-full">
-          Add Exercise
-        </Button>
+              <Button type="submit">Save</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" className="w-full">
           Create
         </Button>
       </form>
-      <FeedbackDialog
-        open={feedbackOpen}
-        onOpenChange={setFeedbackOpen}
-        feedback={feedback}
-        setFeedback={setFeedback}
-        onSave={handleSaveFeedback}
-      />
     </div>
   );
 }
+```
+
+File: src/db/schema.sql
+```
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Drop existing tables with CASCADE to remove dependent objects
+DROP TABLE IF EXISTS workout_sets CASCADE;
+DROP TABLE IF EXISTS workout_exercises CASCADE;
+DROP TABLE IF EXISTS workouts CASCADE;
+DROP TABLE IF EXISTS exercises CASCADE;
+DROP TABLE IF EXISTS mesocycles CASCADE;
+DROP TABLE IF EXISTS feedback CASCADE;
+DROP TABLE IF EXISTS muscle_groups CASCADE;
+DROP TABLE IF EXISTS custom_exercises CASCADE;
+
+-- Create muscle_groups table
+CREATE TABLE muscle_groups (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create mesocycles table
+CREATE TABLE mesocycles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  goal TEXT NOT NULL,
+  duration_weeks INTEGER NOT NULL CHECK (duration_weeks > 0),
+  start_date DATE NOT NULL,
+  workout_days TEXT[] NOT NULL DEFAULT '{}',
+  exercise_ids UUID[] NOT NULL DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create exercises table
+CREATE TABLE exercises (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  muscle_group TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create custom_exercises table
+CREATE TABLE custom_exercises (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  muscle_group TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create workouts table
+CREATE TABLE workouts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  mesocycle_id UUID REFERENCES mesocycles(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create workout_exercises table
+CREATE TABLE workout_exercises (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  workout_id UUID REFERENCES workouts(id) ON DELETE CASCADE,
+  exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  order_index INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create workout_sets table
+CREATE TABLE workout_sets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  workout_exercise_id UUID REFERENCES workout_exercises(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  set_number INTEGER NOT NULL,
+  reps INTEGER NOT NULL,
+  weight_kg NUMERIC,
+  rpe NUMERIC CHECK (rpe >= 1 AND rpe <= 10),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create feedback table
+CREATE TABLE feedback (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  workout_exercise_id UUID REFERENCES workout_exercises(id) ON DELETE CASCADE,
+  joint_pain TEXT CHECK (joint_pain IN ('LOW', 'MODERATE', 'A_LOT')),
+  pump TEXT CHECK (pump IN ('LOW', 'MODERATE', 'AMAZING')),
+  workload TEXT CHECK (workload IN ('EASY', 'PRETTY_GOOD', 'PUSHED_LIMITS', 'TOO_MUCH')),
+  soreness TEXT CHECK (soreness IN ('NONE', 'SLIGHT', 'MODERATE', 'HIGH')),
+  performance INTEGER CHECK (performance >= 1 AND performance <= 4),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE mesocycles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
+ALTER TABLE custom_exercises ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workouts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workout_exercises ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workout_sets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE feedback ENABLE ROW LEVEL SECURITY;
+ALTER TABLE muscle_groups ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies for mesocycles
+CREATE POLICY mesocycles_select ON mesocycles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY mesocycles_insert ON mesocycles FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY mesocycles_update ON mesocycles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY mesocycles_delete ON mesocycles FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for exercises
+CREATE POLICY exercises_select ON exercises FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY exercises_insert ON exercises FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY exercises_update ON exercises FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY exercises_delete ON exercises FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for custom_exercises
+CREATE POLICY custom_exercises_select ON custom_exercises FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY custom_exercises_insert ON custom_exercises FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY custom_exercises_update ON custom_exercises FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY custom_exercises_delete ON custom_exercises FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for workouts
+CREATE POLICY workouts_select ON workouts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY workouts_insert ON workouts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY workouts_update ON workouts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY workouts_delete ON workouts FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for workout_exercises
+CREATE POLICY workout_exercises_select ON workout_exercises FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY workout_exercises_insert ON workout_exercises FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY workout_exercises_update ON workout_exercises FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY workout_exercises_delete ON workout_exercises FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for workout_sets
+CREATE POLICY workout_sets_select ON workout_sets FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY workout_sets_insert ON workout_sets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY workout_sets_update ON workout_sets FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY workout_sets_delete ON workout_sets FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for feedback
+CREATE POLICY feedback_select ON feedback FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY feedback_insert ON feedback FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY feedback_update ON feedback FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY feedback_delete ON feedback FOR DELETE USING (auth.uid() = user_id);
+
+-- Create RLS policies for muscle_groups
+CREATE POLICY muscle_groups_select ON muscle_groups FOR SELECT USING (true);
+CREATE POLICY muscle_groups_insert ON muscle_groups FOR INSERT WITH CHECK (auth.role() = 'admin');
+CREATE POLICY muscle_groups_update ON muscle_groups FOR UPDATE USING (auth.role() = 'admin');
+CREATE POLICY muscle_groups_delete ON muscle_groups FOR DELETE USING (auth.role() = 'admin');
+
+-- Create indexes for performance
+CREATE INDEX idx_mesocycles_user_id ON mesocycles(user_id);
+CREATE INDEX idx_exercises_user_id ON exercises(user_id);
+CREATE INDEX idx_custom_exercises_user_id ON custom_exercises(user_id);
+CREATE INDEX idx_workouts_user_id ON workouts(user_id);
+CREATE INDEX idx_workouts_mesocycle_id ON workouts(mesocycle_id);
+CREATE INDEX idx_workout_exercises_workout_id ON workout_exercises(workout_id);
+CREATE INDEX idx_workout_exercises_exercise_id ON workout_exercises(exercise_id);
+CREATE INDEX idx_workout_exercises_user_id ON workout_exercises(user_id);
+CREATE INDEX idx_workout_sets_workout_exercise_id ON workout_sets(workout_exercise_id);
+CREATE INDEX idx_workout_sets_user_id ON workout_sets(user_id);
+CREATE INDEX idx_feedback_workout_exercise_id ON feedback(workout_exercise_id);
+CREATE INDEX idx_feedback_user_id ON feedback(user_id);
+```
+
+File: src/db/seed.sql
+```
+-- Seed muscle_groups
+INSERT INTO muscle_groups (id, name) VALUES
+  ('550e8400-e29b-41d4-a716-446655440001', 'Chest'),
+  ('550e8400-e29b-41d4-a716-446655440002', 'Back'),
+  ('550e8400-e29b-41d4-a716-446655440003', 'Quads'),
+  ('550e8400-e29b-41d4-a716-446655440004', 'Hamstrings'),
+  ('550e8400-e29b-41d4-a716-446655440005', 'Shoulders'),
+  ('550e8400-e29b-41d4-a716-446655440006', 'Triceps'),
+  ('550e8400-e29b-41d4-a716-446655440007', 'Biceps');
+
+-- Seed exercises (global)
+INSERT INTO exercises (id, user_id, name, muscle_group) VALUES
+  ('550e8400-e29b-41d4-a716-446655440011', NULL, 'Bench Press', 'Chest'),
+  ('550e8400-e29b-41d4-a716-446655440012', NULL, 'Squat', 'Quads'),
+  ('550e8400-e29b-41d4-a716-446655440013', NULL, 'Deadlift', 'Back'),
+  ('550e8400-e29b-41d4-a716-446655440014', NULL, 'Overhead Press', 'Shoulders'),
+  ('550e8400-e29b-41d4-a716-446655440015', NULL, 'Barbell Row', 'Biceps');
 ```
 

@@ -35,7 +35,7 @@ export const navItems = [
   },
   {
     title: 'Mesocycles',
-    url: '/history',
+    url: '/mesocycles',
     icon: Calendar,
     ariaLabel: 'Navigate to Mesocycles',
     authRequired: true,
