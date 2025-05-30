@@ -5,7 +5,7 @@
     "yarn@1.22.22",
     "deno@2.2.12",
     "corepack@22.14.0",
-    "supabase-cli@2.23.1"
+    "supabase-cli@2.23.7"
   ],
   "env": {
     "NODE_ENV": "development"

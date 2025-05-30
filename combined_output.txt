@@ -1,117 +1,238 @@
-File: src/App.tsx
-```
-import {
-  Route,
-  createBrowserRouter,
-  createRoutesFromElements,
-} from 'react-router';
-import { LoginPage } from './Pages/LoginPage/LoginPage';
-import HomeLayout from './components/HomeLayout/HomeLayout';
-import HomePage from './Pages/HomePage/HomePage';
-import ProtectedLayout from './components/ProtectedLayout/ProtectedLayout';
-import SettingsPage from './Pages/SettingsPage/SettingsPage';
-import ProfilePage from './Pages/ProfilePage/ProfilePage';
-import { AuthLayout } from './components/AuthLayout/AuthLayout';
-import WorkoutHistory from './components/Workout/WorkoutDetail';
-import { CustomExercises } from './components/CustomExercises/CustomExercises';
-import Dashboard from './components/Dashboard/Dashboard';
-import { WorkoutProvider } from './components/WorkoutProvider';
-import { SupabaseAuthService } from './services/authService';
-import { MesocycleList } from './components/Mesocycle/MesocycleList';
-import { MesocycleCreate } from './components/Mesocycle/MesocycleCreate';
-import { MesocycleDetail } from './components/Mesocycle/MesocycleDetail';
-import { MesocycleEdit } from './components/Mesocycle/MesocycleEdit';
-import WorkoutList from './components/Workout/WorkoutList';
-import WorkoutEdit from './components/Workout/WorkoutEdit';
-import WorkoutDetail from './components/Workout/WorkoutDetail';
-import WorkoutCreate from './components/Workout/WorkoutCreate';
-
-export const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route
-      element={<AuthLayout />}
-      loader={() => ({ userPromise: SupabaseAuthService.getUserData() })}
-    >
-      <Route element={<HomeLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Route>
-      <Route
-        element={
-          <WorkoutProvider>
-            <ProtectedLayout />
-          </WorkoutProvider>
-        }
-      >
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/history" element={<WorkoutHistory />} />
-        <Route path="/templates" element={<div>Templates Page</div>} />
-        <Route path="/custom-exercises" element={<CustomExercises />} />
-        <Route path="/workouts" element={<WorkoutList />} />
-        <Route path="/workout/create" element={<WorkoutCreate />} />
-        <Route path="/workouts/:id" element={<WorkoutDetail />} />
-        <Route path="/workouts/:id/edit" element={<WorkoutEdit />} />
-        <Route path="/mesocycles" element={<MesocycleList />} />
-        <Route path="/mesocycles/create" element={<MesocycleCreate />} />
-        <Route path="/mesocycles/:id" element={<MesocycleDetail />} />
-        <Route path="/mesocycles/:id/edit" element={<MesocycleEdit />} />
-      </Route>
-    </Route>,
-  ),
-);
-
-export default router;
-```
-
 File: src/components/Mesocycle/MesocycleCreate.tsx
 ```
-import { useState, type FormEvent, type JSX } from 'react';
+import { useEffect, useState, type FormEvent, type JSX } from 'react';
 import { useNavigate } from 'react-router';
-import { supabase } from '../../utils/supabase';
-import type { TablesInsert } from '../../types/supabase';
+import { supabase } from '@/utils/supabase';
+import type { TablesInsert } from '@/types/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+interface Exercise {
+  id: string;
+  name: string;
+  type: 'global' | 'custom';
+}
+
+interface MuscleGroup {
+  id: string;
+  name: string;
+}
 
 export function MesocycleCreate(): JSX.Element {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [goal, setGoal] = useState('');
-  const [durationWeeks, setDurationWeeks] = useState('');
-  const [startDate, setStartDate] = useState('');
+  const [name, setName] = useState<string>('');
+  const [durationWeeks, setDurationWeeks] = useState<string>('');
+  const [daysPerWeek, setDaysPerWeek] = useState<string>('');
+  const [workoutDays, setWorkoutDays] = useState<string[]>([]);
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [customExerciseName, setCustomExerciseName] = useState<string>('');
+  const [customMuscleGroup, setCustomMuscleGroup] = useState<string>('');
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const daysOfWeek: string[] = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
+  const MAX_EXERCISES_PER_DAY = 12;
+
+  useEffect(() => {
+    async function fetchData(): Promise<void> {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user?.id) {
+        setError('User not authenticated.');
+        return;
+      }
+
+      try {
+        // Fetch global exercises
+        const { data: globalExercises, error: geError } = await supabase
+          .from('exercises')
+          .select('id, name')
+          .eq('user_id', null as any);
+        if (geError) throw geError;
+
+        // Fetch custom exercises
+        const { data: customExercises, error: ceError } = await supabase
+          .from('custom_exercises')
+          .select('id, name')
+          .eq('user_id', user.id);
+        if (ceError) throw ceError;
+
+        // Combine exercises
+        setExercises([
+          ...(globalExercises || []).map((e) => ({
+            ...e,
+            type: 'global' as const,
+          })),
+          ...(customExercises || []).map((e) => ({
+            ...e,
+            type: 'custom' as const,
+          })),
+        ]);
+
+        // Fetch muscle groups
+        const { data: mgData, error: mgError } = await supabase
+          .from('muscle_groups')
+          .select('id, name');
+        if (mgError) throw mgError;
+        setMuscleGroups(
+          (mgData || []).map((mg) => ({
+            id: mg.id.toString(),
+            name: mg.name,
+          })),
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data.');
+      }
+    }
+    fetchData();
+  }, []);
+
+  const handleCustomExercise = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    setError(null);
-
-    const user = (await supabase.auth.getUser()).data.user;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user?.id) {
       setError('User not authenticated.');
       return;
     }
 
-    const data: TablesInsert<'mesocycles'> = {
+    if (!customExerciseName || !customMuscleGroup) {
+      setError('Please provide a name and muscle group.');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('custom_exercises')
+        .insert({
+          name: customExerciseName,
+          muscle_group: customMuscleGroup,
+          user_id: user.id,
+        })
+        .select('id, name')
+        .single();
+      if (error) throw error;
+
+      setExercises([...exercises, { ...data, type: 'custom' as const }]);
+      setSelectedExercises([...selectedExercises, data.id.toString()]);
+      setCustomExerciseName('');
+      setCustomMuscleGroup('');
+      setDialogOpen(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to add custom exercise.',
+      );
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id) {
+      setError('User not authenticated.');
+      return;
+    }
+
+    if (!name || !durationWeeks || !daysPerWeek || workoutDays.length === 0) {
+      setError('Please fill all required fields.');
+      return;
+    }
+
+    const duration = parseInt(durationWeeks, 10);
+    const daysCount = parseInt(daysPerWeek, 10);
+    if (isNaN(duration) || isNaN(daysCount)) {
+      setError('Invalid duration or days per week.');
+      return;
+    }
+
+    if (workoutDays.length !== daysCount) {
+      setError(`Please select exactly ${daysCount} workout days.`);
+      return;
+    }
+
+    if (selectedExercises.length > daysCount * MAX_EXERCISES_PER_DAY) {
+      setError(
+        `Cannot exceed ${MAX_EXERCISES_PER_DAY} exercises per workout day.`,
+      );
+      return;
+    }
+
+    const mesocycleData: TablesInsert<'mesocycles'> = {
       name,
-      goal,
-      duration_weeks: parseInt(durationWeeks),
-      start_date: startDate,
+      duration_weeks: duration,
+      goal: 'Hypertrophy',
+      start_date: new Date().toISOString().split('T')[0]!,
       user_id: user.id,
+      workout_days: workoutDays,
+      exercise_ids: selectedExercises,
     };
 
     try {
-      const { error: supabaseError } = await supabase
+      const { data: mesocycle, error: mesoError } = await supabase
         .from('mesocycles')
-        .insert(data);
-      if (supabaseError) {
-        setError(supabaseError.message);
-        return;
+        .insert(mesocycleData)
+        .select()
+        .single();
+      if (mesoError) throw mesoError;
+
+      const workouts: TablesInsert<'workouts'>[] = [];
+      for (let week = 0; week < duration; week++) {
+        for (const day of workoutDays) {
+          const workoutDate = new Date(mesocycle.start_date);
+          workoutDate.setDate(
+            workoutDate.getDate() + week * 7 + daysOfWeek.indexOf(day),
+          );
+          workouts.push({
+            name: `${mesocycle.name} Week ${week + 1} ${day}`,
+            date: workoutDate.toISOString().split('T')[0]!,
+            mesocycle_id: mesocycle.id,
+            user_id: user.id,
+          });
+        }
       }
+
+      const { error: workoutError } = await supabase
+        .from('workouts')
+        .insert(workouts);
+      if (workoutError) throw workoutError;
+
       navigate('/mesocycles');
-    } catch (error) {
-      setError('Failed to create mesocycle.');
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to create mesocycle.',
+      );
     }
   };
 
@@ -130,16 +251,6 @@ export function MesocycleCreate(): JSX.Element {
           />
         </div>
         <div>
-          <Label htmlFor="goal">Goal</Label>
-          <Input
-            id="goal"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g., Build Strength"
-            required
-          />
-        </div>
-        <div>
           <Label htmlFor="duration">Duration (Weeks)</Label>
           <Input
             id="duration"
@@ -151,14 +262,109 @@ export function MesocycleCreate(): JSX.Element {
           />
         </div>
         <div>
-          <Label htmlFor="startDate">Start Date</Label>
-          <Input
-            id="startDate"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            required
-          />
+          <Label htmlFor="daysPerWeek">Days per Week</Label>
+          <Select onValueChange={setDaysPerWeek} value={daysPerWeek}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select number" />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <SelectItem key={num} value={`${num}`}>
+                  {num}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {daysPerWeek && (
+          <div>
+            <Label>Workout Days</Label>
+            <div className="space-y-2">
+              {daysOfWeek.map((day) => (
+                <div key={day} className="flex items-center">
+                  <Checkbox
+                    id={`day-${day}`}
+                    checked={workoutDays.includes(day)}
+                    onCheckedChange={(checked: boolean) => {
+                      setWorkoutDays((prev) =>
+                        checked
+                          ? [...prev, day]
+                          : prev.filter((d) => d !== day),
+                      );
+                    }}
+                  />
+                  <Label htmlFor={`day-${day}`} className="ml-2">
+                    {day}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div>
+          <Label>Exercises</Label>
+          <div className="space-y-2">
+            {exercises.map((ex) => (
+              <div key={ex.id} className="flex items-center">
+                <Checkbox
+                  id={`exercise-${ex.id}`}
+                  checked={selectedExercises.includes(ex.id)}
+                  onCheckedChange={(checked: boolean) => {
+                    setSelectedExercises((prev) =>
+                      checked
+                        ? [...prev, ex.id]
+                        : prev.filter((id) => id !== ex.id),
+                    );
+                  }}
+                />
+                <Label htmlFor={`exercise-${ex.id}`} className="ml-2">
+                  {ex.name} ({ex.type})
+                </Label>
+              </div>
+            ))}
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" variant="outline" className="w-full mt-2">
+                Add Custom Exercise
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Custom Exercise</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCustomExercise} className="space-y-4">
+                <div>
+                  <Label htmlFor="customName">Name</Label>
+                  <Input
+                    id="customName"
+                    value={customExerciseName}
+                    onChange={(e) => setCustomExerciseName(e.target.value)}
+                    placeholder="e.g., Incline DB Press"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="customMuscleGroup">Muscle Group</Label>
+                  <Select
+                    onValueChange={setCustomMuscleGroup}
+                    value={customMuscleGroup}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Muscle Group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {muscleGroups.map((mg) => (
+                        <SelectItem key={mg.id} value={mg.name}>
+                          {mg.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit">Save</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button type="submit" className="w-full">
@@ -170,234 +376,291 @@ export function MesocycleCreate(): JSX.Element {
 }
 ```
 
-File: src/components/Mesocycle/MesocycleDetail.tsx
+File: src/components/Workout/WorkoutCreate.tsx
 ```
-import { useEffect, useState, type JSX } from 'react';
-import { useParams, useNavigate } from 'react-router';
-import { supabase } from '../../utils/supabase';
-import { type Tables } from '../../types/supabase';
+import { useState, useEffect, type FormEvent, type JSX } from 'react';
+import { useNavigate, useLocation } from 'react-router';
+import { supabase } from '@/utils/supabase';
+import type { Tables, TablesInsert } from '@/types/supabase';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { FeedbackDialog } from './FeedbackDialog';
+import type { Feedback } from '@/services/WorkoutService';
 
-export function MesocycleDetail(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
+interface ExerciseEntry {
+  exerciseId: string;
+  sets: { id?: string; reps: number; weight_kg?: number; rpe?: number }[];
+}
+
+export function WorkoutCreate(): JSX.Element {
   const navigate = useNavigate();
+  const location = useLocation();
+  const preselectedMesocycleId = (location.state as { mesocycleId?: string })
+    ?.mesocycleId;
+  const [name, setName] = useState<string>('');
+  const [date, setDate] = useState<string>(
+    new Date().toISOString().split('T')[0],
+  );
   const [mesocycle, setMesocycle] = useState<Tables<'mesocycles'> | null>(null);
-  const [workouts, setWorkouts] = useState<Tables<'workouts'>[]>([]);
+  const [exerciseEntries, setExerciseEntries] = useState<ExerciseEntry[]>([]);
+  const [exercises, setExercises] = useState<
+    Array<{ id: string; name: string; type: 'global' | 'custom' }>
+  >([]);
+  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
+  const [currentExerciseId, setCurrentExerciseId] = useState<string | null>(
+    null,
+  );
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState<
+    number | null
+  >(null);
+  const [feedback, setFeedback] = useState<Feedback>({
+    joint_pain: 'LOW',
+    pump: 'LOW',
+    workload: 'EASY',
+    performance: 1,
+  });
   const [error, setError] = useState<string | null>(null);
+
+  const MAX_EXERCISES = 12;
 
   useEffect(() => {
     async function fetchData(): Promise<void> {
-      if (!id) {
-        setError('Invalid mesocycle ID.');
-        return;
-      }
-
-      const user = (await supabase.auth.getUser()).data.user;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user?.id) {
         setError('User not authenticated.');
         return;
       }
 
       try {
-        // Fetch mesocycle
-        const { data: mesocycleData, error: mesocycleError } = await supabase
-          .from('mesocycles')
-          .select('*')
-          .eq('id', id)
-          .eq('user_id', user.id)
-          .single();
-        if (mesocycleError) {
-          setError(mesocycleError.message);
-          return;
-        }
-        setMesocycle(mesocycleData);
+        if (preselectedMesocycleId) {
+          const { data: mesoData, error: mesoError } = await supabase
+            .from('mesocycles')
+            .select('*')
+            .eq('id', preselectedMesocycleId)
+            .eq('user_id', user.id)
+            .single();
+          if (mesoError) throw mesoError;
+          setMesocycle(mesoData);
 
-        // Fetch associated workouts
-        const { data: workoutsData, error: workoutsError } = await supabase
-          .from('workouts')
-          .select('*')
-          .eq('mesocycle_id', id)
-          .eq('user_id', user.id)
-          .order('date', { ascending: true });
-        if (workoutsError) {
-          setError(workoutsError.message);
-          return;
+          const initialEntries = mesoData.exercise_ids.map((id: string) => ({
+            exerciseId: id,
+            sets: [{ reps: 0 }],
+          }));
+          setExerciseEntries(initialEntries);
         }
-        setWorkouts(workoutsData || []);
-      } catch (error) {
-        setError('Failed to load mesocycle data.');
+
+        const { data: globalExercises, error: geError } = await supabase
+          .from('exercises')
+          .select('id, name')
+          .eq('user_id', null as any);
+        if (geError) throw geError;
+
+        const { data: customExercises, error: ceError } = await supabase
+          .from('custom_exercises')
+          .select('id, name')
+          .eq('user_id', user.id);
+        if (ceError) throw ceError;
+
+        setExercises([
+          ...(globalExercises || []).map((e) => ({
+            ...e,
+            type: 'global' as const,
+          })),
+          ...(customExercises || []).map((e) => ({
+            ...e,
+            type: 'custom' as const,
+          })),
+        ]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data.');
       }
     }
     fetchData();
-  }, [id]);
+  }, [preselectedMesocycleId]);
 
-  if (error) {
-    return (
-      <div className="max-w-[390px] mx-auto p-4">
-        <p className="text-red-500 text-sm">{error}</p>
-      </div>
-    );
-  }
-
-  if (!mesocycle) {
-    return (
-      <div className="max-w-[390px] mx-auto p-4">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-[390px] mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>{mesocycle.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>
-            <strong>Goal:</strong> {mesocycle.goal}
-          </p>
-          <p>
-            <strong>Duration:</strong> {mesocycle.duration_weeks} weeks
-          </p>
-          <p>
-            <strong>Start Date:</strong>{' '}
-            {new Date(mesocycle.start_date).toLocaleDateString()}
-          </p>
-          <h2 className="text-xl font-semibold mt-4 mb-2">Workouts</h2>
-          {workouts.length === 0 ? (
-            <p>No workouts in this mesocycle.</p>
-          ) : (
-            <ul className="space-y-2">
-              {workouts.map((workout) => (
-                <li key={workout.id}>
-                  <Button
-                    variant="link"
-                    onClick={() => navigate('/history')} // TODO: Replace with /workouts/:id when available
-                    className="p-0 text-left"
-                  >
-                    {workout.name} (
-                    {new Date(workout.date).toLocaleDateString()})
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="flex space-x-2 mt-4">
-            <Button
-              onClick={() => navigate(`/mesocycles/${mesocycle.id}/edit`)}
-              variant="outline"
-            >
-              Edit
-            </Button>
-            <Button onClick={() => navigate('/mesocycles')} variant="secondary">
-              Back to List
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-```
-
-File: src/components/Mesocycle/MesocycleEdit.tsx
-```
-import { useState, type FormEvent, useEffect, type JSX } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import { supabase } from '../../utils/supabase';
-import { type TablesUpdate } from '../../types/supabase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-export function MesocycleEdit(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [goal, setGoal] = useState('');
-  const [durationWeeks, setDurationWeeks] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (id) {
-      async function fetchMesocycle(): Promise<void> {
-        const user = (await supabase.auth.getUser()).data.user;
-        if (!user?.id) {
-          setError('User not authenticated.');
-          return;
-        }
-
-        try {
-          const { data, error: supabaseError } = await supabase
-            .from('mesocycles')
-            .select('*')
-            .eq('id', id)
-            .eq('user_id', user.id)
-            .single();
-          if (supabaseError) {
-            setError(supabaseError.message);
-            return;
-          }
-          if (data) {
-            setName(data.name);
-            setGoal(data.goal);
-            setDurationWeeks(data.duration_weeks.toString());
-            setStartDate(data.start_date);
-          }
-        } catch (error) {
-          setError('Failed to load mesocycle.');
-        }
-      }
-      fetchMesocycle();
-    }
-  }, [id]);
-
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
-    setError(null);
-
-    if (!id) {
-      setError('Invalid mesocycle ID.');
+  const addExercise = (): void => {
+    if (exerciseEntries.length >= MAX_EXERCISES) {
+      setError('Cannot exceed 12 exercises per workout.');
       return;
     }
+    setExerciseEntries([
+      ...exerciseEntries,
+      { exerciseId: '', sets: [{ reps: 0 }] },
+    ]);
+  };
 
-    const user = (await supabase.auth.getUser()).data.user;
+  const updateExercise = (index: number, exerciseId: string): void => {
+    const newEntries = [...exerciseEntries];
+    newEntries[index] = { ...newEntries[index], exerciseId };
+    setExerciseEntries(newEntries);
+  };
+
+  const addSet = (exerciseIndex: number): void => {
+    const newEntries = [...exerciseEntries];
+    newEntries[exerciseIndex].sets.push({ reps: 0 });
+    setExerciseEntries(newEntries);
+  };
+
+  const updateSet = (
+    index: number,
+    setIndex: number,
+    field: 'reps' | 'weight_kg' | 'rpe',
+    value: number,
+  ): void => {
+    const newEntries = [...exerciseEntries];
+    newEntries[index].sets[setIndex] = {
+      ...newEntries[index].sets[setIndex],
+      [field]: value,
+    };
+    setExerciseEntries(newEntries);
+  };
+
+  const handleSaveSets = (exerciseIndex: number): void => {
+    setCurrentExerciseId(exerciseEntries[exerciseIndex].exerciseId);
+    setCurrentExerciseIndex(exerciseIndex);
+    setFeedbackOpen(true);
+  };
+
+  const handleSaveFeedback = async (): Promise<void> => {
+    if (!currentExerciseId || currentExerciseIndex === null) return;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user?.id) {
       setError('User not authenticated.');
       return;
     }
 
-    const data: TablesUpdate<'mesocycles'> = {
+    try {
+      const { data: weData, error: weError } = await supabase
+        .from('workout_exercises')
+        .select('id')
+        .eq('exercise_id', currentExerciseId)
+        .eq('workout_id', null as any)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (weError) throw weError;
+
+      const feedbackData: TablesInsert<'feedback'> = {
+        user_id: user.id,
+        workout_exercise_id: weData.id,
+        joint_pain: feedback.joint_pain,
+        pump: feedback.pump,
+        workload: feedback.workload,
+        performance: feedback.performance,
+      };
+
+      const { error: feedbackError } = await supabase
+        .from('feedback')
+        .insert(feedbackData);
+      if (feedbackError) throw feedbackError;
+
+      setFeedbackOpen(false);
+      setFeedback({
+        joint_pain: 'LOW',
+        pump: 'LOW',
+        workload: 'EASY',
+        performance: 1,
+      });
+      setCurrentExerciseId(null);
+      setCurrentExerciseIndex(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save feedback.');
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
+    e.preventDefault();
+    setError(null);
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id) {
+      setError('User not authenticated.');
+      return;
+    }
+
+    if (exerciseEntries.length > MAX_EXERCISES) {
+      setError('Cannot exceed 12 exercises per workout.');
+      return;
+    }
+
+    const workoutData: TablesInsert<'workouts'> = {
       name,
-      goal,
-      duration_weeks: parseInt(durationWeeks),
-      start_date: startDate,
+      date,
+      mesocycle_id: mesocycle?.id || null,
       user_id: user.id,
     };
 
     try {
-      const { error: supabaseError } = await supabase
-        .from('mesocycles')
-        .update(data)
-        .eq('id', id)
-        .eq('user_id', user.id);
-      if (supabaseError) {
-        setError(supabaseError.message);
-        return;
+      const { data: workout, error: workoutError } = await supabase
+        .from('workouts')
+        .insert(workoutData)
+        .select()
+        .single();
+      if (workoutError) throw workoutError;
+
+      for (let i = 0; i < exerciseEntries.length; i++) {
+        const entry = exerciseEntries[i];
+        if (!entry.exerciseId) continue;
+
+        const workoutExerciseData: TablesInsert<'workout_exercises'> = {
+          workout_id: workout.id,
+          exercise_id: entry.exerciseId,
+          order_index: i,
+          user_id: user.id,
+        };
+
+        const { data: workoutExercise, error: weError } = await supabase
+          .from('workout_exercises')
+          .insert(workoutExerciseData)
+          .select()
+          .single();
+        if (weError) throw weError;
+
+        for (let j = 0; j < entry.sets.length; j++) {
+          const set = entry.sets[j];
+          const setData: TablesInsert<'workout_sets'> = {
+            workout_exercise_id: workoutExercise.id,
+            set_number: j + 1,
+            reps: set.reps,
+            weight_kg: set.weight_kg || null,
+            rpe: set.rpe || null,
+            user_id: user.id,
+          };
+
+          const { error: setError } = await supabase
+            .from('workout_sets')
+            .insert(setData);
+          if (setError) throw setError;
+        }
       }
-      navigate('/mesocycles');
-    } catch (error) {
-      setError('Failed to update mesocycle.');
+
+      navigate('/workouts');
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to create workout.',
+      );
     }
   };
 
   return (
     <div className="max-w-[390px] mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Mesocycle</h1>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <h1 className="text-2xl font-bold mb-4">Create Workout</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="name">Name</Label>
@@ -405,212 +668,136 @@ export function MesocycleEdit(): JSX.Element {
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g., Strength Block 1"
+            placeholder="e.g., Week 1 Day 1"
             required
           />
         </div>
         <div>
-          <Label htmlFor="goal">Goal</Label>
+          <Label htmlFor="date">Date</Label>
           <Input
-            id="goal"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            placeholder="e.g., Build Strength"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="duration">Duration (Weeks)</Label>
-          <Input
-            id="duration"
-            type="number"
-            value={durationWeeks}
-            onChange={(e) => setDurationWeeks(e.target.value)}
-            min="1"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="startDate">Start Date</Label>
-          <Input
-            id="startDate"
+            id="date"
             type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
             required
           />
         </div>
-        <Button type="submit" className="w-full">
-          Update
-        </Button>
-      </form>
-    </div>
-  );
-}
-```
-
-File: src/components/Mesocycle/MesocycleList.tsx
-```
-import { useEffect, useState, type JSX } from 'react';
-import { useNavigate } from 'react-router';
-import { supabase } from '../../utils/supabase';
-import type { Tables } from '../../types/supabase';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-export function MesocycleList(): JSX.Element {
-  const navigate = useNavigate();
-  const [mesocycles, setMesocycles] = useState<Tables<'mesocycles'>[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchMesocycles(): Promise<void> {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user?.id) {
-        setError('User not authenticated.');
-        return;
-      }
-
-      try {
-        const { data, error: supabaseError } = await supabase
-          .from('mesocycles')
-          .select('*')
-          .eq('user_id', user.id);
-        if (supabaseError) {
-          setError(supabaseError.message);
-          return;
-        }
-        setMesocycles(data || []);
-      } catch (error) {
-        setError('Failed to load mesocycles.');
-      }
-    }
-    fetchMesocycles();
-  }, []);
-
-  const handleDelete = async (id: string): Promise<void> => {
-    try {
-      const { error: supabaseError } = await supabase
-        .from('mesocycles')
-        .delete()
-        .eq('id', id);
-      if (supabaseError) {
-        setError(supabaseError.message);
-        return;
-      }
-      setMesocycles(mesocycles.filter((m) => m.id !== id));
-    } catch (error) {
-      setError('Failed to delete mesocycle.');
-    }
-  };
-
-  return (
-    <div className="max-w-[390px] mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Mesocycles</h1>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {mesocycles.length === 0 && !error && <p>No mesocycles found.</p>}
-      <div className="space-y-4">
-        {mesocycles.map((mesocycle) => (
-          <Card key={mesocycle.id}>
+        <h2 className="text-xl font-semibold mt-4">Exercises</h2>
+        {exerciseEntries.map((entry, exerciseIndex) => (
+          <Card key={exerciseIndex} className="mb-4">
             <CardHeader>
-              <CardTitle>{mesocycle.name}</CardTitle>
+              <CardTitle>
+                {exercises.find((e) => e.id === entry.exerciseId)?.name ||
+                  'Select Exercise'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Goal: {mesocycle.goal}</p>
-              <p>Duration: {mesocycle.duration_weeks} weeks</p>
-              <p>
-                Start: {new Date(mesocycle.start_date).toLocaleDateString()}
-              </p>
-              <div className="flex space-x-2 mt-2">
-                <Button
-                  onClick={() => navigate(`/mesocycles/${mesocycle.id}`)}
-                  variant="outline"
+              <div className="mb-2">
+                <Label htmlFor={`exercise-${exerciseIndex}`}>Exercise</Label>
+                <Select
+                  onValueChange={(value) =>
+                    updateExercise(exerciseIndex, value)
+                  }
+                  value={entry.exerciseId}
                 >
-                  View
-                </Button>
-                <Button
-                  onClick={() => navigate(`/mesocycles/${mesocycle.id}/edit`)}
-                  variant="outline"
-                >
-                  Edit
-                </Button>
-                <Button
-                  onClick={() => handleDelete(mesocycle.id)}
-                  variant="destructive"
-                >
-                  Delete
-                </Button>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Exercise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {exercises.map((exercise) => (
+                      <SelectItem key={exercise.id} value={exercise.id}>
+                        {exercise.name} ({exercise.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              {entry.sets.map((set, setIndex) => (
+                <div key={setIndex} className="space-y-2 mb-2">
+                  <Label>Set {setIndex + 1}</Label>
+                  <Input
+                    type="number"
+                    placeholder="Reps"
+                    value={set.reps}
+                    onChange={(e) =>
+                      updateSet(
+                        exerciseIndex,
+                        setIndex,
+                        'reps',
+                        parseInt(e.target.value, 10),
+                      )
+                    }
+                    min="0"
+                    required
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Weight (kg)"
+                    value={set.weight_kg || ''}
+                    onChange={(e) =>
+                      updateSet(
+                        exerciseIndex,
+                        setIndex,
+                        'weight_kg',
+                        parseFloat(e.target.value),
+                      )
+                    }
+                    min="0"
+                    step="0.1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="RPE"
+                    value={set.rpe || ''}
+                    onChange={(e) =>
+                      updateSet(
+                        exerciseIndex,
+                        setIndex,
+                        'rpe',
+                        parseFloat(e.target.value),
+                      )
+                    }
+                    min="0"
+                    max="10"
+                    step="0.5"
+                  />
+                </div>
+              ))}
+              <Button
+                type="button"
+                onClick={() => addSet(exerciseIndex)}
+                variant="outline"
+                className="w-full mb-2"
+              >
+                Add Set
+              </Button>
+              <Button
+                type="button"
+                onClick={() => handleSaveSets(exerciseIndex)}
+                className="w-full"
+              >
+                Save Exercise
+              </Button>
             </CardContent>
           </Card>
         ))}
-      </div>
-      <Button
-        onClick={() => navigate('/mesocycles/create')}
-        className="w-full mt-4"
-      >
-        Create New Mesocycle
-      </Button>
+        <Button type="button" onClick={addExercise} className="w-full">
+          Add Exercise
+        </Button>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <Button type="submit" className="w-full">
+          Create
+        </Button>
+      </form>
+      <FeedbackDialog
+        open={feedbackOpen}
+        onOpenChange={setFeedbackOpen}
+        feedback={feedback}
+        setFeedback={setFeedback}
+        onSave={handleSaveFeedback}
+      />
     </div>
   );
 }
-```
-
-File: src/components/Workout/WorkoutCreate.tsx
-```
-const WorkoutCreate = () => {
-  return (
-    <div>
-      <h1>Create Workout</h1>
-      {/* Add your form or components for creating a workout here */}
-    </div>
-  );
-}
-export default WorkoutCreate;
-// This is a placeholder component for creating a workout.
-```
-
-File: src/components/Workout/WorkoutDetail.tsx
-```
-const WorkoutDetail = () => {
-  return (
-    <div>
-      <h1>Workout Detail</h1>
-      <p>This is the workout detail page.</p>
-      {/* Add more details about the workout here */}
-    </div>
-  );
-}
-export default WorkoutDetail;
-// This component is a placeholder for the workout detail page.
-```
-
-File: src/components/Workout/WorkoutEdit.tsx
-```
-const WorkoutEdit = () => {
-  return (
-    <div>
-      <h1>Edit Workout</h1>
-      {/* Add your workout edit form or components here */}
-    </div>
-  );
-}
-export default WorkoutEdit;
-// This is a placeholder component for editing a workout.
-```
-
-File: src/components/Workout/WorkoutList.tsx
-```
-const WorkoutList = () => {
-  return (
-    <div>
-      <h1>Workout List</h1>
-      <p>This is where the list of workouts will be displayed.</p>
-      {/* Add your workout list rendering logic here */}
-    </div>
-  );
-}
-export default WorkoutList;
-// This component is a placeholder for the workout list page.
 ```
 

@@ -29,7 +29,9 @@ export function MesocycleList(): JSX.Element {
         }
         setMesocycles(data || []);
       } catch (error) {
-        setError('Failed to load mesocycles.');
+        setError(
+          error instanceof Error ? error.message : 'Failed to load mesocycles.',
+        );
       }
     }
     fetchMesocycles();
@@ -47,7 +49,9 @@ export function MesocycleList(): JSX.Element {
       }
       setMesocycles(mesocycles.filter((m) => m.id !== id));
     } catch (error) {
-      setError('Failed to delete mesocycle.');
+      setError(
+        error instanceof Error ? error.message : 'Failed to delete mesocycle.',
+      );
     }
   };
 

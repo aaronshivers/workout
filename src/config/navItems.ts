@@ -56,7 +56,7 @@ export const navItems = [
   },
   {
     title: 'Plan a New Mesocycle',
-    url: '/create-workout',
+    url: '/mesocycles/create',
     icon: Calendar,
     ariaLabel: 'Navigate to Plan a New Mesocycle',
     authRequired: true,

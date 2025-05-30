@@ -10,6 +10,9 @@ export function MesocycleDetail(): JSX.Element {
   const navigate = useNavigate();
   const [mesocycle, setMesocycle] = useState<Tables<'mesocycles'> | null>(null);
   const [workouts, setWorkouts] = useState<Tables<'workouts'>[]>([]);
+  const [exercises, setExercises] = useState<
+    Array<{ id: string; name: string; type: 'global' | 'custom' }>
+  >([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,8 +54,44 @@ export function MesocycleDetail(): JSX.Element {
           return;
         }
         setWorkouts(workoutsData || []);
+
+        // Fetch exercises
+        const { data: globalExercises, error: geError } = await supabase
+          .from('exercises')
+          .select('id, name')
+          .in('id', mesocycleData.exercise_ids)
+          .eq('user_id', user.id);
+        if (geError) {
+          setError(geError.message);
+          return;
+        }
+
+        const { data: customExercises, error: ceError } = await supabase
+          .from('custom_exercises')
+          .select('id, name')
+          .in('id', mesocycleData.exercise_ids)
+          .eq('user_id', user.id);
+        if (ceError) {
+          setError(ceError.message);
+          return;
+        }
+
+        setExercises([
+          ...(globalExercises || []).map((e) => ({
+            ...e,
+            type: 'global' as const,
+          })),
+          ...(customExercises || []).map((e) => ({
+            ...e,
+            type: 'custom' as const,
+          })),
+        ]);
       } catch (error) {
-        setError('Failed to load mesocycle data.');
+        setError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to load mesocycle data.',
+        );
       }
     }
     fetchData();
@@ -91,6 +130,21 @@ export function MesocycleDetail(): JSX.Element {
             <strong>Start Date:</strong>{' '}
             {new Date(mesocycle.start_date).toLocaleDateString()}
           </p>
+          <p>
+            <strong>Workout Days:</strong> {mesocycle.workout_days.join(', ')}
+          </p>
+          <h2 className="text-xl font-semibold mt-4 mb-2">Exercises</h2>
+          {exercises.length === 0 ? (
+            <p>No exercises selected.</p>
+          ) : (
+            <ul className="space-y-2">
+              {exercises.map((exercise) => (
+                <li key={exercise.id}>
+                  {exercise.name} ({exercise.type})
+                </li>
+              ))}
+            </ul>
+          )}
           <h2 className="text-xl font-semibold mt-4 mb-2">Workouts</h2>
           {workouts.length === 0 ? (
             <p>No workouts in this mesocycle.</p>
@@ -100,7 +154,7 @@ export function MesocycleDetail(): JSX.Element {
                 <li key={workout.id}>
                   <Button
                     variant="link"
-                    onClick={() => navigate('/history')} // TODO: Replace with /workouts/:id when available
+                    onClick={() => navigate(`/workouts/${workout.id}`)}
                     className="p-0 text-left"
                   >
                     {workout.name} (
@@ -110,6 +164,14 @@ export function MesocycleDetail(): JSX.Element {
               ))}
             </ul>
           )}
+          <Button
+            onClick={() =>
+              navigate('/workout/create', { state: { mesocycleId: id } })
+            }
+            className="w-full mt-4"
+          >
+            Create Workout
+          </Button>
           <div className="flex space-x-2 mt-4">
             <Button
               onClick={() => navigate(`/mesocycles/${mesocycle.id}/edit`)}

@@ -18,10 +18,10 @@ import { MesocycleList } from './components/Mesocycle/MesocycleList';
 import { MesocycleCreate } from './components/Mesocycle/MesocycleCreate';
 import { MesocycleDetail } from './components/Mesocycle/MesocycleDetail';
 import { MesocycleEdit } from './components/Mesocycle/MesocycleEdit';
-import WorkoutList from './components/Workout/WorkoutList';
-import WorkoutEdit from './components/Workout/WorkoutEdit';
-import WorkoutDetail from './components/Workout/WorkoutDetail';
-import WorkoutCreate from './components/Workout/WorkoutCreate';
+import { WorkoutList } from './components/Workout/WorkoutList';
+import { WorkoutEdit } from './components/Workout/WorkoutEdit';
+import { WorkoutDetail } from './components/Workout/WorkoutDetail';
+import { WorkoutCreate } from './components/Workout/WorkoutCreate';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
